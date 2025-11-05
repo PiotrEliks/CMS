@@ -1,5 +1,6 @@
 import { Sequelize, SyncOptions } from 'sequelize';
 import { sequelize } from './sequelize.js';
+import { setupAssociations } from '../models/index.js';
 
 import '../models/user.model.js';
 
@@ -13,6 +14,7 @@ export async function initDatabase(opts: InitDbOptions = {}) {
     opts.sync ??
     (process.env.NODE_ENV === 'production' ? false : { alter: true });
 
+  setupAssociations();
   await sequelize.authenticate();
   if (syncOpt) {
     await sequelize.sync(typeof syncOpt === 'object' ? syncOpt : undefined);
