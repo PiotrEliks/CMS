@@ -12,7 +12,12 @@ import siteRouter from './routes/site/index.js';
 
 const app = express();
 
-app.use(cors());
+const CORS_ORIGIN = process.env.CORS_ORIGIN;
+
+app.use(cors({
+  origin: CORS_ORIGIN,
+  credentials: true,
+}));
 app.use(cookieParser());
 app.use(express.json({ type: ['application/json', 'application/*+json'] }));
 app.use(express.urlencoded({ extended: true }));
