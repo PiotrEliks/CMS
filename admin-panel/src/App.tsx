@@ -1,35 +1,45 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect } from 'react';
+import { Route, Routes, useLocation, Navigate } from 'react-router-dom';
+import { useAuth } from './store/auth';
+import ProtectedRoute from './components/ProtectedRoute';
+import HomePage from './pages/Dashboard/Home';
+import { attach401Interceptor } from './api/axios';
+import { ScrollToTop } from './components/common/ScrollToTop';
+import AppLayout from './layout/AppLayout';
+import SignIn from './pages/AuthPages/SignIn';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const { checkAuth, user } = useAuth();
+  const location = useLocation();
+
+  useEffect(() => {
+    checkAuth();
+    attach401Interceptor(() => {
+      window.location.href = '/login';
+    });
+  }, []);
+
+  if (location.pathname === '/login' && user) {
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <ScrollToTop />
+      <Routes>
+        <Route element={<AppLayout />}>
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <HomePage />
+              </ProtectedRoute>
+            }
+          />
+        </Route>
+        <Route path="/login" element={<SignIn />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </>
-  )
+  );
 }
-
-export default App
