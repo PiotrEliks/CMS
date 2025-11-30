@@ -1,0 +1,197 @@
+@startuml
+title CMS - Diagram Klas
+
+package "Modele danych" {
+  class Content {
+    +content_id: UUID
+    +type: String
+    +status: String
+    +slug: String
+    +title: String
+    +lead: Text
+    +body: Text
+    +cover_media_id: UUID
+    +author: String
+    +published_at: Date
+    +created_by: UUID
+    +updated_by: UUID
+    +meta_title: String
+    +meta_description: String
+    +created_at: Date
+    +updated_at: Date
+    --
+    +setSlug(value: String): void
+    +publish(by: UUID): void
+    +unpublish(by: UUID): void
+    +addMedia(mediaId: UUID): void
+    +removeMedia(mediaId: UUID): void
+  }
+
+  class Category {
+    +category_id: UUID
+    +display_name: String
+    +slug: String
+    +path: String
+    +created_at: Date
+    +updated_at: Date
+  }
+
+  class Media {
+    +media_id: UUID
+    +storage_path: String
+    +mime_type: String
+    +width: Integer
+    +height: Integer
+    +alt_text: String
+    +title: String
+    +created_at: Date
+    --
+    +getUrl(): String
+    +delete(): void
+  }
+
+  class User {
+    +user_id: UUID
+    +email: String
+    +password_hash: String
+    +display_name: String
+    +role_id: UUID
+    +is_active: Boolean
+    +email_verified: Boolean
+    +last_access: Date
+    +created_at: Date
+    +updated_at: Date
+    --
+    +setPassword(plain: String): Promise<void>
+    +verifyPassword(plain: String): Promise<Boolean>
+    +activate(): void
+    +deactivate(): void
+    +setRole(roleId: UUID): void
+  }
+
+  class Role {
+    +role_id: UUID
+    +type: String
+    +display_name: String
+  }
+
+  class Menu {
+    +menu_id: UUID
+    +code: String
+    +name: String
+  }
+
+  class MenuItem {
+    +menu_item_id: UUID
+    +label: String
+    +content_id: UUID
+    +order_index: Integer
+    +parent_id: UUID
+    +menu_id: UUID
+  }
+
+  class KeyValue {
+    +key: String
+    +value: String
+    +description: String
+  }
+
+  interface ISluggable {
+    +setSlug(value: String): void
+    +getSlug(): Promise<String>
+  }
+}
+
+
+package "Serwisy"{
+   interface IRepository<T>
+  abstract class BaseService<T> {
+    +create(dto): Promise<T>
+    +update(id, dto): Promise<T>
+    +getById(id): Promise<T>
+    +list(query): Promise<any>
+    +delete(id): Promise<void>
+  }
+  class ContentService {
+    +create(dto, by): Promise<ContentDTO>
+    +update(id, dto, by): Promise<ContentDTO>
+    +getBySlug(slug, previewToken?): Promise<ContentDTO>
+    +list(query): Promise<ContentDTO[]>
+    +publish(id, by): Promise<ContentDTO>
+  }
+
+  class UserService {
+    +createUser(dto, by): Promise<User>
+    +updateUser(id, dto, by): Promise<User>
+    +requestPasswordReset(email): Promise<void>
+    +resetPassword(token, newPassword): Promise<void>
+    +assignRole(userId, roleId): Promise<void>
+    +createRole(type, displayName, by): Promise<Role>
+    +deleteRole(roleId, by): Promise<void>
+  }
+
+  class MediaService {
+    +upload(file, meta, by): Promise<Media>
+    +delete(mediaId, by): Promise<void>
+  }
+  
+  class CategoryService {
+    +createCategory(dto, by): Promise<Category>
+    +updateCategory(id, dto, by): Promise<Category>
+    +deleteCategory(id, by): Promise<void>
+    +attachContent(categoryId, contentId): Promise<void>
+  }
+
+  class MenuService {
+    +createMenu(dto, by): Promise<Menu>
+    +updateMenu(id, dto, by): Promise<Menu>
+    +deleteMenu(id, by): Promise<void>
+    +addMenuItem(menuId, dto, by): Promise<MenuItem>
+    +updateMenuItem(itemId, dto, by): Promise<MenuItem>
+    +reorderMenu(menuId, items: Array): Promise<void>
+  }
+
+  class RoleService {
+    +createRole(type, displayName): Promise<Role>
+    +updateRole(id, dto): Promise<Role>
+    +deleteRole(id): Promise<void>
+    +listRoles(): Promise<Role[]>
+  }
+}
+
+
+Content "1" -- "*" Category : categories (M:N)
+Content "1" -- "*" Media : media (M:N)
+Content "1" o-- "0..1" Media : cover
+User "1" -- "*" Content : created/updated
+Role "1" -- "*" User : role
+Menu "1" -- "*" MenuItem : items
+MenuItem "0..1" -- "*" MenuItem : parent/children
+
+ContentService ..> Content
+ContentService ..> Media
+ContentService ..> Category
+
+UserService ..> User
+UserService ..> Role
+UserService ..> RoleService
+
+MediaService ..> Media
+CategoryService ..> Category
+MenuService ..> Menu
+MenuService ..> MenuItem
+RoleService ..> Role
+\
+ContentService --|> BaseService
+CategoryService --|> BaseService
+MediaService --|> BaseService
+MenuService --|> BaseService
+UserService --|> BaseService
+RoleService --|> BaseService
+
+Content ..|> ISluggable
+Category ..|> ISluggable
+
+BaseService ..> IRepository
+
+@enduml
