@@ -2,9 +2,19 @@ import { create } from 'zustand';
 import { api } from '../api/axios';
 
 type User = {
-  id: string;
+  user_id: string;
   email: string;
-  role: string;
+  role: Role;
+  display_name?: string;
+  last_access?: string;
+};
+
+type Role = {
+  role_id: string;
+  display_name: string;
+  type?: string;
+  created_at?: string;
+  updated_at?: string;
 };
 
 type AuthState = {
@@ -19,7 +29,7 @@ type AuthState = {
 
 export const useAuth = create<AuthState>((set) => ({
   user: null,
-  loading: false,
+  loading: true,
   error: null,
 
   clearError: () => set({ error: null }),

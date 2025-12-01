@@ -1,0 +1,12 @@
+import { Router } from 'express';
+import { requireAuth } from '../../middlewares/auth.middleware.js';
+import * as UsersController from '../../controllers/site/users.controller.js';
+
+const router = Router();
+
+router.get('/', requireAuth, UsersController.getUsers);
+router.get('/:id', requireAuth, UsersController.getUser);
+router.post('/add', requireAuth, UsersController.addUser);
+router.put('/:id', requireAuth, UsersController.updateUser);
+
+export default router;

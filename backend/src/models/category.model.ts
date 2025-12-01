@@ -7,6 +7,7 @@ export class Category extends Model<InferAttributes<Category>, InferCreationAttr
   declare display_name: string;
   declare slug: string;
   declare path: string | null;
+  declare status: boolean;
   declare created_at: CreationOptional<Date>;
   declare updated_at: CreationOptional<Date>;
 }
@@ -18,6 +19,7 @@ Category.init(
     display_name: { type: DataTypes.STRING(255), allowNull: false },
     slug: { type: DataTypes.STRING(255), allowNull: false, unique: true },
     path: { type: DataTypes.STRING(1024) },
+    status: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
     created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
     updated_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW }
   },
