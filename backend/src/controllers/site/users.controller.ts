@@ -94,3 +94,17 @@ export const updateUser = asyncHandler(async (req: Request, res: Response) => {
 
   return res.status(200).json({ user: updatedUser });
 });
+
+export const deleteUser = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  const user = await User.findByPk(id);
+
+  if (!user) {
+    return res.status(404).json({ error: 'Użytkownik nie został znaleziony' });
+  }
+
+  await user.destroy();
+
+  return res.status(200).json({ success: true });
+});

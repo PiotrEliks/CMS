@@ -17,20 +17,20 @@ export default function UserFormModal({ open, onClose, userToEdit }: Props) {
   const [email, setEmail] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [password, setPassword] = useState("");
-  const [roleId, setRoleId] = useState("");
+  const [roleName, setroleName] = useState("");
   const [status, setStatus] = useState(true);
 
   useEffect(() => {
     if (userToEdit) {
       setEmail(userToEdit.email ?? "");
       setDisplayName(userToEdit.display_name ?? "");
-      setRoleId(userToEdit.role_id ?? "");
+      setroleName(userToEdit.role?.display_name ?? "");
       setStatus(userToEdit.status ?? true);
       setPassword("");
     } else {
       setEmail("");
       setDisplayName("");
-      setRoleId("");
+      setroleName("");
       setStatus(true);
       setPassword("");
     }
@@ -47,7 +47,7 @@ export default function UserFormModal({ open, onClose, userToEdit }: Props) {
         await updateUser(userToEdit.user_id, {
           email,
           display_name: displayName,
-          role_id: roleId || undefined,
+          role_id: roleName || undefined,
           status,
           // password opcjonalnie, jeśli chcesz umożliwić zmianę hasła z tego formularza
           ...(password ? { password } : {}),
@@ -57,7 +57,7 @@ export default function UserFormModal({ open, onClose, userToEdit }: Props) {
           email,
           password,
           display_name: displayName || undefined,
-          role_id: roleId || undefined,
+          role_id: roleName || undefined,
         });
       }
       onClose();
@@ -119,13 +119,13 @@ export default function UserFormModal({ open, onClose, userToEdit }: Props) {
           {/* Rola – na razie jako ID roli */}
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-200">
-              ID roli
+              Rola
             </label>
             <input
               type="text"
               className="w-full rounded-lg border border-gray-200 bg-transparent px-4 py-2.5 text-sm text-gray-800 outline-none transition focus:border-primary focus:ring-1 focus:ring-primary dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
-              value={roleId}
-              onChange={(e) => setRoleId(e.target.value)}
+              value={roleName}
+              onChange={(e) => setroleName(e.target.value)}
               placeholder="np. admin, barber, manager"
             />
           </div>

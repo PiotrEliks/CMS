@@ -8,5 +8,6 @@ router.get('/', requireAuth, UsersController.getUsers);
 router.get('/:id', requireAuth, UsersController.getUser);
 router.post('/add', requireAuth, UsersController.addUser);
 router.put('/:id', requireAuth, UsersController.updateUser);
+router.delete('/:id', requireAuth, UsersController.deleteUser);
 
 export default router;

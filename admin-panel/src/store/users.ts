@@ -46,6 +46,7 @@ type UsersState = {
   fetchUser: (id: string) => Promise<void>;
   addUser: (data: NewUserPayload) => Promise<User>;
   updateUser: (id: string, data: UpdateUserPayload) => Promise<User>;
+  deleteUser: (id: string) => Promise<void>; 
 
   clearError: () => void;
   clearSelected: () => void;
@@ -116,6 +117,24 @@ export const useUsers = create<UsersState>((set, get) => ({
     } catch (e: any) {
       const msg =
         e?.response?.data?.error ?? "Nie udało się zaktualizować użytkownika";
+      set({ error: msg, loading: false });
+      throw e;
+    }
+  },
+
+   deleteUser: async (id: string) => {
+    set({ loading: true, error: null });
+    try {
+      await api.delete(`/users/${id}`);
+
+      const current = get().users;
+      set({
+        users: current.filter((u) => u.user_id !== id),
+        loading: false,
+      });
+    } catch (e: any) {
+      const msg =
+        e?.response?.data?.error ?? 'Nie udało się usunąć użytkownika';
       set({ error: msg, loading: false });
       throw e;
     }
