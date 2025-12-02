@@ -16,6 +16,9 @@ export async function loginWithEmail(email: string, password: string) {
   const secret = process.env.JWT_SECRET;
   if (!secret) throw new Error('JWT_SECRET is not set');
 
+  user.last_access = new Date();
+  await user.save();
+
   const accessToken = jwt.sign(
     { sub: user.user_id, email: user.email, role: user.role_id },
     secret,
