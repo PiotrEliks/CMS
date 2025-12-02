@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { useUsers } from "../../../store/users";
-import type { User } from "../../../store/users";
-import Button from "../../ui/button/Button";
+import React, { useEffect, useState } from 'react';
+import { useUsers } from '../../../store/users';
+import type { User } from '../../../store/users';
+import Button from '../../ui/button/Button';
 
 type Props = {
   open: boolean;
@@ -14,25 +14,25 @@ export default function UserFormModal({ open, onClose, userToEdit }: Props) {
 
   const { addUser, updateUser, loading, error, clearError } = useUsers();
 
-  const [email, setEmail] = useState("");
-  const [displayName, setDisplayName] = useState("");
-  const [password, setPassword] = useState("");
-  const [roleName, setroleName] = useState("");
+  const [email, setEmail] = useState('');
+  const [displayName, setDisplayName] = useState('');
+  const [password, setPassword] = useState('');
+  const [roleName, setroleName] = useState('');
   const [status, setStatus] = useState(true);
 
   useEffect(() => {
     if (userToEdit) {
-      setEmail(userToEdit.email ?? "");
-      setDisplayName(userToEdit.display_name ?? "");
-      setroleName(userToEdit.role?.display_name ?? "");
+      setEmail(userToEdit.email ?? '');
+      setDisplayName(userToEdit.display_name ?? '');
+      setroleName(userToEdit.role?.display_name ?? '');
       setStatus(userToEdit.status ?? true);
-      setPassword("");
+      setPassword('');
     } else {
-      setEmail("");
-      setDisplayName("");
-      setroleName("");
+      setEmail('');
+      setDisplayName('');
+      setroleName('');
       setStatus(true);
-      setPassword("");
+      setPassword('');
     }
     clearError();
   }, [userToEdit, clearError]);
@@ -71,7 +71,7 @@ export default function UserFormModal({ open, onClose, userToEdit }: Props) {
       <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl dark:bg-gray-900">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            {isEdit ? "Edytuj użytkownika" : "Dodaj nowego użytkownika"}
+            {isEdit ? 'Edytuj użytkownika' : 'Dodaj nowego użytkownika'}
           </h2>
           <button
             type="button"
@@ -133,9 +133,7 @@ export default function UserFormModal({ open, onClose, userToEdit }: Props) {
           {/* Status – przełącznik aktywny/nieaktywny */}
           <div className="flex items-center justify-between gap-4 pt-2">
             <div>
-              <p className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                Status
-              </p>
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-200">Status</p>
               <p className="text-xs text-gray-500 dark:text-gray-400">
                 Określ, czy użytkownik jest aktywny.
               </p>
@@ -144,14 +142,12 @@ export default function UserFormModal({ open, onClose, userToEdit }: Props) {
               type="button"
               onClick={() => setStatus((s) => !s)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
-                status
-                  ? "bg-primary"
-                  : "bg-gray-300 dark:bg-gray-600"
+                status ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'
               }`}
             >
               <span
                 className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition ${
-                  status ? "translate-x-5" : "translate-x-1"
+                  status ? 'translate-x-5' : 'translate-x-1'
                 }`}
               />
             </button>
@@ -167,16 +163,8 @@ export default function UserFormModal({ open, onClose, userToEdit }: Props) {
               Anuluj
             </button>
 
-            <Button
-              size="sm"
-              variant="primary"
-              disabled={loading}
-            >
-              {loading
-                ? "Zapisywanie..."
-                : isEdit
-                ? "Zapisz zmiany"
-                : "Utwórz użytkownika"}
+            <Button size="sm" variant="primary" disabled={loading}>
+              {loading ? 'Zapisywanie...' : isEdit ? 'Zapisz zmiany' : 'Utwórz użytkownika'}
             </Button>
           </div>
         </form>

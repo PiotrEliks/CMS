@@ -46,7 +46,7 @@ type UsersState = {
   fetchUser: (id: string) => Promise<void>;
   addUser: (data: NewUserPayload) => Promise<User>;
   updateUser: (id: string, data: UpdateUserPayload) => Promise<User>;
-  deleteUser: (id: string) => Promise<void>; 
+  deleteUser: (id: string) => Promise<void>;
 
   clearError: () => void;
   clearSelected: () => void;
@@ -85,21 +85,20 @@ export const useUsers = create<UsersState>((set, get) => ({
     }
   },
 
- addUser: async (data: NewUserPayload) => {
-  set({ loading: true, error: null });
-  try {
-    const res = await api.post('/users/add', data);
-    const created: User = res.data.user;
-    const current = get().users;
-    set({ users: [...current, created], loading: false });
-    return created;
-  } catch (e: any) {
-    const msg =
-      e?.response?.data?.error ?? 'Nie udało się dodać użytkownika';
-    set({ error: msg, loading: false });
-    throw e;
-  }
-},
+  addUser: async (data: NewUserPayload) => {
+    set({ loading: true, error: null });
+    try {
+      const res = await api.post('/users/add', data);
+      const created: User = res.data.user;
+      const current = get().users;
+      set({ users: [...current, created], loading: false });
+      return created;
+    } catch (e: any) {
+      const msg = e?.response?.data?.error ?? 'Nie udało się dodać użytkownika';
+      set({ error: msg, loading: false });
+      throw e;
+    }
+  },
 
   updateUser: async (id: string, data: any) => {
     set({ loading: true, error: null });
@@ -115,14 +114,13 @@ export const useUsers = create<UsersState>((set, get) => ({
 
       return updated;
     } catch (e: any) {
-      const msg =
-        e?.response?.data?.error ?? "Nie udało się zaktualizować użytkownika";
+      const msg = e?.response?.data?.error ?? 'Nie udało się zaktualizować użytkownika';
       set({ error: msg, loading: false });
       throw e;
     }
   },
 
-   deleteUser: async (id: string) => {
+  deleteUser: async (id: string) => {
     set({ loading: true, error: null });
     try {
       await api.delete(`/users/${id}`);
@@ -133,8 +131,7 @@ export const useUsers = create<UsersState>((set, get) => ({
         loading: false,
       });
     } catch (e: any) {
-      const msg =
-        e?.response?.data?.error ?? 'Nie udało się usunąć użytkownika';
+      const msg = e?.response?.data?.error ?? 'Nie udało się usunąć użytkownika';
       set({ error: msg, loading: false });
       throw e;
     }

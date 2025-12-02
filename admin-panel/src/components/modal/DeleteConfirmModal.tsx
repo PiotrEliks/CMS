@@ -1,5 +1,5 @@
-import React from "react";
-import Button from "../../ui/button/Button";
+import React from 'react';
+import Button from '../../ui/button/Button';
 
 type Props = {
   open: boolean;
@@ -11,8 +11,8 @@ type Props = {
 
 export default function DeleteConfirmModal({
   open,
-  title = "Potwierdź usunięcie",
-  message = "Czy na pewno chcesz usunąć ten element? Tej operacji nie można cofnąć.",
+  title = 'Potwierdź usunięcie',
+  message = 'Czy na pewno chcesz usunąć ten element? Tej operacji nie można cofnąć.',
   onCancel,
   onConfirm,
 }: Props) {
@@ -32,17 +32,17 @@ export default function DeleteConfirmModal({
               fill="none"
               strokeWidth="2"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 8v4m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"
+              />
             </svg>
           </div>
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-            {title}
-          </h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</h2>
         </div>
 
-        <p className="mb-6 text-sm text-gray-600 dark:text-gray-300">
-          {message}
-        </p>
+        <p className="mb-6 text-sm text-gray-600 dark:text-gray-300">{message}</p>
 
         <div className="flex items-center justify-end gap-3">
           <button
@@ -52,11 +52,7 @@ export default function DeleteConfirmModal({
             Anuluj
           </button>
 
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={onConfirm}
-          >
+          <Button variant="primary" size="sm" onClick={onConfirm}>
             Usuń
           </Button>
         </div>

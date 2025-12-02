@@ -1,18 +1,18 @@
-import { type FormEvent, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { EyeCloseIcon, EyeIcon } from "../../icons";
-import Label from "../form/Label";
-import Input from "../form/input/InputField";
-import Checkbox from "../form/input/Checkbox";
-import Button from "../ui/button/Button";
-import { useAuth } from "../../store/auth";
+import { type FormEvent, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { EyeCloseIcon, EyeIcon } from '../../icons';
+import Label from '../form/Label';
+import Input from '../form/input/InputField';
+import Checkbox from '../form/input/Checkbox';
+import Button from '../ui/button/Button';
+import { useAuth } from '../../store/auth';
 
 export default function SignInForm() {
   const navigate = useNavigate();
   const { login, error, clearError, loading } = useAuth();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [keepSignedIn, setKeepSignedIn] = useState(false);
 
@@ -21,10 +21,9 @@ export default function SignInForm() {
     clearError();
     try {
       await login(email, password);
-      if (keepSignedIn) localStorage.setItem("keepSignedIn", "1");
-      navigate("/", { replace: true });
-    } catch {
-    }
+      if (keepSignedIn) localStorage.setItem('keepSignedIn', '1');
+      navigate('/', { replace: true });
+    } catch {}
   }
 
   return (
@@ -64,7 +63,7 @@ export default function SignInForm() {
                   <div className="relative">
                     <Input
                       name="password"
-                      type={showPassword ? "text" : "password"}
+                      type={showPassword ? 'text' : 'password'}
                       placeholder="Wpisz swoje hasło"
                       value={password}
                       onChange={(e: any) => setPassword(e.target.value)}
@@ -74,7 +73,7 @@ export default function SignInForm() {
                       type="button"
                       onClick={() => setShowPassword((v) => !v)}
                       className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
-                      aria-label={showPassword ? "Ukryj hasło" : "Pokaż hasło"}
+                      aria-label={showPassword ? 'Ukryj hasło' : 'Pokaż hasło'}
                     >
                       {showPassword ? (
                         <EyeIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
@@ -111,7 +110,7 @@ export default function SignInForm() {
 
                 <div>
                   <Button className="w-full" size="sm" disabled={loading}>
-                    {loading ? "Logowanie…" : "Zaloguj się"}
+                    {loading ? 'Logowanie…' : 'Zaloguj się'}
                   </Button>
                 </div>
               </div>

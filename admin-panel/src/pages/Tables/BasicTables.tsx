@@ -1,14 +1,14 @@
-import { useState } from "react";
-import type { User } from "../../store/users";
-import PageBreadcrumb from "../../components/common/PageBreadCrumb";
-import ComponentCard from "../../components/common/ComponentCard";
-import PageMeta from "../../components/common/PageMeta";
-import BasicTableOne from "../../components/tables/BasicTables/BasicTableOne";
-import Button from "../../ui/button/Button";
-import { UserIcon } from "../../icons";
-import UserFormModal from "../../components/ui/modal/UserFormModal";
-import { useUsers } from "../../store/users";
-import DeleteConfirmModal from "../../components/modal/DeleteConfirmModal";
+import { useState } from 'react';
+import type { User } from '../../store/users';
+import PageBreadcrumb from '../../components/common/PageBreadCrumb';
+import ComponentCard from '../../components/common/ComponentCard';
+import PageMeta from '../../components/common/PageMeta';
+import BasicTableOne from '../../components/tables/BasicTables/BasicTableOne';
+import Button from '../../ui/button/Button';
+import { UserIcon } from '../../icons';
+import UserFormModal from '../../components/ui/modal/UserFormModal';
+import { useUsers } from '../../store/users';
+import DeleteConfirmModal from '../../components/modal/DeleteConfirmModal';
 
 export default function BasicTables() {
   const { deleteUser } = useUsers();
@@ -18,7 +18,6 @@ export default function BasicTables() {
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
-
 
   const handleCreateNew = () => {
     setEditingUser(null);
@@ -54,12 +53,19 @@ export default function BasicTables() {
   return (
     <>
       <div className="space-y-6">
-        <ComponentCard title="Użytkownicy" button={<Button size="sm" variant="primary" startIcon={<UserIcon />} onClick={handleCreateNew} >Utwórz nowego</Button>}>
+        <ComponentCard
+          title="Użytkownicy"
+          button={
+            <Button size="sm" variant="primary" startIcon={<UserIcon />} onClick={handleCreateNew}>
+              Utwórz nowego
+            </Button>
+          }
+        >
           <BasicTableOne onEdit={handleEditUser} onDelete={askDeleteUser} />
         </ComponentCard>
       </div>
 
-       <UserFormModal
+      <UserFormModal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         userToEdit={editingUser}
@@ -73,10 +79,9 @@ export default function BasicTables() {
         message={
           userToDelete
             ? `Czy na pewno chcesz usunąć użytkownika "${userToDelete.email}"?`
-            : "Czy na pewno chcesz usunąć ten element?"
+            : 'Czy na pewno chcesz usunąć ten element?'
         }
       />
-
     </>
   );
 }

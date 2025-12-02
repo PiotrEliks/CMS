@@ -14,18 +14,17 @@ export default function App() {
   const { checkAuth, user, loading } = useAuth();
   const location = useLocation();
 
-  
   useEffect(() => {
     checkAuth();
     attach401Interceptor(() => {
       window.location.href = '/login';
     });
   }, []);
-  
+
   if (!loading && !user && location.pathname !== '/login') {
     return <Navigate to="/login" replace />;
   }
-  
+
   if (location.pathname === '/login' && user) {
     return <Navigate to="/" replace />;
   }
@@ -43,7 +42,7 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-          <Route 
+          <Route
             path="/profile"
             element={
               <ProtectedRoute>
@@ -51,7 +50,7 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-          <Route 
+          <Route
             path="/users"
             element={
               <ProtectedRoute>

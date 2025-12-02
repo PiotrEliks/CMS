@@ -1,17 +1,19 @@
-import { useModal } from "../../hooks/useModal";
-import { Modal } from "../ui/modal";
-import Button from "../ui/button/Button";
-import Input from "../form/input/InputField";
-import Label from "../form/Label";
-import { useAuth } from "../../store/auth";
+import { useModal } from '../../hooks/useModal';
+import { Modal } from '../ui/modal';
+import Button from '../ui/button/Button';
+import Input from '../form/input/InputField';
+import Label from '../form/Label';
+import { useAuth } from '../../store/auth';
 
 export default function UserMetaCard() {
   const { isOpen, openModal, closeModal } = useModal();
   const { user } = useAuth();
-  {console.log(user)}
+  {
+    console.log(user);
+  }
   const handleSave = () => {
     // Handle save logic here
-    console.log("Saving changes...");
+    console.log('Saving changes...');
     closeModal();
   };
   return (

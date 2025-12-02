@@ -1,16 +1,16 @@
-import { useModal } from "../../hooks/useModal";
-import { Modal } from "../ui/modal";
-import Button from "../ui/button/Button";
-import Input from "../form/input/InputField";
-import Label from "../form/Label";
-import { useAuth } from "../../store/auth";
+import { useModal } from '../../hooks/useModal';
+import { Modal } from '../ui/modal';
+import Button from '../ui/button/Button';
+import Input from '../form/input/InputField';
+import Label from '../form/Label';
+import { useAuth } from '../../store/auth';
 
 export default function UserInfoCard() {
   const { isOpen, openModal, closeModal } = useModal();
   const { user } = useAuth();
   const handleSave = () => {
     // Handle save logic here
-    console.log("Saving changes...");
+    console.log('Saving changes...');
     closeModal();
   };
   return (
@@ -35,15 +35,11 @@ export default function UserInfoCard() {
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
                 Adres email
               </p>
-              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                {user?.email}
-              </p>
+              <p className="text-sm font-medium text-gray-800 dark:text-white/90">{user?.email}</p>
             </div>
 
             <div>
-              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Rola
-              </p>
+              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">Rola</p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
                 {user?.role?.display_name}
               </p>
@@ -84,7 +80,7 @@ export default function UserInfoCard() {
               Zaktualizuj swoje dane, aby utrzymać profil na bieżąco.
             </p>
           </div>
-           <form className="flex flex-col">
+          <form className="flex flex-col">
             <div className="custom-scrollbar h-[450px] overflow-y-auto px-2 pb-3">
               <div className="mt-7">
                 <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">

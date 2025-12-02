@@ -1,18 +1,12 @@
-import { useEffect } from "react";
-import React from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHeader,
-  TableRow,
-} from "../../ui/table";
+import { useEffect } from 'react';
+import React from 'react';
+import { Table, TableBody, TableCell, TableHeader, TableRow } from '../../ui/table';
 
-import Badge from "../../ui/badge/Badge";
-import { useUsers } from "../../../store/users";
-import { formatDate } from "../../../utils/formatDate";
-import type { User } from "../../../store/users";
-import { useAuth } from "../../../store/auth";
+import Badge from '../../ui/badge/Badge';
+import { useUsers } from '../../../store/users';
+import { formatDate } from '../../../utils/formatDate';
+import type { User } from '../../../store/users';
+import { useAuth } from '../../../store/auth';
 
 type Props = {
   onEdit: (user: User) => void;
@@ -34,7 +28,6 @@ export default function BasicTableOne({ onEdit, onDelete }: Props) {
     <div className="overflow-hidden rounded-xl buser buser-gray-200 bg-white dark:buser-white/[0.05] dark:bg-white/[0.03]">
       <div className="max-w-full overflow-x-auto">
         <Table>
-
           <TableHeader className="buser-b buser-gray-100 dark:buser-white/[0.05]">
             <TableRow>
               <TableCell
@@ -93,15 +86,9 @@ export default function BasicTableOne({ onEdit, onDelete }: Props) {
                 <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                   <Badge
                     size="sm"
-                    color={
-                      user.status
-                        ? "success"
-                        : !user.status
-                        ? "error"
-                        : "warning"
-                    }
+                    color={user.status ? 'success' : !user.status ? 'error' : 'warning'}
                   >
-                    {user.status ? "Aktywny" : "Nieaktywny"}
+                    {user.status ? 'Aktywny' : 'Nieaktywny'}
                   </Badge>
                 </TableCell>
 
@@ -135,47 +122,35 @@ export default function BasicTableOne({ onEdit, onDelete }: Props) {
 
                     {loggedInUser?.user_id !== user.user_id && (
                       <button
-                      onClick={() => onDelete(user)}
-                      className="flex items-center justify-center gap-2 rounded-full buser buser-red-200 bg-red-50 px-3 py-2 text-xs font-medium text-red-600 shadow-theme-xs hover:bg-red-100 hover:text-red-700 dark:buser-red-900/60 dark:bg-red-900/30 dark:text-red-200 dark:hover:bg-red-900/60"
-                    >
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="stroke-current"
+                        onClick={() => onDelete(user)}
+                        className="flex items-center justify-center gap-2 rounded-full buser buser-red-200 bg-red-50 px-3 py-2 text-xs font-medium text-red-600 shadow-theme-xs hover:bg-red-100 hover:text-red-700 dark:buser-red-900/60 dark:bg-red-900/30 dark:text-red-200 dark:hover:bg-red-900/60"
                       >
-                        <path
-                          d="M4 7H20"
-                          strokeWidth="1.8"
-                          strokeLinecap="round"
-                        />
-                        <path
-                          d="M10 11V17"
-                          strokeWidth="1.8"
-                          strokeLinecap="round"
-                        />
-                        <path
-                          d="M14 11V17"
-                          strokeWidth="1.8"
-                          strokeLinecap="round"
-                        />
-                        <path
-                          d="M6 7L7 19C7.06676 19.7442 7.40241 20.4437 7.93853 20.9449C8.47466 21.4461 9.17694 21.7127 9.9 21.7H14.1C14.8231 21.7127 15.5253 21.4461 16.0615 20.9449C16.5976 20.4437 16.9332 19.7442 17 19L18 7"
-                          strokeWidth="1.8"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <path
-                          d="M9 7V5C9 4.73478 9.10536 4.48043 9.29289 4.29289C9.48043 4.10536 9.73478 4 10 4H14C14.2652 4 14.5196 4.10536 14.7071 4.29289C14.8946 4.48043 15 4.73478 15 5V7"
-                          strokeWidth="1.8"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                      Usuń
-                    </button>
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="stroke-current"
+                        >
+                          <path d="M4 7H20" strokeWidth="1.8" strokeLinecap="round" />
+                          <path d="M10 11V17" strokeWidth="1.8" strokeLinecap="round" />
+                          <path d="M14 11V17" strokeWidth="1.8" strokeLinecap="round" />
+                          <path
+                            d="M6 7L7 19C7.06676 19.7442 7.40241 20.4437 7.93853 20.9449C8.47466 21.4461 9.17694 21.7127 9.9 21.7H14.1C14.8231 21.7127 15.5253 21.4461 16.0615 20.9449C16.5976 20.4437 16.9332 19.7442 17 19L18 7"
+                            strokeWidth="1.8"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                          <path
+                            d="M9 7V5C9 4.73478 9.10536 4.48043 9.29289 4.29289C9.48043 4.10536 9.73478 4 10 4H14C14.2652 4 14.5196 4.10536 14.7071 4.29289C14.8946 4.48043 15 4.73478 15 5V7"
+                            strokeWidth="1.8"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                        Usuń
+                      </button>
                     )}
                   </div>
                 </TableCell>
