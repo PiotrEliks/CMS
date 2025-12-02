@@ -16,8 +16,7 @@ export async function getCategory(req: Request, res: Response) {
     attributes: ['content_content_id'],
   });
   const ids = contentLinks.map((x: any) => x.content_content_id);
-  if (ids.length === 0)
-    return res.json({ category, items: [] });
+  if (ids.length === 0) return res.json({ category, items: [] });
 
   const items = await Content.findAll({
     where: {

@@ -11,56 +11,65 @@ import { ContentsMedia } from './contentsMedia.model.js';
 import { ContentMenu } from './contentMenu.model.js';
 
 export {
-  User, Role, Category, Content, Media, KeyValue, Menu, MenuItem,
-  ContentCategory, ContentsMedia, ContentMenu
+  User,
+  Role,
+  Category,
+  Content,
+  Media,
+  KeyValue,
+  Menu,
+  MenuItem,
+  ContentCategory,
+  ContentsMedia,
+  ContentMenu,
 };
 
 export function setupAssociations() {
   Role.hasMany(User, {
     foreignKey: { name: 'role_id', allowNull: true },
     onDelete: 'SET NULL',
-    onUpdate: 'CASCADE'
+    onUpdate: 'CASCADE',
   });
   User.belongsTo(Role, {
     foreignKey: { name: 'role_id', allowNull: true },
     onDelete: 'SET NULL',
-    onUpdate: 'CASCADE'
+    onUpdate: 'CASCADE',
   });
 
   User.hasMany(Content, {
     foreignKey: { name: 'created_by', allowNull: true },
     sourceKey: 'user_id',
     as: 'createdContents',
-    onDelete: 'SET NULL'
+    onDelete: 'SET NULL',
   });
   User.hasMany(Content, {
     foreignKey: { name: 'updated_by', allowNull: true },
     sourceKey: 'user_id',
     as: 'updatedContents',
-    onDelete: 'SET NULL'
+    onDelete: 'SET NULL',
   });
   Content.belongsTo(User, {
     foreignKey: { name: 'created_by', allowNull: true },
     targetKey: 'user_id',
     as: 'creator',
-    onDelete: 'SET NULL'
+    onDelete: 'SET NULL',
   });
   Content.belongsTo(User, {
     foreignKey: { name: 'updated_by', allowNull: true },
     targetKey: 'user_id',
     as: 'updater',
-    onDelete: 'SET NULL'
+    onDelete: 'SET NULL',
   });
 
   Media.hasMany(Content, {
     foreignKey: { name: 'cover_media_id', allowNull: true },
     as: 'coverOf',
-    onDelete: 'SET NULL'
+    onDelete: 'SET NULL',
   });
   Content.belongsTo(Media, {
     foreignKey: { name: 'cover_media_id', allowNull: true },
     as: 'cover',
-    onDelete: 'SET NULL'
+    onDelete: 'SET NULL',
   });
 
   Content.belongsToMany(Category, {
@@ -68,14 +77,14 @@ export function setupAssociations() {
     foreignKey: { name: 'content_id', allowNull: false },
     otherKey: { name: 'category_id', allowNull: false },
     as: 'categories',
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   });
   Category.belongsToMany(Content, {
     through: ContentCategory,
     foreignKey: { name: 'category_id', allowNull: false },
     otherKey: { name: 'content_id', allowNull: false },
     as: 'contents',
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   });
 
   Content.belongsToMany(Media, {
@@ -83,26 +92,26 @@ export function setupAssociations() {
     foreignKey: { name: 'content_id', allowNull: false },
     otherKey: { name: 'media_id', allowNull: false },
     as: 'media',
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   });
   Media.belongsToMany(Content, {
     through: ContentsMedia,
     foreignKey: { name: 'media_id', allowNull: false },
     otherKey: { name: 'content_id', allowNull: false },
     as: 'contents',
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   });
 
   User.hasMany(KeyValue, {
     foreignKey: { name: 'user_id', allowNull: true },
     sourceKey: 'user_id',
-    onDelete: 'SET NULL'
+    onDelete: 'SET NULL',
   });
   KeyValue.belongsTo(User, {
     foreignKey: { name: 'user_id', allowNull: true },
     targetKey: 'user_id',
     as: 'creator',
-    onDelete: 'SET NULL'
+    onDelete: 'SET NULL',
   });
 
   Menu.belongsToMany(Content, {
@@ -110,43 +119,43 @@ export function setupAssociations() {
     foreignKey: { name: 'menu_id', allowNull: false },
     otherKey: { name: 'content_id', allowNull: false },
     as: 'contents',
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   });
   Content.belongsToMany(Menu, {
     through: ContentMenu,
     foreignKey: { name: 'content_id', allowNull: false },
     otherKey: { name: 'menu_id', allowNull: false },
     as: 'menus',
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   });
 
   Menu.hasMany(MenuItem, {
     foreignKey: { name: 'menu_id', allowNull: false },
     as: 'items',
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   });
   MenuItem.belongsTo(Menu, {
     foreignKey: { name: 'menu_id', allowNull: false },
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   });
 
   MenuItem.hasMany(MenuItem, {
     foreignKey: { name: 'parent_id', allowNull: true },
     as: 'children',
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   });
   MenuItem.belongsTo(MenuItem, {
     foreignKey: { name: 'parent_id', allowNull: true },
     as: 'parent',
-    onDelete: 'SET NULL'
+    onDelete: 'SET NULL',
   });
 
   Content.hasMany(MenuItem, {
     foreignKey: { name: 'content_id', allowNull: true },
-    onDelete: 'SET NULL'
+    onDelete: 'SET NULL',
   });
   MenuItem.belongsTo(Content, {
     foreignKey: { name: 'content_id', allowNull: true },
-    onDelete: 'SET NULL'
+    onDelete: 'SET NULL',
   });
 }

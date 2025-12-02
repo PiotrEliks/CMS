@@ -1,4 +1,10 @@
-import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional } from 'sequelize';
+import {
+  DataTypes,
+  Model,
+  InferAttributes,
+  InferCreationAttributes,
+  CreationOptional,
+} from 'sequelize';
 import { sequelize } from '../db/sequelize.js';
 
 export class Menu extends Model<InferAttributes<Menu>, InferCreationAttributes<Menu>> {
@@ -14,10 +20,10 @@ Menu.init(
   {
     menu_id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
     code: { type: DataTypes.STRING(50), allowNull: false, unique: true },
-    name: { type: DataTypes.STRING(255), allowNull: false }, 
+    name: { type: DataTypes.STRING(255), allowNull: false },
     status: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
     created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
-    updated_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW }
+    updated_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
   },
   { sequelize, tableName: 'menu', timestamps: true }
 );

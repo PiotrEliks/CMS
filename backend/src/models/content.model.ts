@@ -1,4 +1,10 @@
-import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional } from 'sequelize';
+import {
+  DataTypes,
+  Model,
+  InferAttributes,
+  InferCreationAttributes,
+  CreationOptional,
+} from 'sequelize';
 import { sequelize } from '../db/sequelize.js';
 
 export class Content extends Model<InferAttributes<Content>, InferCreationAttributes<Content>> {
@@ -41,7 +47,7 @@ Content.init(
     og_title: { type: DataTypes.STRING(255) },
     og_description: { type: DataTypes.STRING(500) },
     created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
-    updated_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW }
+    updated_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
   },
   { sequelize, tableName: 'contents', timestamps: true }
 );

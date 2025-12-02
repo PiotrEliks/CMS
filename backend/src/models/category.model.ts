@@ -1,4 +1,10 @@
-import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional } from 'sequelize';
+import {
+  DataTypes,
+  Model,
+  InferAttributes,
+  InferCreationAttributes,
+  CreationOptional,
+} from 'sequelize';
 import { sequelize } from '../db/sequelize.js';
 
 export class Category extends Model<InferAttributes<Category>, InferCreationAttributes<Category>> {
@@ -21,7 +27,7 @@ Category.init(
     path: { type: DataTypes.STRING(1024) },
     status: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
     created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
-    updated_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW }
+    updated_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
   },
   { sequelize, tableName: 'category', timestamps: true }
 );

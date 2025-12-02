@@ -4,10 +4,10 @@ import { User } from '../models/user.model.js';
 import { Role } from '../models/index.js';
 
 export async function loginWithEmail(email: string, password: string) {
-  const user = await User.findOne({ 
+  const user = await User.findOne({
     where: { email: email.toLowerCase() },
-    include: [{ model: Role, as: 'role' }] }
-  );
+    include: [{ model: Role, as: 'role' }],
+  });
   if (!user) throw new Error('Invalid credentials');
 
   const ok = await bcrypt.compare(password, user.password_hash);
@@ -29,6 +29,13 @@ export async function loginWithEmail(email: string, password: string) {
 
   return {
     accessToken,
-    user: { user_id: user.user_id, email: user.email, role_id: user.role_id, display_name: user.display_name, last_access: user.last_access, role: plain.role}
+    user: {
+      user_id: user.user_id,
+      email: user.email,
+      role_id: user.role_id,
+      display_name: user.display_name,
+      last_access: user.last_access,
+      role: plain.role,
+    },
   };
 }

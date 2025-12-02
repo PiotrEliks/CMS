@@ -9,7 +9,7 @@ export class ContentMenu extends Model {
 ContentMenu.init(
   {
     content_id: { type: DataTypes.UUID, primaryKey: true },
-    menu_id: { type: DataTypes.UUID, primaryKey: true }
+    menu_id: { type: DataTypes.UUID, primaryKey: true },
   },
   { sequelize, tableName: 'content_menu', timestamps: false }
 );

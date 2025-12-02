@@ -17,6 +17,6 @@ export const sequelize = new Sequelize(dbUrl, {
     : undefined,
   define: {
     underscored: true,
-    freezeTableName: true
-  }
+    freezeTableName: true,
+  },
 });

@@ -61,8 +61,7 @@ export async function listPages(req: Request, res: Response) {
       attributes: ['content_content_id'],
     });
     contentIdsByCategory = cc.map((x: any) => x.content_content_id);
-    if (contentIdsByCategory.length === 0)
-      return res.json({ items: [], page, pageSize, total: 0 });
+    if (contentIdsByCategory.length === 0) return res.json({ items: [], page, pageSize, total: 0 });
 
     where.content_id = { [Op.in]: contentIdsByCategory };
   }
@@ -76,7 +75,7 @@ export async function listPages(req: Request, res: Response) {
   });
 
   // opcjonalnie dołącz okładki
-  const mediaIds = rows.map(r => r.cover_media_id).filter(Boolean) as string[];
+  const mediaIds = rows.map((r) => r.cover_media_id).filter(Boolean) as string[];
   const covers = mediaIds.length
     ? await Media.findAll({
         where: { media_id: { [Op.in]: mediaIds }, status: true },
@@ -85,9 +84,9 @@ export async function listPages(req: Request, res: Response) {
     : [];
 
   const coverMap = new Map(covers.map((m: any) => [m.media_id, m]));
-  const items = rows.map(r => ({
+  const items = rows.map((r) => ({
     ...r.toJSON(),
-    cover: r.cover_media_id ? coverMap.get(r.cover_media_id) ?? null : null,
+    cover: r.cover_media_id ? (coverMap.get(r.cover_media_id) ?? null) : null,
   }));
 
   res.set('Cache-Control', 'public, max-age=60');

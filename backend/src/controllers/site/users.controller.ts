@@ -8,7 +8,7 @@ import { sendNewUserCredentialsMail } from '../../utils/mailer.js';
 export const getUsers = asyncHandler(async (req: Request, res: Response) => {
   const users = await User.findAll({
     attributes: { exclude: ['password_hash'] },
-    include: [{ model: Role, as: 'role' }]
+    include: [{ model: Role, as: 'role' }],
   });
 
   return res.status(200).json({ users });
@@ -16,7 +16,7 @@ export const getUsers = asyncHandler(async (req: Request, res: Response) => {
 
 export const getUser = asyncHandler(async (req: Request, res: Response) => {
   const user = await User.findByPk(req.params.id, {
-    attributes: { exclude: ['password_hash'] }
+    attributes: { exclude: ['password_hash'] },
   });
 
   return res.status(200).json({ user });
@@ -27,9 +27,7 @@ export const addUser = asyncHandler(async (req: Request, res: Response) => {
 
   const existingUser = await User.findOne({ where: { email } });
   if (existingUser) {
-    return res
-      .status(400)
-      .json({ error: 'Użytkownik o podanym adresie email już istnieje' });
+    return res.status(400).json({ error: 'Użytkownik o podanym adresie email już istnieje' });
   }
 
   const plainPassword = generateRandomPassword(12);
@@ -50,7 +48,7 @@ export const addUser = asyncHandler(async (req: Request, res: Response) => {
       password: plainPassword,
     });
   } catch (err) {
-    console.error("Nie udało się wysłać maila z danymi logowania:", err);
+    console.error('Nie udało się wysłać maila z danymi logowania:', err);
   }
 
   const safeUser = await User.findByPk(user.user_id, {
@@ -74,9 +72,7 @@ export const updateUser = asyncHandler(async (req: Request, res: Response) => {
   if (email && email !== user.email) {
     const existing = await User.findOne({ where: { email } });
     if (existing && existing.get('user_id') !== user.get('user_id')) {
-      return res
-        .status(400)
-        .json({ error: 'Użytkownik o podanym adresie email już istnieje' });
+      return res.status(400).json({ error: 'Użytkownik o podanym adresie email już istnieje' });
     }
   }
 

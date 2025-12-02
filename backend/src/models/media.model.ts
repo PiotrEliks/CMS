@@ -1,4 +1,10 @@
-import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional } from 'sequelize';
+import {
+  DataTypes,
+  Model,
+  InferAttributes,
+  InferCreationAttributes,
+  CreationOptional,
+} from 'sequelize';
 import { sequelize } from '../db/sequelize.js';
 
 export class Media extends Model<InferAttributes<Media>, InferCreationAttributes<Media>> {
@@ -23,7 +29,7 @@ Media.init(
     alt_text: { type: DataTypes.STRING(255) },
     title: { type: DataTypes.STRING(255) },
     status: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
-    created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW }
+    created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
   },
   { sequelize, tableName: 'media', timestamps: true, updatedAt: false }
 );

@@ -1,4 +1,10 @@
-import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional } from 'sequelize';
+import {
+  DataTypes,
+  Model,
+  InferAttributes,
+  InferCreationAttributes,
+  CreationOptional,
+} from 'sequelize';
 import { sequelize } from '../db/sequelize.js';
 import { Role } from './role.model.js';
 
@@ -20,7 +26,7 @@ User.init(
     user_id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
-      primaryKey: true
+      primaryKey: true,
     },
     email: { type: DataTypes.STRING(255), allowNull: false, unique: true },
     password_hash: { type: DataTypes.STRING(255), allowNull: false },
@@ -29,12 +35,12 @@ User.init(
     last_access: { type: DataTypes.DATE },
     status: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
     created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
-    updated_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW }
+    updated_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
   },
   { sequelize, tableName: 'user', timestamps: true }
 );
 
 User.belongsTo(Role, {
   foreignKey: 'role_id',
-  as: 'role'
+  as: 'role',
 });

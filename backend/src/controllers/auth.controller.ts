@@ -16,7 +16,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/',
-    maxAge: 1000 * 60 * 60
+    maxAge: 1000 * 60 * 60,
   });
 
   return res.status(200).json({ user });
@@ -27,7 +27,7 @@ export const logout = asyncHandler(async (_req: Request, res: Response) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
-    path: '/'
+    path: '/',
   });
   return res.status(200).json({ ok: true });
 });

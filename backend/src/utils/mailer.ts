@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+import nodemailer from 'nodemailer';
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -10,14 +10,11 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export async function sendNewUserCredentialsMail(options: {
-  to: string;
-  password: string;
-}) {
+export async function sendNewUserCredentialsMail(options: { to: string; password: string }) {
   await transporter.sendMail({
     from: process.env.MAIL_FROM ?? '"CMS" <no-reply@twoja-domena.pl>',
     to: options.to,
-    subject: "Dane do logowania do systemu",
+    subject: 'Dane do logowania do systemu',
     text: `
 Witaj!
 
