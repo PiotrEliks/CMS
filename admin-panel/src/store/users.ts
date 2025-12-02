@@ -24,9 +24,9 @@ export type User = {
 
 export type NewUserPayload = {
   email: string;
-  password: string;
   display_name?: string;
   role_id?: string;
+  status?: boolean;
 };
 
 export type UpdateUserPayload = {
