@@ -20,3 +20,7 @@ Dodać .env w /backend z:
   POSTGRES_USER=postgres  
   POSTGRES_PASSWORD=postgres  
   POSTGRES_DB=CMSDatabase  
+
+
+Prettier format:
+npx prettier --write .
