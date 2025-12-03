@@ -19,6 +19,7 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
   declare created_at: CreationOptional<Date>;
   declare updated_at: CreationOptional<Date>;
   declare role?: Role;
+  declare avatar_url: string | null;
 }
 
 User.init(
@@ -36,6 +37,7 @@ User.init(
     status: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
     created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
     updated_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+    avatar_url: { type: DataTypes.STRING(500), allowNull: true },
   },
   { sequelize, tableName: 'user', timestamps: true }
 );

@@ -36,6 +36,7 @@ export async function loginWithEmail(email: string, password: string) {
       display_name: user.display_name,
       last_access: user.last_access,
       role: plain.role,
+      avatar_url: user.avatar_url,
     },
   };
 }

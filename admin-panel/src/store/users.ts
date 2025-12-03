@@ -1,6 +1,6 @@
 // src/store/users.ts
-import { create } from "zustand";
-import { api } from "../api/axios";
+import { create } from 'zustand';
+import { api } from '../api/axios';
 
 export type Role = {
   role_id: string;
@@ -20,6 +20,7 @@ export type User = {
   status?: boolean;
   created_at?: string;
   updated_at?: string;
+  avatar_url?: string | null;
 };
 
 export type NewUserPayload = {
@@ -64,11 +65,10 @@ export const useUsers = create<UsersState>((set, get) => ({
   fetchUsers: async () => {
     set({ loading: true, error: null });
     try {
-      const res = await api.get("/users"); // => { users: [...] }
+      const res = await api.get('/users');
       set({ users: res.data.users ?? [], loading: false });
     } catch (e: any) {
-      const msg =
-        e?.response?.data?.error ?? "Nie udało się pobrać użytkowników";
+      const msg = e?.response?.data?.error ?? 'Nie udało się pobrać użytkowników';
       set({ error: msg, loading: false });
       throw e;
     }
@@ -80,8 +80,7 @@ export const useUsers = create<UsersState>((set, get) => ({
       const res = await api.get(`/users/${id}`);
       set({ selectedUser: res.data.user ?? null, loading: false });
     } catch (e: any) {
-      const msg =
-        e?.response?.data?.error ?? "Nie udało się pobrać użytkownika";
+      const msg = e?.response?.data?.error ?? 'Nie udało się pobrać użytkownika';
       set({ error: msg, loading: false });
       throw e;
     }
@@ -90,13 +89,13 @@ export const useUsers = create<UsersState>((set, get) => ({
   addUser: async (data: NewUserPayload) => {
     set({ loading: true, error: null });
     try {
-      const res = await api.post("/users/add", data);
+      const res = await api.post('/users/add', data);
       const created: User = res.data.user;
       const current = get().users;
       set({ users: [...current, created], loading: false });
       return created;
     } catch (e: any) {
-      const msg = e?.response?.data?.error ?? "Nie udało się dodać użytkownika";
+      const msg = e?.response?.data?.error ?? 'Nie udało się dodać użytkownika';
       set({ error: msg, loading: false });
       throw e;
     }
@@ -116,8 +115,7 @@ export const useUsers = create<UsersState>((set, get) => ({
 
       return updated;
     } catch (e: any) {
-      const msg =
-        e?.response?.data?.error ?? "Nie udało się zaktualizować użytkownika";
+      const msg = e?.response?.data?.error ?? 'Nie udało się zaktualizować użytkownika';
       set({ error: msg, loading: false });
       throw e;
     }
@@ -134,8 +132,7 @@ export const useUsers = create<UsersState>((set, get) => ({
         loading: false,
       });
     } catch (e: any) {
-      const msg =
-        e?.response?.data?.error ?? "Nie udało się usunąć użytkownika";
+      const msg = e?.response?.data?.error ?? 'Nie udało się usunąć użytkownika';
       set({ error: msg, loading: false });
       throw e;
     }

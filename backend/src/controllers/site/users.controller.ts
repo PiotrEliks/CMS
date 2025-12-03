@@ -1,3 +1,5 @@
+import fs from 'fs';
+import path from 'path';
 import { Request, Response } from 'express';
 import { asyncHandler } from '../../utils/asyncHandler.js';
 import { User } from '../../models/user.model.js';
@@ -176,6 +178,79 @@ export const updateCurrentUser = asyncHandler(async (req: AuthRequest, res: Resp
   if (Object.keys(updatePayload).length > 0) {
     await user.update(updatePayload);
   }
+
+  const updatedUser = await User.findByPk(userId, {
+    attributes: { exclude: ['password_hash'] },
+    include: [{ model: Role, as: 'role' }],
+  });
+
+  return res.status(200).json({ user: updatedUser });
+});
+
+export const updateAvatar = asyncHandler(async (req: AuthRequest, res: Response) => {
+  if (!req.user?.user_id) {
+    return res.status(401).json({ error: 'Brak autoryzacji' });
+  }
+
+  const userId = req.user.user_id;
+
+  const user = await User.findByPk(userId);
+  if (!user) {
+    return res.status(404).json({ error: 'Użytkownik nie został znaleziony' });
+  }
+
+  if (!req.file) {
+    return res.status(400).json({ error: 'Brak pliku avatara' });
+  }
+
+  // jeśli user miał stary avatar - opcjonalnie usuń plik
+  if (user.avatar_url) {
+    const oldPath = path.join(process.cwd(), user.avatar_url.replace(/^\//, ''));
+    if (fs.existsSync(oldPath)) {
+      try {
+        fs.unlinkSync(oldPath);
+      } catch (e) {
+        console.error('Nie udało się usunąć starego avatara:', e);
+      }
+    }
+  }
+
+  // nowy URL względem serwera
+  const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+
+  await user.update({ avatar_url: avatarUrl });
+
+  const updatedUser = await User.findByPk(userId, {
+    attributes: { exclude: ['password_hash'] },
+    include: [{ model: Role, as: 'role' }],
+  });
+
+  return res.status(200).json({ user: updatedUser });
+});
+
+export const deleteAvatar = asyncHandler(async (req: AuthRequest, res: Response) => {
+  if (!req.user?.user_id) {
+    return res.status(401).json({ error: 'Brak autoryzacji' });
+  }
+
+  const userId = req.user.user_id;
+  const user = await User.findByPk(userId);
+  if (!user) {
+    return res.status(404).json({ error: 'Użytkownik nie został znaleziony' });
+  }
+
+  if (user.avatar_url) {
+    const oldPath = path.join(process.cwd(), user.avatar_url.replace(/^\//, ''));
+    if (fs.existsSync(oldPath)) {
+      try {
+        fs.unlinkSync(oldPath);
+      } catch (e) {
+        console.error('Nie udało się usunąć avatara:', e);
+      }
+    }
+  }
+
+  await user.update({ avatar_url: null });
 
   const updatedUser = await User.findByPk(userId, {
     attributes: { exclude: ['password_hash'] },

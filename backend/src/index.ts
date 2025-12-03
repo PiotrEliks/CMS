@@ -1,6 +1,8 @@
+import path from 'path';
 import express from 'express';
 import dotenv from 'dotenv';
 dotenv.config();
+import { fileURLToPath } from 'url';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
@@ -9,6 +11,9 @@ import { ensureAdminSeed } from './db/seed.js';
 
 import adminRouter from './routes/admin/index.js';
 import siteRouter from './routes/site/index.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
@@ -26,6 +31,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use('/api/admin', adminRouter);
 app.use('/api/sites', siteRouter);
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
 const PORT = Number(process.env.PORT);
 

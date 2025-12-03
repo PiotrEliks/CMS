@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { useUsers } from "../../../store/users";
-import type { User, Role } from "../../../store/users";
-import Button from "../../ui/button/Button";
-import { api } from "../../../api/axios";
+import React, { useEffect, useState } from 'react';
+import { useUsers } from '../../../store/users';
+import type { User, Role } from '../../../store/users';
+import Button from '../../ui/button/Button';
+import { api } from '../../../api/axios';
 
 type Props = {
   open: boolean;
@@ -15,9 +15,9 @@ export default function UserFormModal({ open, onClose, userToEdit }: Props) {
 
   const { addUser, updateUser, loading, error, clearError } = useUsers();
 
-  const [email, setEmail] = useState("");
-  const [displayName, setDisplayName] = useState("");
-  const [roleId, setRoleId] = useState("");
+  const [email, setEmail] = useState('');
+  const [displayName, setDisplayName] = useState('');
+  const [roleId, setRoleId] = useState('');
   const [status, setStatus] = useState(true);
 
   const [roles, setRoles] = useState<Role[]>([]);
@@ -31,10 +31,10 @@ export default function UserFormModal({ open, onClose, userToEdit }: Props) {
       setRolesLoading(true);
       setRolesError(null);
       try {
-        const res = await api.get("/roles");
+        const res = await api.get('/roles');
         setRoles(res.data.roles ?? []);
       } catch (e: any) {
-        const msg = e?.response?.data?.error ?? "Nie udało się pobrać ról";
+        const msg = e?.response?.data?.error ?? 'Nie udało się pobrać ról';
         setRolesError(msg);
       } finally {
         setRolesLoading(false);
@@ -46,14 +46,14 @@ export default function UserFormModal({ open, onClose, userToEdit }: Props) {
 
   useEffect(() => {
     if (userToEdit) {
-      setEmail(userToEdit.email ?? "");
-      setDisplayName(userToEdit.display_name ?? "");
-      setRoleId(userToEdit.role_id ?? "");
+      setEmail(userToEdit.email ?? '');
+      setDisplayName(userToEdit.display_name ?? '');
+      setRoleId(userToEdit.role_id ?? '');
       setStatus(userToEdit.status ?? true);
     } else {
-      setEmail("");
-      setDisplayName("");
-      setRoleId("");
+      setEmail('');
+      setDisplayName('');
+      setRoleId('');
       setStatus(true);
     }
     clearError();
@@ -89,7 +89,7 @@ export default function UserFormModal({ open, onClose, userToEdit }: Props) {
       <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl dark:bg-gray-900">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            {isEdit ? "Edytuj użytkownika" : "Dodaj nowego użytkownika"}
+            {isEdit ? 'Edytuj użytkownika' : 'Dodaj nowego użytkownika'}
           </h2>
           <button
             type="button"
@@ -150,9 +150,7 @@ export default function UserFormModal({ open, onClose, userToEdit }: Props) {
               onChange={(e) => setRoleId(e.target.value)}
               disabled={rolesLoading}
             >
-              <option value="">
-                {rolesLoading ? "Ładowanie ról…" : "Wybierz rolę"}
-              </option>
+              <option value="">{rolesLoading ? 'Ładowanie ról…' : 'Wybierz rolę'}</option>
               {roles.map((role) => (
                 <option key={role.role_id} value={role.role_id}>
                   {role.display_name}
@@ -163,9 +161,7 @@ export default function UserFormModal({ open, onClose, userToEdit }: Props) {
 
           <div className="flex items-center justify-between gap-4 pt-2">
             <div>
-              <p className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                Status
-              </p>
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-200">Status</p>
               <p className="text-xs text-gray-500 dark:text-gray-400">
                 Określ, czy użytkownik jest aktywny.
               </p>
@@ -174,12 +170,12 @@ export default function UserFormModal({ open, onClose, userToEdit }: Props) {
               type="button"
               onClick={() => setStatus((s) => !s)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
-                status ? "bg-primary" : "bg-gray-300 dark:bg-gray-600"
+                status ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'
               }`}
             >
               <span
                 className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition ${
-                  status ? "translate-x-5" : "translate-x-1"
+                  status ? 'translate-x-5' : 'translate-x-1'
                 }`}
               />
             </button>
@@ -195,11 +191,7 @@ export default function UserFormModal({ open, onClose, userToEdit }: Props) {
             </button>
 
             <Button size="sm" variant="primary" disabled={loading}>
-              {loading
-                ? "Zapisywanie..."
-                : isEdit
-                  ? "Zapisz zmiany"
-                  : "Utwórz użytkownika"}
+              {loading ? 'Zapisywanie...' : isEdit ? 'Zapisz zmiany' : 'Utwórz użytkownika'}
             </Button>
           </div>
         </form>
