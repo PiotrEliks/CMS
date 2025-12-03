@@ -1,14 +1,14 @@
-import { useEffect } from 'react';
-import { Route, Routes, useLocation, Navigate } from 'react-router-dom';
-import { useAuth } from './store/auth';
-import ProtectedRoute from './components/ProtectedRoute';
-import HomePage from './pages/Dashboard/Home';
-import { attach401Interceptor } from './api/axios';
-import { ScrollToTop } from './components/common/ScrollToTop';
-import AppLayout from './layout/AppLayout';
-import SignIn from './pages/AuthPages/SignIn';
-import UserProfiles from './pages/UserProfiles';
-import Users from './pages/Users';
+import { useEffect } from "react";
+import { Route, Routes, useLocation, Navigate } from "react-router-dom";
+import { useAuth } from "./store/auth";
+import ProtectedRoute from "./components/ProtectedRoute";
+import HomePage from "./pages/Dashboard/Home";
+import { attach401Interceptor } from "./api/axios";
+import { ScrollToTop } from "./components/common/ScrollToTop";
+import AppLayout from "./layout/AppLayout";
+import SignIn from "./pages/AuthPages/SignIn";
+import UserProfiles from "./pages/UserProfiles";
+import Users from "./pages/Users";
 
 export default function App() {
   const { checkAuth, user, loading } = useAuth();
@@ -17,15 +17,15 @@ export default function App() {
   useEffect(() => {
     checkAuth();
     attach401Interceptor(() => {
-      window.location.href = '/login';
+      window.location.href = "/login";
     });
   }, []);
 
-  if (!loading && !user && location.pathname !== '/login') {
+  if (!loading && !user && location.pathname !== "/login") {
     return <Navigate to="/login" replace />;
   }
 
-  if (location.pathname === '/login' && user) {
+  if (location.pathname === "/login" && user) {
     return <Navigate to="/" replace />;
   }
 

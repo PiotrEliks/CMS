@@ -1,12 +1,18 @@
-import { useEffect } from 'react';
-import React from 'react';
-import { Table, TableBody, TableCell, TableHeader, TableRow } from '../../ui/table';
+import { useEffect } from "react";
+import React from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+  TableRow,
+} from "../../ui/table";
 
-import Badge from '../../ui/badge/Badge';
-import { useUsers } from '../../../store/users';
-import { formatDate } from '../../../utils/formatDate';
-import type { User } from '../../../store/users';
-import { useAuth } from '../../../store/auth';
+import Badge from "../../ui/badge/Badge";
+import { useUsers } from "../../../store/users";
+import { formatDate } from "../../../utils/formatDate";
+import type { User } from "../../../store/users";
+import { useAuth } from "../../../store/auth";
 
 type Props = {
   onEdit: (user: User) => void;
@@ -86,9 +92,15 @@ export default function BasicTableOne({ onEdit, onDelete }: Props) {
                 <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                   <Badge
                     size="sm"
-                    color={user.status ? 'success' : !user.status ? 'error' : 'warning'}
+                    color={
+                      user.status
+                        ? "success"
+                        : !user.status
+                          ? "error"
+                          : "warning"
+                    }
                   >
-                    {user.status ? 'Aktywny' : 'Nieaktywny'}
+                    {user.status ? "Aktywny" : "Nieaktywny"}
                   </Badge>
                 </TableCell>
 
@@ -133,9 +145,21 @@ export default function BasicTableOne({ onEdit, onDelete }: Props) {
                           xmlns="http://www.w3.org/2000/svg"
                           className="stroke-current"
                         >
-                          <path d="M4 7H20" strokeWidth="1.8" strokeLinecap="round" />
-                          <path d="M10 11V17" strokeWidth="1.8" strokeLinecap="round" />
-                          <path d="M14 11V17" strokeWidth="1.8" strokeLinecap="round" />
+                          <path
+                            d="M4 7H20"
+                            strokeWidth="1.8"
+                            strokeLinecap="round"
+                          />
+                          <path
+                            d="M10 11V17"
+                            strokeWidth="1.8"
+                            strokeLinecap="round"
+                          />
+                          <path
+                            d="M14 11V17"
+                            strokeWidth="1.8"
+                            strokeLinecap="round"
+                          />
                           <path
                             d="M6 7L7 19C7.06676 19.7442 7.40241 20.4437 7.93853 20.9449C8.47466 21.4461 9.17694 21.7127 9.9 21.7H14.1C14.8231 21.7127 15.5253 21.4461 16.0615 20.9449C16.5976 20.4437 16.9332 19.7442 17 19L18 7"
                             strokeWidth="1.8"

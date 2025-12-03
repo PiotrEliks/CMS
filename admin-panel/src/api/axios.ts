@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from "axios";
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE,
@@ -12,13 +12,14 @@ export function attach401Interceptor(onUnauthorized: () => void) {
       const status = err?.response?.status;
       const url = err?.config?.url as string | undefined;
 
-      const isCheck = url?.endsWith('/auth/check') || url?.includes('/auth/check');
+      const isCheck =
+        url?.endsWith("/auth/check") || url?.includes("/auth/check");
 
       if (status === 401 && !isCheck) {
         onUnauthorized();
       }
       return Promise.reject(err);
-    }
+    },
   );
   return () => api.interceptors.response.eject(id);
 }

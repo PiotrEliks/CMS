@@ -1,14 +1,14 @@
-import { useState } from 'react';
-import type { User } from '../../store/users';
-import PageBreadcrumb from '../../components/common/PageBreadCrumb';
-import ComponentCard from '../../components/common/ComponentCard';
-import PageMeta from '../../components/common/PageMeta';
-import BasicTableOne from '../../components/tables/BasicTables/BasicTableOne';
-import Button from '../../ui/button/Button';
-import { UserIcon } from '../../icons';
-import UserFormModal from '../../components/ui/modal/UserFormModal';
-import { useUsers } from '../../store/users';
-import DeleteConfirmModal from '../../components/modal/DeleteConfirmModal';
+import { useState } from "react";
+import type { User } from "../../store/users";
+import PageBreadcrumb from "../../components/common/PageBreadCrumb";
+import ComponentCard from "../../components/common/ComponentCard";
+import PageMeta from "../../components/common/PageMeta";
+import BasicTableOne from "../../components/tables/BasicTables/BasicTableOne";
+import Button from "../../ui/button/Button";
+import { UserIcon } from "../../icons";
+import UserFormModal from "../../components/ui/modal/UserFormModal";
+import { useUsers } from "../../store/users";
+import DeleteConfirmModal from "../../components/modal/DeleteConfirmModal";
 
 export default function BasicTables() {
   const { deleteUser } = useUsers();
@@ -56,7 +56,12 @@ export default function BasicTables() {
         <ComponentCard
           title="Użytkownicy"
           button={
-            <Button size="sm" variant="primary" startIcon={<UserIcon />} onClick={handleCreateNew}>
+            <Button
+              size="sm"
+              variant="primary"
+              startIcon={<UserIcon />}
+              onClick={handleCreateNew}
+            >
               Utwórz nowego
             </Button>
           }
@@ -79,7 +84,7 @@ export default function BasicTables() {
         message={
           userToDelete
             ? `Czy na pewno chcesz usunąć użytkownika "${userToDelete.email}"?`
-            : 'Czy na pewno chcesz usunąć ten element?'
+            : "Czy na pewno chcesz usunąć ten element?"
         }
       />
     </>

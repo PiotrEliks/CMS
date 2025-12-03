@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { DropdownItem } from '../ui/dropdown/DropdownItem';
-import { Dropdown } from '../ui/dropdown/Dropdown';
-import { useAuth } from '../../store/auth';
+import { useState } from "react";
+import { DropdownItem } from "../ui/dropdown/DropdownItem";
+import { Dropdown } from "../ui/dropdown/Dropdown";
+import { useAuth } from "../../store/auth";
 
 export default function UserDropdown() {
   const { user, logout } = useAuth();
@@ -11,7 +11,7 @@ export default function UserDropdown() {
     try {
       await logout(); // wykonuje POST /auth/logout i czyści store
     } finally {
-      window.location.href = '/login'; // przekierowanie po wylogowaniu
+      window.location.href = "/login"; // przekierowanie po wylogowaniu
     }
   }
 
@@ -34,10 +34,12 @@ export default function UserDropdown() {
           <img src="/images/user/owner.jpg" alt="User" />
         </span>
 
-        <span className="block mr-1 font-medium text-theme-sm">{user?.display_name}</span>
+        <span className="block mr-1 font-medium text-theme-sm">
+          {user?.display_name}
+        </span>
         <svg
           className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${
-            isOpen ? 'rotate-180' : ''
+            isOpen ? "rotate-180" : ""
           }`}
           width="18"
           height="20"

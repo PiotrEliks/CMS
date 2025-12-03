@@ -4,6 +4,15 @@ import { User } from '../../models/user.model.js';
 import { Role } from '../../models/role.model.js';
 import { generateRandomPassword, hashPassword } from '../../utils/password.js';
 import { sendNewUserCredentialsMail } from '../../utils/mailer.js';
+import bcrypt from 'bcryptjs';
+
+interface AuthRequest extends Request {
+  user?: {
+    user_id: string;
+    role_id?: string;
+    email?: string;
+  };
+}
 
 export const getUsers = asyncHandler(async (req: Request, res: Response) => {
   const users = await User.findAll({
@@ -103,4 +112,75 @@ export const deleteUser = asyncHandler(async (req: Request, res: Response) => {
   await user.destroy();
 
   return res.status(200).json({ success: true });
+});
+
+export const updateCurrentUser = asyncHandler(async (req: AuthRequest, res: Response) => {
+  if (!req.user?.user_id) {
+    return res.status(401).json({ error: 'Brak autoryzacji' });
+  }
+
+  const userId = req.user.user_id;
+
+  const user = await User.findByPk(userId);
+  if (!user) {
+    return res.status(404).json({ error: 'Użytkownik nie został znaleziony' });
+  }
+
+  const {
+    display_name,
+    email,
+    current_password,
+    new_password,
+  }: {
+    display_name?: string;
+    email?: string;
+    current_password?: string;
+    new_password?: string;
+  } = req.body;
+
+  const updatePayload: any = {};
+
+  if (display_name !== undefined) {
+    updatePayload.display_name = display_name;
+  }
+
+  if (email !== undefined && email !== user.email) {
+    const normalizedEmail = email.toLowerCase();
+    const existing = await User.findOne({ where: { email: normalizedEmail } });
+    if (existing && existing.get('user_id') !== user.get('user_id')) {
+      return res.status(400).json({ error: 'Użytkownik o podanym adresie email już istnieje' });
+    }
+    updatePayload.email = normalizedEmail;
+  }
+
+  if (current_password || new_password) {
+    if (!current_password || !new_password) {
+      return res
+        .status(400)
+        .json({ error: 'Aby zmienić hasło, podaj zarówno aktualne, jak i nowe hasło.' });
+    }
+
+    const ok = await bcrypt.compare(current_password, user.password_hash);
+    if (!ok) {
+      return res.status(400).json({ error: 'Aktualne hasło jest nieprawidłowe.' });
+    }
+
+    if (new_password.length < 8) {
+      return res.status(400).json({ error: 'Nowe hasło musi mieć co najmniej 8 znaków.' });
+    }
+
+    const hashed = await bcrypt.hash(new_password, 10);
+    updatePayload.password_hash = hashed;
+  }
+
+  if (Object.keys(updatePayload).length > 0) {
+    await user.update(updatePayload);
+  }
+
+  const updatedUser = await User.findByPk(userId, {
+    attributes: { exclude: ['password_hash'] },
+    include: [{ model: Role, as: 'role' }],
+  });
+
+  return res.status(200).json({ user: updatedUser });
 });

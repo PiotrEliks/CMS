@@ -1,7 +1,7 @@
-import PageBreadcrumb from '../components/common/PageBreadCrumb';
-import PageMeta from '../components/common/PageMeta';
-import FormElements from './Forms/FormElements';
-import BasicTables from './Tables/BasicTables';
+import PageBreadcrumb from "../components/common/PageBreadCrumb";
+import PageMeta from "../components/common/PageMeta";
+import FormElements from "./Forms/FormElements";
+import BasicTables from "./Tables/BasicTables";
 
 export default function Users() {
   return (
