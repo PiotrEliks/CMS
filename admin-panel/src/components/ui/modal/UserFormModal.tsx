@@ -128,10 +128,11 @@ export default function UserFormModal({ open, onClose, userToEdit }: Props) {
 
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-200">
-              Nazwa wyświetlana
+              Nazwa wyświetlana <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
+              required
               className="w-full rounded-lg border border-gray-200 bg-transparent px-4 py-2.5 text-sm text-gray-800 outline-none transition focus:border-primary focus:ring-1 focus:ring-primary dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
@@ -140,9 +141,10 @@ export default function UserFormModal({ open, onClose, userToEdit }: Props) {
 
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-200">
-              Rola
+              Rola <span className="text-red-500">*</span>
             </label>
             <select
+              required
               className="w-full rounded-lg border border-gray-200 bg-transparent px-4 py-2.5 text-sm text-gray-800 outline-none transition focus:border-primary focus:ring-1 focus:ring-primary dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
               value={roleId}
               onChange={(e) => setRoleId(e.target.value)}
