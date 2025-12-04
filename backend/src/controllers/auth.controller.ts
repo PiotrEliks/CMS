@@ -3,7 +3,7 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 import * as AuthService from '../services/auth.service.js';
 
 export const login = asyncHandler(async (req: Request, res: Response) => {
-  const { email, password } = req.body as { email?: string; password?: string };
+  const { email, password, keepSignedIn } = req.body as { email?: string; password?: string; keepSignedIn?: boolean };
 
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required' });
@@ -11,12 +11,16 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 
   const { accessToken, user } = await AuthService.loginWithEmail(email, password);
 
+  const maxAge = keepSignedIn 
+  ? 1000 * 60 * 60 * 24 * 180
+  : 1000 * 60 * 60;
+
   res.cookie('access_token', accessToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/',
-    maxAge: 1000 * 60 * 60,
+    maxAge: maxAge,
   });
 
   return res.status(200).json({ user });

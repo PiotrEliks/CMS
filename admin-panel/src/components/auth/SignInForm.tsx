@@ -20,7 +20,7 @@ export default function SignInForm() {
     e.preventDefault();
     clearError();
     try {
-      await login(email, password);
+      await login(email, password, keepSignedIn);
       if (keepSignedIn) localStorage.setItem('keepSignedIn', '1');
       navigate('/', { replace: true });
     } catch {}

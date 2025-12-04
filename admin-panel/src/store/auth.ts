@@ -29,7 +29,7 @@ type AuthState = {
   user: User | null;
   loading: boolean;
   error: string | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, keepSignedIn: boolean) => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
   clearError: () => void;
@@ -50,10 +50,10 @@ export const useAuth = create<AuthState>((set) => ({
 
   clearError: () => set({ error: null }),
 
-  login: async (email, password) => {
+  login: async (email, password, keepSignedIn) => {
     set({ loading: true, error: null });
     try {
-      const res = await api.post('/auth/login', { email, password });
+      const res = await api.post('/auth/login', { email, password, keepSignedIn });
       set({ user: res.data.user, loading: false });
     } catch (e: any) {
       const msg = e?.response?.data?.error ?? 'Login failed';
