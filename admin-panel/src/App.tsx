@@ -9,6 +9,9 @@ import AppLayout from './layout/AppLayout';
 import SignIn from './pages/AuthPages/SignIn';
 import UserProfiles from './pages/UserProfiles';
 import Users from './pages/Users';
+import ForgotPasswordForm from './components/form/auth/ForgotPasswordForm';
+import ResetPasswordForm from './components/form/auth/ResetPasswordForm';
+import AlertContainer from './components/common/AlertContainer';
 
 export default function App() {
   const { checkAuth, user, loading } = useAuth();
@@ -21,17 +24,27 @@ export default function App() {
     });
   }, []);
 
-  if (!loading && !user && location.pathname !== '/login') {
+  const isPublicPath =
+    location.pathname === '/login' ||
+    location.pathname === '/forgot-password' ||
+    location.pathname.startsWith('/reset-password');
+
+  if (loading) {
+    return null;
+  }
+
+  if (!user && !isPublicPath) {
     return <Navigate to="/login" replace />;
   }
 
-  if (location.pathname === '/login' && user) {
+  if (user && location.pathname === '/login') {
     return <Navigate to="/" replace />;
   }
 
   return (
     <>
       <ScrollToTop />
+      <AlertContainer />
       <Routes>
         <Route element={<AppLayout loading={loading} />}>
           <Route
@@ -59,6 +72,8 @@ export default function App() {
             }
           />
         </Route>
+        <Route path="/forgot-password" element={<ForgotPasswordForm />} />
+        <Route path="/reset-password/:token" element={<ResetPasswordForm />} />
         <Route path="/login" element={<SignIn />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

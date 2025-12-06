@@ -1,6 +1,6 @@
-// src/store/users.ts
 import { create } from 'zustand';
 import { api } from '../api/axios';
+import { useAlerts, type AlertPayload } from './alerts';
 
 export type Role = {
   role_id: string;
@@ -53,6 +53,10 @@ type UsersState = {
   clearSelected: () => void;
 };
 
+const showAlert = (payload: AlertPayload) => {
+  useAlerts.getState().showAlert(payload);
+};
+
 export const useUsers = create<UsersState>((set, get) => ({
   users: [],
   selectedUser: null,
@@ -93,10 +97,22 @@ export const useUsers = create<UsersState>((set, get) => ({
       const created: User = res.data.user;
       const current = get().users;
       set({ users: [...current, created], loading: false });
+      showAlert({
+        variant: 'success',
+        title: 'Dodano użytkownika',
+        message: 'Użytkownik został pomyślnie dodany.',
+        duration: 3000,
+      });
       return created;
     } catch (e: any) {
       const msg = e?.response?.data?.error ?? 'Nie udało się dodać użytkownika';
       set({ error: msg, loading: false });
+      showAlert({
+        variant: 'error',
+        title: 'Błąd',
+        message: msg,
+        duration: 5000,
+      });
       throw e;
     }
   },
@@ -113,10 +129,23 @@ export const useUsers = create<UsersState>((set, get) => ({
         loading: false,
       });
 
+      showAlert({
+        variant: 'success',
+        title: 'Zaktualizowano użytkownika',
+        message: 'Dane użytkownika zostały pomyślnie zaktualizowane.',
+        duration: 3000,
+      });
+
       return updated;
     } catch (e: any) {
       const msg = e?.response?.data?.error ?? 'Nie udało się zaktualizować użytkownika';
       set({ error: msg, loading: false });
+      showAlert({
+        variant: 'error',
+        title: 'Błąd',
+        message: msg,
+        duration: 5000,
+      });
       throw e;
     }
   },
@@ -131,9 +160,21 @@ export const useUsers = create<UsersState>((set, get) => ({
         users: current.filter((u) => u.user_id !== id),
         loading: false,
       });
+      showAlert({
+        variant: 'success',
+        title: 'Usunięto użytkownika',
+        message: 'Użytkownik został pomyślnie usunięty.',
+        duration: 3000,
+      });
     } catch (e: any) {
       const msg = e?.response?.data?.error ?? 'Nie udało się usunąć użytkownika';
       set({ error: msg, loading: false });
+      showAlert({
+        variant: 'error',
+        title: 'Błąd',
+        message: msg,
+        duration: 5000,
+      });
       throw e;
     }
   },

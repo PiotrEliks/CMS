@@ -6,6 +6,9 @@ import Label from '../form/Label';
 import { useAuth } from '../../store/auth';
 import { EyeCloseIcon, EyeIcon } from '../../icons';
 
+const STRONG_PASSWORD_REGEX =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
+
 export default function UserInfoCard() {
   const { user, updateMe, updatingMe, error, clearError } = useAuth();
 
@@ -79,8 +82,10 @@ export default function UserInfoCard() {
         return;
       }
 
-      if (newPassword.length < 8) {
-        setLocalError('Nowe hasło musi mieć co najmniej 8 znaków.');
+      if (!STRONG_PASSWORD_REGEX.test(newPassword)) {
+        setLocalError(
+          'Nowe hasło musi mieć co najmniej 8 znaków, jedną małą literę, jedną wielką literę i jeden znak specjalny.'
+        );
         return;
       }
 

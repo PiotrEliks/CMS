@@ -35,3 +35,17 @@ Zalecamy zmianę hasła po pierwszym zalogowaniu.
     `,
   });
 }
+
+export async function sendPasswordResetMail(options: { to: string; link: string }) {
+  await transporter.sendMail({
+    from: process.env.MAIL_FROM,
+    to: options.to,
+    subject: 'Reset hasła – CMS',
+    html: `
+      <p>Poproszono o reset hasła.</p>
+      <p>Kliknij aby ustawić nowe hasło:</p>
+      <p><a href="${options.link}">${options.link}</a></p>
+      <p>Jeśli to nie Ty – zignoruj tę wiadomość.</p>
+    `
+  });
+}

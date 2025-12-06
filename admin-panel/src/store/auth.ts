@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { api } from '../api/axios';
+import { useAlerts, type AlertPayload } from './alerts';
 
 type User = {
   user_id: string;
@@ -39,6 +40,12 @@ type AuthState = {
   avatarLoading: boolean;
   uploadAvatar: (file: File) => Promise<void>;
   deleteAvatar: () => Promise<void>;
+  forgotPassword: (email: string) => Promise<void>;
+   resetPassword: (token: string, newPassword: string) => Promise<void>;
+};
+
+const showAlert = (payload: AlertPayload) => {
+  useAlerts.getState().showAlert(payload);
 };
 
 export const useAuth = create<AuthState>((set) => ({
@@ -57,6 +64,12 @@ export const useAuth = create<AuthState>((set) => ({
       set({ user: res.data.user, loading: false });
     } catch (e: any) {
       const msg = e?.response?.data?.error ?? 'Login failed';
+      showAlert({
+        variant: 'error',
+        title: 'Błąd logowania',
+        message: msg,
+        duration: 5000,
+      });
       set({ error: msg, loading: false });
       throw e;
     }
@@ -86,9 +99,21 @@ export const useAuth = create<AuthState>((set) => ({
       const res = await api.put('/users/me', data);
       const updatedUser = res.data.user ?? null;
       set({ user: updatedUser, updatingMe: false });
+      showAlert({
+        variant: 'success',
+        title: 'Zaktualizowano dane',
+        message: 'Twoje dane zostały pomyślnie zaktualizowane.',
+        duration: 3000,
+      });
     } catch (e: any) {
       const msg = e?.response?.data?.error ?? 'Nie udało się zaktualizować danych użytkownika';
       set({ error: msg, updatingMe: false });
+      showAlert({
+        variant: 'error',
+        title: 'Błąd',
+        message: msg,
+        duration: 5000,
+      });
       throw e;
     }
   },
@@ -105,9 +130,21 @@ export const useAuth = create<AuthState>((set) => ({
 
       const updatedUser = res.data.user ?? null;
       set({ user: updatedUser, avatarLoading: false });
+    showAlert({
+        variant: 'success',
+        title: 'Zaktualizowano zdjęcie profilowe',
+        message: 'Twoje zdjęcie profilowe zostało pomyślnie zaktualizowane.',
+        duration: 3000,
+      });
     } catch (e: any) {
       const msg = e?.response?.data?.error ?? 'Nie udało się zaktualizować zdjęcia profilowego';
       set({ error: msg, avatarLoading: false });
+      showAlert({
+        variant: 'error',
+        title: 'Błąd',
+        message: msg,
+        duration: 5000,
+      });
       throw e;
     }
   },
@@ -118,10 +155,72 @@ export const useAuth = create<AuthState>((set) => ({
       const res = await api.delete('/users/me/avatar');
       const updatedUser = res.data.user ?? null;
       set({ user: updatedUser, avatarLoading: false });
+      showAlert({
+        variant: 'success',
+        title: 'Usunięto zdjęcie profilowe',
+        message: 'Twoje zdjęcie profilowe zostało pomyślnie usunięte.',
+        duration: 3000,
+      });
     } catch (e: any) {
       const msg = e?.response?.data?.error ?? 'Nie udało się usunąć zdjęcia profilowego';
       set({ error: msg, avatarLoading: false });
+      showAlert({
+        variant: 'error',
+        title: 'Błąd',
+        message: msg,
+        duration: 5000,
+      });
       throw e;
+    }
+  },
+
+  forgotPassword: async (email: string) => {
+    set({ loading: true, error: null });
+    try {
+      await api.post('/auth/forgot-password', { email });
+      showAlert({
+        variant: 'success',
+        title: 'Mail resetujący wysłany',
+        message: 'Jeśli konto z podanym adresem e-mail istnieje, wysłaliśmy maila z instrukcjami resetu hasła.',
+        duration: 5000,
+      });
+    } catch (e: any) {
+      const msg = e?.response?.data?.error ?? 'Nie udało się wysłać maila resetującego';
+      set({ error: msg });
+      showAlert({
+        variant: 'error',
+        title: 'Błąd',
+        message: msg,
+        duration: 5000,
+      });
+      throw e;
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  resetPassword: async (token: string, newPassword: string) => {
+    set({ loading: true, error: null });
+    try {
+      await api.post('/auth/reset-password', { token, newPassword });
+      showAlert({
+        variant: 'success',
+        title: 'Hasło zresetowane',
+        message: 'Twoje hasło zostało pomyślnie zresetowane. Możesz się teraz zalogować.',
+        duration: 5000,
+      });
+    } catch (e: any) {
+      const msg = e?.response?.data?.error ?? 'Nie udało się zresetować hasła';
+      set({ error: msg });
+      showAlert({
+        variant: 'error',
+        title: 'Błąd',
+        message: msg,
+        duration: 5000,
+      });
+      throw e;
+    } finally {
+      set({ loading: false });
     }
   },
 }));

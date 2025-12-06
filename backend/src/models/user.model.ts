@@ -20,6 +20,8 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
   declare updated_at: CreationOptional<Date>;
   declare role?: Role;
   declare avatar_url: string | null;
+  declare reset_token: string | null;
+  declare reset_token_expires: Date | null;
 }
 
 User.init(
@@ -38,6 +40,8 @@ User.init(
     created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
     updated_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
     avatar_url: { type: DataTypes.STRING(500), allowNull: true },
+    reset_token: { type: DataTypes.STRING, allowNull: true },
+    reset_token_expires: { type: DataTypes.DATE, allowNull: true },
   },
   { sequelize, tableName: 'user', timestamps: true }
 );

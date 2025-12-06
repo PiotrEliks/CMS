@@ -1,12 +1,13 @@
 import { Link } from 'react-router';
 
 interface AlertProps {
-  variant: 'success' | 'error' | 'warning' | 'info'; // Alert type
-  title: string; // Title of the alert
-  message: string; // Message of the alert
-  showLink?: boolean; // Whether to show the "Learn More" link
-  linkHref?: string; // Link URL
-  linkText?: string; // Link text
+  variant: 'success' | 'error' | 'warning' | 'info';
+  title: string;
+  message: string;
+  showLink?: boolean;
+  linkHref?: string;
+  linkText?: string;
+  onClose?: () => void;
 }
 
 const Alert: React.FC<AlertProps> = ({
@@ -16,8 +17,8 @@ const Alert: React.FC<AlertProps> = ({
   showLink = false,
   linkHref = '#',
   linkText = 'Learn more',
+  onClose,
 }) => {
-  // Tailwind classes for each variant
   const variantClasses = {
     success: {
       container:
@@ -115,8 +116,23 @@ const Alert: React.FC<AlertProps> = ({
       <div className="flex items-start gap-3">
         <div className={`-mt-0.5 ${variantClasses[variant].icon}`}>{icons[variant]}</div>
 
-        <div>
-          <h4 className="mb-1 text-sm font-semibold text-gray-800 dark:text-white/90">{title}</h4>
+        <div className="flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <h4 className="mb-1 text-sm font-semibold text-gray-800 dark:text-white/90">
+              {title}
+            </h4>
+
+            {onClose && (
+              <button
+                type="button"
+                onClick={onClose}
+                className="ml-2 inline-flex h-5 w-5 items-center justify-center rounded-full text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+                aria-label="Zamknij alert"
+              >
+                <span className="text-lg leading-none">&times;</span>
+              </button>
+            )}
+          </div>
 
           <p className="text-sm text-gray-500 dark:text-gray-400">{message}</p>
 
