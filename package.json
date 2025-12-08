@@ -1,0 +1,30 @@
+{
+  "name": "cms",
+  "version": "1.0.0",
+  "description": "Full-stack CMS with backend API, admin panel, and public site",
+  "private": true,
+  "scripts": {
+    "install:all": "npm install && npm install --prefix backend && npm install --prefix admin-panel && npm install --prefix public-site",
+    "dev": "npm run dev:all",
+    "dev:all": "concurrently \"npm run db:up\" \"npm run dev:backend\" \"npm run dev:admin\" \"npm run dev:public\"",
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:admin": "npm run dev --prefix admin-panel",
+    "dev:public": "npm run dev --prefix public-site",
+    "dev:fast": "concurrently \"npm run dev:backend\" \"npm run dev:admin\" \"npm run dev:public\"",
+    "build:all": "npm run build --prefix backend && npm run build --prefix admin-panel && npm run build --prefix public-site",
+    "typecheck": "concurrently \"npm run typecheck --prefix backend\" \"npm run build --prefix admin-panel -- --mode types-only\" \"npm run build --prefix public-site -- --mode types-only\"",
+    "db:up": "docker-compose -f backend/docker-compose.yml up -d",
+    "db:down": "docker-compose -f backend/docker-compose.yml down",
+    "db:logs": "docker-compose -f backend/docker-compose.yml logs -f",
+    "db:reset": "docker-compose -f backend/docker-compose.yml down -v && docker-compose -f backend/docker-compose.yml up -d"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "author": "",
+  "license": "ISC"
+}
