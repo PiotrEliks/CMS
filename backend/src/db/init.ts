@@ -10,9 +10,7 @@ type InitDbOptions = {
 };
 
 export async function initDatabase(opts: InitDbOptions = {}) {
-  const syncOpt =
-    opts.sync ??
-    (process.env.NODE_ENV === 'production' ? false : { alter: true });
+  const syncOpt = opts.sync ?? (process.env.NODE_ENV === 'production' ? false : { alter: true });
 
   setupAssociations();
   await sequelize.authenticate();

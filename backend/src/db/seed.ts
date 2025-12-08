@@ -10,9 +10,9 @@ export async function ensureAdminSeed() {
   await sequelize.transaction(async (t) => {
     const [adminRole] = await Role.findOrCreate({
       where: { type: 'admin' },
-      defaults: { 
+      defaults: {
         type: 'admin',
-        display_name: 'Administrator'
+        display_name: 'Administrator',
       },
       transaction: t,
     });
