@@ -13,7 +13,7 @@ type Props = {
   onDelete: (user: User) => void;
 };
 
-export default function BasicTableOne({ onEdit, onDelete }: Props) {
+export default function UserTableOne({ onEdit, onDelete }: Props) {
   const { users, loading, error, fetchUsers } = useUsers();
   const { user: loggedInUser } = useAuth();
 

@@ -12,6 +12,7 @@ import Users from './pages/Users';
 import ForgotPasswordForm from './components/form/auth/ForgotPasswordForm';
 import ResetPasswordForm from './components/form/auth/ResetPasswordForm';
 import AlertContainer from './components/common/AlertContainer';
+import Roles from './pages/Roles';
 
 export default function App() {
   const { checkAuth, user, loading } = useAuth();
@@ -68,6 +69,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Users />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/roles"
+            element={
+              <ProtectedRoute>
+                <Roles />
               </ProtectedRoute>
             }
           />

@@ -38,6 +38,11 @@ const navItems: NavItem[] = [
     path: '/users',
   },
   {
+    icon: <UserCircleIcon />,
+    name: 'Role',
+    path: '/roles',
+  },
+  {
     icon: <ListIcon />,
     name: 'Menu',
     subItems: [{ name: 'Form Elements', path: '/form-elements', pro: false }],

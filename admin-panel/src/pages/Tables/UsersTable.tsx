@@ -3,14 +3,14 @@ import type { User } from '../../store/users';
 import PageBreadcrumb from '../../components/common/PageBreadCrumb';
 import ComponentCard from '../../components/common/ComponentCard';
 import PageMeta from '../../components/common/PageMeta';
-import BasicTableOne from '../../components/tables/BasicTables/BasicTableOne';
+import BasicTableOne from '../../components/tables/BasicTables/UserTableOne';
 import Button from '../../ui/button/Button';
 import { UserIcon } from '../../icons';
 import UserFormModal from '../../components/ui/modal/UserFormModal';
 import { useUsers } from '../../store/users';
 import DeleteConfirmModal from '../../components/modal/DeleteConfirmModal';
 
-export default function BasicTables() {
+export default function UsersTable() {
   const { deleteUser } = useUsers();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
