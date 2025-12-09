@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import * as MenuController from '../../controllers/menu.controller.js';
+import * as MenuController from '../../controllers/site/menus.controller.js';
 import { requireAuth } from '../../middlewares/auth.middleware.js';
 
 const router = Router();

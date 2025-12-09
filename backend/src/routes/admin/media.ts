@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import * as MediaController from '../../controllers/media.controller.js';
+import * as MediaController from '../../controllers/site/media.controller.js';
 import { requireAuth } from '../../middlewares/auth.middleware.js';
 
 const router = Router();
