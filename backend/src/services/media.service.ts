@@ -6,11 +6,7 @@ export class MediaService extends BaseService<Media> {
   constructor() {
     super(Media);
   }
-
-  /**
-   * Create media entry (for uploaded files)
-   * In a real app, this would handle file uploads to cloud storage (S3, Cloudinary, etc.)
-   */
+  
   async createFromUpload(data: {
     filename: string;
     mime_type: string;
@@ -39,7 +35,7 @@ export class MediaService extends BaseService<Media> {
         },
         {
           model: Content,
-          as: 'medias',
+          as: 'contents',
           attributes: ['content_id', 'title', 'slug'],
         },
       ],
@@ -113,6 +109,16 @@ export class MediaService extends BaseService<Media> {
     });
 
     return result?.total || 0;
+  }
+
+  /**
+   * Get published media by ID (public API)
+   */
+  async getPublishedById(mediaId: string) {
+    return await Media.findOne({
+      where: { media_id: mediaId, status: true },
+      attributes: ['media_id', 'storage_path', 'mime_type', 'width', 'height', 'alt_text', 'title'],
+    });
   }
 }
 

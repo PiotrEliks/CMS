@@ -1,22 +1,14 @@
 import bcrypt from 'bcryptjs';
+import fs from 'fs';
+import path from 'path';
 import { Op } from 'sequelize';
 import { User, Role } from '../models/index.js';
 import { BaseService } from './types/BaseService.js';
 import { FindOptions, PaginationOptions } from './types/IRepository.js';
-import { generateRandomPassword } from '../utils/password.js';
+import { generateRandomPassword, hashPassword } from '../utils/password.js';
 import { sendNewUserCredentialsMail } from '../utils/mailer.js';
 
-/**
- * Hash password with bcrypt
- */
-async function hashPassword(password: string): Promise<string> {
-  const salt = await bcrypt.genSalt(10);
-  return bcrypt.hash(password, salt);
-}
 
-/**
- * Compare plain password with hash
- */
 async function comparePassword(plain: string, hash: string): Promise<boolean> {
   return bcrypt.compare(plain, hash);
 }
@@ -26,105 +18,15 @@ export class UserService extends BaseService<User> {
     super(User);
   }
 
-  /**
-   * Create new user with password hashing
-   */
-  async create(data: {
-    email: string;
-    display_name?: string;
-    password: string;
-    role_id?: string | null;
-    avatar_url?: string;
-    is_active?: boolean;
-  }) {
-    // Check if email already exists
-    const existing = await User.findOne({ where: { email: data.email.toLowerCase() } });
-    if (existing) {
-      throw new Error('Email already registered');
-    }
 
-    const passwordHash = await hashPassword(data.password);
-
-    return await super.create({
-      ...data,
-      email: data.email.toLowerCase(),
-      password_hash: passwordHash,
-      is_active: data.is_active !== false,
-    } as any);
-  }
-
-  /**
-   * Update user (excluding password)
-   */
-  async updateUser(userId: string, data: { email?: string; display_name?: string; avatar_url?: string; is_active?: boolean }) {
-    // If email is being changed, check uniqueness
-    if (data.email) {
-      const existing = await User.findOne({
-        where: {
-          email: data.email.toLowerCase(),
-          user_id: { [Op.ne]: userId },
-        },
-      });
-      if (existing) {
-        throw new Error('Email already in use');
-      }
-    }
-
-    const updatePayload: any = {
-      email: data.email?.toLowerCase(),
-    };
-    if (data.display_name !== undefined) updatePayload.display_name = data.display_name;
-    if (data.avatar_url !== undefined) updatePayload.avatar_url = data.avatar_url;
-    if (data.is_active !== undefined) updatePayload.status = data.is_active;
-
-    return await this.update(userId, updatePayload);
-  }
-
-  /**
-   * Verify user password
-   */
-  async verifyPassword(userId: string, password: string): Promise<boolean> {
-    const user = await this.findById(userId);
-    if (!user) return false;
-
-    return comparePassword(password, (user as any).password_hash);
-  }
-
-  /**
-   * Change user password
-   */
-  async changePassword(userId: string, oldPassword: string, newPassword: string): Promise<void> {
-    const user = await this.findById(userId);
-    if (!user) throw new Error('User not found');
-
-    const isValid = await comparePassword(oldPassword, (user as any).password_hash);
-    if (!isValid) throw new Error('Current password is incorrect');
-
-    const passwordHash = await hashPassword(newPassword);
-    await this.update(userId, { password_hash: passwordHash } as any);
-  }
-
-  /**
-   * Reset user password (by admin)
-   */
-  async resetPassword(userId: string, newPassword: string): Promise<void> {
-    const passwordHash = await hashPassword(newPassword);
-    await this.update(userId, { password_hash: passwordHash } as any);
-  }
-
-  /**
-   * Get user with role
-   */
   async getUserWithRole(userId: string) {
-    return await this.findOne({
-      where: { user_id: userId },
+    return await User.findByPk(userId, {
+      attributes: { exclude: ['password_hash'] },
       include: [{ model: Role, as: 'role' }],
     });
   }
 
-  /**
-   * Get user by email
-   */
+
   async getUserByEmail(email: string) {
     return await this.findOne({
       where: { email: email.toLowerCase() },
@@ -132,164 +34,298 @@ export class UserService extends BaseService<User> {
     });
   }
 
-  /**
-   * Assign role to user
-   */
-  async assignRole(userId: string, roleId: string): Promise<void> {
-    const user = await this.findById(userId);
-    if (!user) throw new Error('User not found');
-
-    const role = await Role.findByPk(roleId);
-    if (!role) throw new Error('Role not found');
-
-    await this.update(userId, { role_id: roleId } as any);
-  }
-
-  /**
-   * Remove role from user
-   */
-  async removeRole(userId: string): Promise<void> {
-    await this.update(userId, { role_id: null } as any);
-  }
-
-  /**
-   * Deactivate user
-   */
-  async deactivate(userId: string): Promise<void> {
-    await this.update(userId, { is_active: false } as any);
-  }
-
-  /**
-   * Activate user
-   */
-  async activate(userId: string): Promise<void> {
-    await this.update(userId, { is_active: true } as any);
-  }
-
-  /**
-   * List users with role information
-   */
   async listWithRoles(options: PaginationOptions & FindOptions) {
-    return await this.list({
-      ...options,
+    const { limit, offset, ...rest } = options;
+
+    const { rows, count } = await User.findAndCountAll({
+      ...rest,
+      attributes: { exclude: ['password_hash'] },
       include: [{ model: Role, as: 'role' }],
+      limit,
+      offset,
+      distinct: true,
     });
+
+    return { items: rows, total: count };
   }
 
   /**
    * Search users by email or name
    */
   async search(query: string, options: PaginationOptions) {
-    return await this.list({
+    const { rows, count } = await User.findAndCountAll({
       where: {
         [Op.or]: [
           { email: { [Op.iLike]: `%${query}%` } },
           { display_name: { [Op.iLike]: `%${query}%` } },
         ],
       },
+      attributes: { exclude: ['password_hash'] },
       include: [{ model: Role, as: 'role' }],
       limit: options.limit,
       offset: options.offset,
+      distinct: true,
     });
+
+    return { items: rows, total: count };
   }
 
-  /**
-   * Create user with random password and send email
-   */
-  async createWithEmail(data: { email: string; display_name?: string; role_id?: string | null; status?: boolean }): Promise<any> {
+
+  async createWithEmail(data: {
+    email: string;
+    display_name?: string;
+    role_id?: string;
+    status?: boolean;
+  }) {
     const existing = await User.findOne({ where: { email: data.email } });
     if (existing) {
       throw new Error('Użytkownik o podanym adresie email już istnieje');
     }
 
     const plainPassword = generateRandomPassword(12);
-    const passwordHash = await hashPassword(plainPassword);
+    const password_hash = await hashPassword(plainPassword);
 
-    const user = await super.create({
+    const user = await User.create({
       email: data.email,
       display_name: data.display_name,
       role_id: data.role_id,
-      password_hash: passwordHash,
       status: data.status !== false,
+      password_hash,
     } as any);
 
-    // Send email non-blocking
+    // Send email (non-blocking)
     sendNewUserCredentialsMail({
       to: data.email,
       password: plainPassword,
-    }).catch(err => console.error('Email error:', err));
+    }).catch((err) => console.error('Nie udało się wysłać maila z danymi logowania:', err));
 
     return await this.getUserWithRole((user as any).user_id);
   }
 
-  /**
-   * Update user and return with role
-   */
-  async updateAndFetch(userId: string, data: { email?: string; display_name?: string; avatar_url?: string; status?: boolean }): Promise<any> {
-    const user = await this.findById(userId);
-    if (!user) throw new Error('Użytkownik nie został znaleziony');
-
-    if (data.email && data.email !== (user as any).email) {
-      const existing = await User.findOne({
-        where: {
-          email: data.email,
-          user_id: { [Op.ne]: userId },
-        },
-      });
-      if (existing) throw new Error('Użytkownik o podanym adresie email już istnieje');
+  async updateUserData(
+    userId: string,
+    data: {
+      email?: string;
+      display_name?: string;
+      role_id?: string;
+      status?: boolean;
+    }
+  ) {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      throw new Error('Użytkownik nie został znaleziony');
     }
 
-    const updatePayload: any = {};
-    if (data.email !== undefined) updatePayload.email = data.email;
-    if (data.display_name !== undefined) updatePayload.display_name = data.display_name;
-    if (data.avatar_url !== undefined) updatePayload.avatar_url = data.avatar_url;
-    if (data.status !== undefined) updatePayload.status = data.status;
+    if (data.email && data.email !== (user as any).email) {
+      const existing = await User.findOne({ where: { email: data.email } });
+      if (existing && (existing as any).user_id !== (user as any).user_id) {
+        throw new Error('Użytkownik o podanym adresie email już istnieje');
+      }
+    }
 
-    await this.update(userId, updatePayload);
+    await user.update({
+      email: data.email ?? (user as any).email,
+      display_name: data.display_name ?? (user as any).display_name,
+      role_id: data.role_id ?? (user as any).role_id,
+      ...(typeof data.status === 'boolean' ? { status: data.status } : {}),
+    });
+
     return await this.getUserWithRole(userId);
   }
 
-  async changePasswordForUser(userId: string, currentPassword: string, newPassword: string): Promise<void> {
+  async updateCurrentUserProfile(
+    userId: string,
+    data: {
+      display_name?: string;
+      email?: string;
+      current_password?: string;
+      new_password?: string;
+    }
+  ) {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      throw new Error('Użytkownik nie został znaleziony');
+    }
+
+    const updatePayload: any = {};
+
+    if (data.display_name !== undefined) {
+      updatePayload.display_name = data.display_name;
+    }
+
+    if (data.email !== undefined && data.email !== (user as any).email) {
+      const normalizedEmail = data.email.toLowerCase();
+      const existing = await User.findOne({ where: { email: normalizedEmail } });
+      if (existing && (existing as any).user_id !== (user as any).user_id) {
+        throw new Error('Użytkownik o podanym adresie email już istnieje');
+      }
+      updatePayload.email = normalizedEmail;
+    }
+
+    // Password change logic
+    if (data.current_password || data.new_password) {
+      if (!data.current_password || !data.new_password) {
+        throw new Error('Aby zmienić hasło, podaj zarówno aktualne, jak i nowe hasło.');
+      }
+
+      const ok = await bcrypt.compare(data.current_password, (user as any).password_hash);
+      if (!ok) {
+        throw new Error('Aktualne hasło jest nieprawidłowe.');
+      }
+
+      if (data.new_password.length < 8) {
+        throw new Error('Nowe hasło musi mieć co najmniej 8 znaków.');
+      }
+
+      const hashed = await bcrypt.hash(data.new_password, 10);
+      updatePayload.password_hash = hashed;
+    }
+
+    if (Object.keys(updatePayload).length > 0) {
+      await user.update(updatePayload);
+    }
+
+    return await this.getUserWithRole(userId);
+  }
+
+  async changePassword(userId: string, currentPassword: string, newPassword: string): Promise<void> {
     if (!currentPassword || !newPassword) {
       throw new Error('Aby zmienić hasło, podaj zarówno aktualne, jak i nowe hasło.');
     }
 
-    const user = await this.findById(userId);
-    if (!user) throw new Error('Użytkownik nie został znaleziony');
+    const user = await User.findByPk(userId);
+    if (!user) {
+      throw new Error('Użytkownik nie został znaleziony');
+    }
 
-    const isValid = await bcrypt.compare(currentPassword, (user as any).password_hash);
-    if (!isValid) throw new Error('Aktualne hasło jest nieprawidłowe.');
+    const isValid = await comparePassword(currentPassword, (user as any).password_hash);
+    if (!isValid) {
+      throw new Error('Aktualne hasło jest nieprawidłowe.');
+    }
 
     if (newPassword.length < 8) {
       throw new Error('Nowe hasło musi mieć co najmniej 8 znaków.');
     }
 
-    const hashed = await bcrypt.hash(newPassword, 10);
-    await this.update(userId, { password_hash: hashed } as any);
+    const password_hash = await hashPassword(newPassword);
+    await user.update({ password_hash });
   }
 
-  /**
-   * Change password for user by id
-   */
-  async changePassword(userId: string, oldPassword: string, newPassword: string): Promise<void> {
-    const user = await this.findById(userId);
-    if (!user) throw new Error('User not found');
 
-    const isValid = await comparePassword(oldPassword, (user as any).password_hash);
-    if (!isValid) throw new Error('Current password is incorrect');
+  async resetPassword(userId: string, newPassword: string): Promise<void> {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      throw new Error('Użytkownik nie został znaleziony');
+    }
 
-    const passwordHash = await hashPassword(newPassword);
-    await this.update(userId, { password_hash: passwordHash } as any);
+    if (newPassword.length < 8) {
+      throw new Error('Nowe hasło musi mieć co najmniej 8 znaków.');
+    }
+
+    const password_hash = await hashPassword(newPassword);
+    await user.update({ password_hash });
   }
 
-  async updateAvatarUrl(userId: string, avatarUrl: string): Promise<any> {
-    await this.update(userId, { avatar_url: avatarUrl } as any);
+  async verifyPassword(userId: string, password: string): Promise<boolean> {
+    const user = await User.findByPk(userId);
+    if (!user) return false;
+
+    return comparePassword(password, (user as any).password_hash);
+  }
+
+
+  async assignRole(userId: string, roleId: string): Promise<void> {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      throw new Error('Użytkownik nie został znaleziony');
+    }
+
+    const role = await Role.findByPk(roleId);
+    if (!role) {
+      throw new Error('Rola nie została znaleziona');
+    }
+
+    await user.update({ role_id: roleId });
+  }
+
+  async removeRole(userId: string): Promise<void> {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      throw new Error('Użytkownik nie został znaleziony');
+    }
+
+    await user.update({ role_id: null });
+  }
+
+  async activate(userId: string): Promise<void> {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      throw new Error('Użytkownik nie został znaleziony');
+    }
+
+    await user.update({ status: true });
+  }
+
+  async deactivate(userId: string): Promise<void> {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      throw new Error('Użytkownik nie został znaleziony');
+    }
+
+    await user.update({ status: false });
+  }
+
+  async updateAvatar(userId: string, avatarUrl: string) {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      throw new Error('Użytkownik nie został znaleziony');
+    }
+
+    // Delete old avatar file if exists
+    if ((user as any).avatar_url) {
+      const oldPath = path.join(process.cwd(), (user as any).avatar_url.replace(/^\//, ''));
+      if (fs.existsSync(oldPath)) {
+        try {
+          fs.unlinkSync(oldPath);
+        } catch (e) {
+          console.error('Nie udało się usunąć starego avatara:', e);
+        }
+      }
+    }
+
+    await user.update({ avatar_url: avatarUrl });
     return await this.getUserWithRole(userId);
   }
 
-  async removeAvatarUrl(userId: string): Promise<any> {
-    await this.update(userId, { avatar_url: null } as any);
+  async deleteAvatar(userId: string) {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      throw new Error('Użytkownik nie został znaleziony');
+    }
+
+    if ((user as any).avatar_url) {
+      const oldPath = path.join(process.cwd(), (user as any).avatar_url.replace(/^\//, ''));
+      if (fs.existsSync(oldPath)) {
+        try {
+          fs.unlinkSync(oldPath);
+        } catch (e) {
+          console.error('Nie udało się usunąć avatara:', e);
+        }
+      }
+    }
+
+    await user.update({ avatar_url: null });
     return await this.getUserWithRole(userId);
+  }
+
+  async deleteUser(userId: string): Promise<boolean> {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return false;
+    }
+
+    await user.destroy();
+    return true;
   }
 }
 

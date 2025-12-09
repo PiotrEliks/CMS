@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { Category, Content } from '../models/index.js';
+import { Category, Content, ContentCategory } from '../models/index.js';
 import { BaseService } from './types/BaseService.js';
 import { ISluggable } from './types/ISluggable.js';
 import { IAttachable } from './types/IAttachable.js';
@@ -148,6 +148,43 @@ export class CategoryService extends BaseService<Category> implements ISluggable
     );
 
     await Promise.all(updates);
+  }
+
+  /**
+   * Get published category by slug with published contents (public API)
+   * Exact logic from Piotr's original controller
+   */
+  async getPublishedBySlug(slug: string) {
+    const category = await Category.findOne({
+      where: { slug, status: true },
+      attributes: ['category_id', 'display_name', 'slug', 'path'],
+    });
+
+    if (!category) return null;
+
+    // Get content IDs from junction table (Piotr's original approach)
+    const contentLinks = await ContentCategory.findAll({
+      where: { category_category_id: (category as any).category_id },
+      attributes: ['content_content_id'],
+    });
+    const ids = contentLinks.map((x: any) => x.content_content_id);
+
+    if (ids.length === 0) {
+      return { category, items: [] };
+    }
+
+    // Get published contents
+    const items = await Content.findAll({
+      where: {
+        content_id: { [Op.in]: ids },
+        status: true,
+        published_at: { [Op.lte]: new Date() },
+      },
+      order: [['published_at', 'DESC']],
+      attributes: ['content_id', 'slug', 'title', 'lead', 'published_at'],
+    });
+
+    return { category, items };
   }
 }
 

@@ -1,4 +1,3 @@
-// Export all interfaces and base classes
 export { IRepository, type FindOptions, type PaginationOptions } from './types/IRepository.js';
 export { IPublishable } from './types/IPublishable.js';
 export { ISluggable } from './types/ISluggable.js';

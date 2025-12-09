@@ -3,9 +3,9 @@ import authRouter from './auth.js';
 import contentRouter from './content.js';
 import categoryRouter from './category.js';
 import menuRouter from './menu.js';
-import userRouter from './user.js';
+import userRouter from './users.js';
 import mediaRouter from './media.js';
-import roleRouter from './role.js';
+import roleRouter from './roles.js';
 
 const router = Router();
 

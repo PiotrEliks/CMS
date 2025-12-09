@@ -45,8 +45,3 @@ User.init(
   },
   { sequelize, tableName: 'user', timestamps: true }
 );
-
-User.belongsTo(Role, {
-  foreignKey: 'role_id',
-  as: 'role',
-});

@@ -8,9 +8,6 @@ export class MenuService extends BaseService<Menu> implements ITreeService<MenuI
     super(Menu);
   }
 
-  /**
-   * Get menu as tree structure
-   */
   async getTree(): Promise<any[]> {
     const items = await MenuItem.findAll({
       where: { parent_id: null },
@@ -28,9 +25,7 @@ export class MenuService extends BaseService<Menu> implements ITreeService<MenuI
     return items;
   }
 
-  /**
-   * Add menu item under parent
-   */
+
   async addItem(data: { label: string; url?: string; order_index?: number; menu_id: string; parent_id?: string | null; content_id?: string }, parentId?: string | null): Promise<any> {
     return await MenuItem.create({
       ...data,
@@ -40,9 +35,7 @@ export class MenuService extends BaseService<Menu> implements ITreeService<MenuI
     } as any);
   }
 
-  /**
-   * Update menu item
-   */
+
   async updateItem(id: string, data: Partial<any>): Promise<any | null> {
     const item = await MenuItem.findByPk(id);
     if (!item) return null;
@@ -50,11 +43,7 @@ export class MenuService extends BaseService<Menu> implements ITreeService<MenuI
     return await item.update(data);
   }
 
-  /**
-   * Reorder menu items with parent changes
-   */
   async reorder(items: Array<{ id: string; order_index: number; parent_id?: string | null }>): Promise<any[]> {
-    // Check for cycles before applying changes
     for (const item of items) {
       if (item.parent_id) {
         const hasParentCycle = await this.hasCycle(item.id, item.parent_id);
@@ -64,7 +53,6 @@ export class MenuService extends BaseService<Menu> implements ITreeService<MenuI
       }
     }
 
-    // Apply all updates
     const updated = await Promise.all(
       items.map((item) =>
         MenuItem.update(
@@ -78,18 +66,14 @@ export class MenuService extends BaseService<Menu> implements ITreeService<MenuI
     return await Promise.all(items.map((item) => MenuItem.findByPk(item.id)));
   }
 
-  /**
-   * Delete menu item and optionally cascade children
-   */
+
   async deleteItem(id: string, cascadeChildren?: boolean): Promise<boolean> {
     const item = await MenuItem.findByPk(id);
     if (!item) return false;
 
     if (cascadeChildren) {
-      // Delete all descendants
       await this.deleteDescendants(id);
     } else {
-      // Move children up to parent
       await MenuItem.update({ parent_id: item.parent_id }, { where: { parent_id: id } });
     }
 
@@ -97,16 +81,12 @@ export class MenuService extends BaseService<Menu> implements ITreeService<MenuI
     return true;
   }
 
-  /**
-   * Helper: Check if setting newParent as parent of itemId would create a cycle
-   */
+
   private async hasCycle(itemId: string, potentialParentId: string): Promise<boolean> {
     let currentId: string | null = potentialParentId;
-
-    // Walk up the parent chain
     while (currentId) {
       if (currentId === itemId) {
-        return true; // Cycle detected
+        return true; 
       }
 
       const item: any = await MenuItem.findByPk(currentId);
@@ -116,9 +96,6 @@ export class MenuService extends BaseService<Menu> implements ITreeService<MenuI
     return false;
   }
 
-  /**
-   * Helper: Recursively delete all children of an item
-   */
   private async deleteDescendants(parentId: string): Promise<void> {
     const children = await MenuItem.findAll({ where: { parent_id: parentId } });
 
@@ -128,9 +105,7 @@ export class MenuService extends BaseService<Menu> implements ITreeService<MenuI
     }
   }
 
-  /**
-   * Get menu with items
-   */
+
   async getMenuWithItems(menuId: string) {
     return await this.findOne({
       where: { menu_id: menuId },
@@ -147,11 +122,42 @@ export class MenuService extends BaseService<Menu> implements ITreeService<MenuI
     });
   }
 
-  /**
-   * Update menu metadata
-   */
   async updateMenu(menuId: string, data: { name?: string; description?: string }) {
     return await this.update(menuId, data as any);
+  }
+
+  async getPublishedByCode(code: string) {
+    const menu = await Menu.findOne({ where: { code, status: true } });
+    if (!menu) return null;
+
+    // Get published items with content
+    const items = await MenuItem.findAll({
+      where: { menu_id: (menu as any).menu_id, status: true },
+      order: [['order_index', 'ASC']],
+      include: [
+        {
+          model: Content,
+          as: 'content',
+          required: false,
+          where: {
+            status: true,
+            published_at: { [Op.lte]: new Date() },
+          },
+          attributes: ['slug'],
+        },
+      ],
+    });
+
+    const flat = items.map((i: any) => ({
+      menu_item_id: i.menu_item_id,
+      label: i.label,
+      order_index: i.order_index ?? 0,
+      parent_id: i.parent_id ?? null,
+      content_slug: i.content?.slug ?? null,
+      external_url: i.external_url ?? null,
+    }));
+
+    return { code: (menu as any).code, items: flat };
   }
 }
 

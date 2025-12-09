@@ -11,9 +11,7 @@ export class ContentService extends BaseService<Content> implements IPublishable
     super(Content);
   }
 
-  /**
-   * Create new content with slug generation
-   */
+
   async create(data: {
     title: string;
     body: string;
@@ -24,10 +22,8 @@ export class ContentService extends BaseService<Content> implements IPublishable
     created_by?: string;
     cover_media_id?: string;
   }) {
-    // Generate slug if not provided
     let slug = data.slug || stringToSlug(data.title);
 
-    // Ensure slug uniqueness
     slug = await makeSlugUnique(slug, async (s) => {
       const existing = await Content.findOne({ where: { slug: s } });
       return !!existing;
@@ -48,7 +44,7 @@ export class ContentService extends BaseService<Content> implements IPublishable
       where: { slug },
       include: [
         { model: Category, as: 'categories' },
-        { model: Media, as: 'medias' },
+        { model: Media, as: 'media' },
         { model: User, as: 'creator', attributes: ['user_id', 'display_name', 'email'] },
         { model: User, as: 'updater', attributes: ['user_id', 'display_name', 'email'] },
         { model: Media, as: 'cover' },
@@ -56,13 +52,9 @@ export class ContentService extends BaseService<Content> implements IPublishable
     });
   }
 
-  /**
-   * Generate slug from title with uniqueness check
-   */
   async generateSlug(title: string, existingId?: string | number): Promise<string> {
     let slug = stringToSlug(title);
 
-    // Check uniqueness excluding current content if updating
     slug = await makeSlugUnique(slug, async (s) => {
       const where: any = { slug: s };
       if (existingId) {
@@ -75,9 +67,7 @@ export class ContentService extends BaseService<Content> implements IPublishable
     return slug;
   }
 
-  /**
-   * Publish content
-   */
+
   async publish(id: string): Promise<Content | null> {
     return await this.update(id, {
       status: 'published',
@@ -85,18 +75,13 @@ export class ContentService extends BaseService<Content> implements IPublishable
     } as any);
   }
 
-  /**
-   * Unpublish content
-   */
+
   async unpublish(id: string): Promise<Content | null> {
     return await this.update(id, {
       status: 'draft',
     } as any);
   }
 
-  /**
-   * Get published content with pagination
-   */
   async getPublished(options: FindOptions & PaginationOptions) {
     return await this.list({
       ...options,
@@ -122,9 +107,7 @@ export class ContentService extends BaseService<Content> implements IPublishable
     await (content as any).addCategory(categoryId);
   }
 
-  /**
-   * Detach category from content
-   */
+
   async detachCategory(contentId: string, categoryId: string) {
     const content = await this.findById(contentId);
     if (!content) throw new Error('Content not found');
@@ -132,9 +115,6 @@ export class ContentService extends BaseService<Content> implements IPublishable
     await (content as any).removeCategory(categoryId);
   }
 
-  /**
-   * Attach media to content
-   */
   async attachMedia(contentId: string, mediaId: string) {
     const content = await this.findById(contentId);
     if (!content) throw new Error('Content not found');
@@ -142,9 +122,6 @@ export class ContentService extends BaseService<Content> implements IPublishable
     await (content as any).addMedia(mediaId);
   }
 
-  /**
-   * Detach media from content
-   */
   async detachMedia(contentId: string, mediaId: string) {
     const content = await this.findById(contentId);
     if (!content) throw new Error('Content not found');
@@ -152,16 +129,12 @@ export class ContentService extends BaseService<Content> implements IPublishable
     await (content as any).removeMedia(mediaId);
   }
 
-  /**
-   * Get content with all associations
-   */
+
   async getWithAssociations(id: string) {
     return await this.findById(id);
   }
 
-  /**
-   * List content by category
-   */
+
   async listByCategory(categoryId: string, options: PaginationOptions) {
     return await this.list({
       where: {},
@@ -179,5 +152,4 @@ export class ContentService extends BaseService<Content> implements IPublishable
   }
 }
 
-// Export singleton instance
 export const contentService = new ContentService();

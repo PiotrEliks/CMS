@@ -1,12 +1,6 @@
-import fs from 'fs';
-import path from 'path';
 import { Request, Response } from 'express';
 import { asyncHandler } from '../../utils/asyncHandler.js';
-import { User } from '../../models/user.model.js';
-import { Role } from '../../models/role.model.js';
-import { generateRandomPassword, hashPassword } from '../../utils/password.js';
-import { sendNewUserCredentialsMail } from '../../utils/mailer.js';
-import bcrypt from 'bcryptjs';
+import { userService } from '../../services/user.service.js';
 
 interface AuthRequest extends Request {
   user?: {
@@ -14,21 +8,28 @@ interface AuthRequest extends Request {
     role_id?: string;
     email?: string;
   };
+  file?: Express.Multer.File;
 }
 
 export const getUsers = asyncHandler(async (req: Request, res: Response) => {
-  const users = await User.findAll({
-    attributes: { exclude: ['password_hash'] },
-    include: [{ model: Role, as: 'role' }],
+  const limit = Math.min(parseInt(req.query.limit as string) || 100, 100);
+  const offset = parseInt(req.query.offset as string) || 0;
+
+  const { items, total } = await userService.listWithRoles({
+    where: {},
+    limit,
+    offset,
   });
 
-  return res.status(200).json({ users });
+  return res.status(200).json({ users: items, total });
 });
 
 export const getUser = asyncHandler(async (req: Request, res: Response) => {
-  const user = await User.findByPk(req.params.id, {
-    attributes: { exclude: ['password_hash'] },
-  });
+  const user = await userService.getUserWithRole(req.params.id);
+
+  if (!user) {
+    return res.status(404).json({ error: 'Użytkownik nie został znaleziony' });
+  }
 
   return res.status(200).json({ user });
 });
@@ -36,82 +37,49 @@ export const getUser = asyncHandler(async (req: Request, res: Response) => {
 export const addUser = asyncHandler(async (req: Request, res: Response) => {
   const { email, display_name, role_id, status } = req.body;
 
-  const existingUser = await User.findOne({ where: { email } });
-  if (existingUser) {
-    return res.status(400).json({ error: 'Użytkownik o podanym adresie email już istnieje' });
-  }
-
-  const plainPassword = generateRandomPassword(12);
-
-  const password_hash = await hashPassword(plainPassword);
-
-  const user = await User.create({
-    email,
-    display_name,
-    role_id,
-    status: typeof status === 'boolean' ? status : true,
-    password_hash,
-  });
-
   try {
-    await sendNewUserCredentialsMail({
-      to: email,
-      password: plainPassword,
+    const user = await userService.createWithEmail({
+      email,
+      display_name,
+      role_id,
+      status: typeof status === 'boolean' ? status : true,
     });
-  } catch (err) {
-    console.error('Nie udało się wysłać maila z danymi logowania:', err);
+
+    return res.status(201).json({ user });
+  } catch (error) {
+    return res.status(400).json({ error: (error as Error).message });
   }
-
-  const safeUser = await User.findByPk(user.user_id, {
-    attributes: { exclude: ['password_hash'] },
-    include: [{ model: Role, as: 'role' }],
-  });
-
-  return res.status(201).json({ user: safeUser });
 });
 
 export const updateUser = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { email, display_name, role_id, status, password } = req.body;
+  const { email, display_name, role_id, status } = req.body;
 
-  const user = await User.findByPk(id);
+  try {
+    const user = await userService.updateUserData(id, {
+      email,
+      display_name,
+      role_id,
+      status,
+    });
 
-  if (!user) {
-    return res.status(404).json({ error: 'Użytkownik nie został znaleziony' });
-  }
-
-  if (email && email !== user.email) {
-    const existing = await User.findOne({ where: { email } });
-    if (existing && existing.get('user_id') !== user.get('user_id')) {
-      return res.status(400).json({ error: 'Użytkownik o podanym adresie email już istnieje' });
+    return res.status(200).json({ user });
+  } catch (error) {
+    if ((error as Error).message === 'Użytkownik nie został znaleziony') {
+      return res.status(404).json({ error: (error as Error).message });
     }
+    return res.status(400).json({ error: (error as Error).message });
   }
-
-  await user.update({
-    email: email ?? user.email,
-    display_name: display_name ?? user.display_name,
-    role_id: role_id ?? user.role_id,
-    ...(typeof status === 'boolean' ? { status } : {}),
-  });
-
-  const updatedUser = await User.findByPk(id, {
-    attributes: { exclude: ['password_hash'] },
-    include: [{ model: Role, as: 'role' }],
-  });
-
-  return res.status(200).json({ user: updatedUser });
 });
 
 export const deleteUser = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
 
-  const user = await User.findByPk(id);
+  const deleted = await userService.deleteUser(id);
 
-  if (!user) {
+  if (!deleted) {
     return res.status(404).json({ error: 'Użytkownik nie został znaleziony' });
   }
-
-  await user.destroy();
 
   return res.status(200).json({ success: true });
 });
@@ -121,70 +89,23 @@ export const updateCurrentUser = asyncHandler(async (req: AuthRequest, res: Resp
     return res.status(401).json({ error: 'Brak autoryzacji' });
   }
 
-  const userId = req.user.user_id;
+  const { display_name, email, current_password, new_password } = req.body;
 
-  const user = await User.findByPk(userId);
-  if (!user) {
-    return res.status(404).json({ error: 'Użytkownik nie został znaleziony' });
-  }
+  try {
+    const user = await userService.updateCurrentUserProfile(req.user.user_id, {
+      display_name,
+      email,
+      current_password,
+      new_password,
+    });
 
-  const {
-    display_name,
-    email,
-    current_password,
-    new_password,
-  }: {
-    display_name?: string;
-    email?: string;
-    current_password?: string;
-    new_password?: string;
-  } = req.body;
-
-  const updatePayload: any = {};
-
-  if (display_name !== undefined) {
-    updatePayload.display_name = display_name;
-  }
-
-  if (email !== undefined && email !== user.email) {
-    const normalizedEmail = email.toLowerCase();
-    const existing = await User.findOne({ where: { email: normalizedEmail } });
-    if (existing && existing.get('user_id') !== user.get('user_id')) {
-      return res.status(400).json({ error: 'Użytkownik o podanym adresie email już istnieje' });
+    return res.status(200).json({ user });
+  } catch (error) {
+    if ((error as Error).message === 'Użytkownik nie został znaleziony') {
+      return res.status(404).json({ error: (error as Error).message });
     }
-    updatePayload.email = normalizedEmail;
+    return res.status(400).json({ error: (error as Error).message });
   }
-
-  if (current_password || new_password) {
-    if (!current_password || !new_password) {
-      return res
-        .status(400)
-        .json({ error: 'Aby zmienić hasło, podaj zarówno aktualne, jak i nowe hasło.' });
-    }
-
-    const ok = await bcrypt.compare(current_password, user.password_hash);
-    if (!ok) {
-      return res.status(400).json({ error: 'Aktualne hasło jest nieprawidłowe.' });
-    }
-
-    if (new_password.length < 8) {
-      return res.status(400).json({ error: 'Nowe hasło musi mieć co najmniej 8 znaków.' });
-    }
-
-    const hashed = await bcrypt.hash(new_password, 10);
-    updatePayload.password_hash = hashed;
-  }
-
-  if (Object.keys(updatePayload).length > 0) {
-    await user.update(updatePayload);
-  }
-
-  const updatedUser = await User.findByPk(userId, {
-    attributes: { exclude: ['password_hash'] },
-    include: [{ model: Role, as: 'role' }],
-  });
-
-  return res.status(200).json({ user: updatedUser });
 });
 
 export const updateAvatar = asyncHandler(async (req: AuthRequest, res: Response) => {
@@ -192,40 +113,18 @@ export const updateAvatar = asyncHandler(async (req: AuthRequest, res: Response)
     return res.status(401).json({ error: 'Brak autoryzacji' });
   }
 
-  const userId = req.user.user_id;
-
-  const user = await User.findByPk(userId);
-  if (!user) {
-    return res.status(404).json({ error: 'Użytkownik nie został znaleziony' });
-  }
-
   if (!req.file) {
     return res.status(400).json({ error: 'Brak pliku avatara' });
   }
 
-  // jeśli user miał stary avatar - opcjonalnie usuń plik
-  if (user.avatar_url) {
-    const oldPath = path.join(process.cwd(), user.avatar_url.replace(/^\//, ''));
-    if (fs.existsSync(oldPath)) {
-      try {
-        fs.unlinkSync(oldPath);
-      } catch (e) {
-        console.error('Nie udało się usunąć starego avatara:', e);
-      }
-    }
-  }
-
-  // nowy URL względem serwera
   const avatarUrl = `/uploads/avatars/${req.file.filename}`;
 
-  await user.update({ avatar_url: avatarUrl });
-
-  const updatedUser = await User.findByPk(userId, {
-    attributes: { exclude: ['password_hash'] },
-    include: [{ model: Role, as: 'role' }],
-  });
-
-  return res.status(200).json({ user: updatedUser });
+  try {
+    const user = await userService.updateAvatar(req.user.user_id, avatarUrl);
+    return res.status(200).json({ user });
+  } catch (error) {
+    return res.status(400).json({ error: (error as Error).message });
+  }
 });
 
 export const deleteAvatar = asyncHandler(async (req: AuthRequest, res: Response) => {
@@ -233,29 +132,109 @@ export const deleteAvatar = asyncHandler(async (req: AuthRequest, res: Response)
     return res.status(401).json({ error: 'Brak autoryzacji' });
   }
 
-  const userId = req.user.user_id;
-  const user = await User.findByPk(userId);
-  if (!user) {
-    return res.status(404).json({ error: 'Użytkownik nie został znaleziony' });
+  try {
+    const user = await userService.deleteAvatar(req.user.user_id);
+    return res.status(200).json({ user });
+  } catch (error) {
+    return res.status(400).json({ error: (error as Error).message });
   }
+});
 
-  if (user.avatar_url) {
-    const oldPath = path.join(process.cwd(), user.avatar_url.replace(/^\//, ''));
-    if (fs.existsSync(oldPath)) {
-      try {
-        fs.unlinkSync(oldPath);
-      } catch (e) {
-        console.error('Nie udało się usunąć avatara:', e);
-      }
+export const changePassword = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { current_password, new_password } = req.body;
+
+  try {
+    await userService.changePassword(id, current_password, new_password);
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    if ((error as Error).message === 'Użytkownik nie został znaleziony') {
+      return res.status(404).json({ error: (error as Error).message });
     }
+    return res.status(400).json({ error: (error as Error).message });
+  }
+});
+
+export const resetPassword = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { new_password } = req.body;
+
+  if (!new_password) {
+    return res.status(400).json({ error: 'Nowe hasło jest wymagane' });
   }
 
-  await user.update({ avatar_url: null });
+  try {
+    await userService.resetPassword(id, new_password);
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    if ((error as Error).message === 'Użytkownik nie został znaleziony') {
+      return res.status(404).json({ error: (error as Error).message });
+    }
+    return res.status(400).json({ error: (error as Error).message });
+  }
+});
 
-  const updatedUser = await User.findByPk(userId, {
-    attributes: { exclude: ['password_hash'] },
-    include: [{ model: Role, as: 'role' }],
-  });
+export const assignRole = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { role_id } = req.body;
 
-  return res.status(200).json({ user: updatedUser });
+  if (!role_id) {
+    return res.status(400).json({ error: 'ID roli jest wymagane' });
+  }
+
+  try {
+    await userService.assignRole(id, role_id);
+    const user = await userService.getUserWithRole(id);
+    return res.status(200).json({ user });
+  } catch (error) {
+    if ((error as Error).message === 'Użytkownik nie został znaleziony') {
+      return res.status(404).json({ error: (error as Error).message });
+    }
+    return res.status(400).json({ error: (error as Error).message });
+  }
+});
+
+export const removeRole = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    await userService.removeRole(id);
+    const user = await userService.getUserWithRole(id);
+    return res.status(200).json({ user });
+  } catch (error) {
+    if ((error as Error).message === 'Użytkownik nie został znaleziony') {
+      return res.status(404).json({ error: (error as Error).message });
+    }
+    return res.status(400).json({ error: (error as Error).message });
+  }
+});
+
+export const activateUser = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    await userService.activate(id);
+    const user = await userService.getUserWithRole(id);
+    return res.status(200).json({ user });
+  } catch (error) {
+    if ((error as Error).message === 'Użytkownik nie został znaleziony') {
+      return res.status(404).json({ error: (error as Error).message });
+    }
+    return res.status(400).json({ error: (error as Error).message });
+  }
+});
+
+export const deactivateUser = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    await userService.deactivate(id);
+    const user = await userService.getUserWithRole(id);
+    return res.status(200).json({ user });
+  } catch (error) {
+    if ((error as Error).message === 'Użytkownik nie został znaleziony') {
+      return res.status(404).json({ error: (error as Error).message });
+    }
+    return res.status(400).json({ error: (error as Error).message });
+  }
 });

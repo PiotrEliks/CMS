@@ -31,6 +31,7 @@ export async function ensureAdminSeed() {
         display_name: 'Administrator',
         role_id: adminRole.role_id,
         last_access: null,
+        status: true,
       },
       { transaction: t }
     );
