@@ -14,7 +14,16 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     return res.status(400).json({ error: 'Email and password are required' });
   }
 
-  const { accessToken, user } = await AuthService.loginWithEmail(email, password);
+  let accessToken: string;
+  let user: any;
+
+  try {
+    const result = await AuthService.loginWithEmail(email, password);
+    accessToken = result.accessToken;
+    user = result.user;
+  } catch (err: any) {
+    return res.status(401).json({ error: err.message || 'Invalid credentials' });
+  }
 
   const maxAge = keepSignedIn 
   ? 1000 * 60 * 60 * 24 * 180

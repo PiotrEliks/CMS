@@ -27,11 +27,13 @@ export {
 export function setupAssociations() {
   Role.hasMany(User, {
     foreignKey: { name: 'role_id', allowNull: true },
+    as: 'users',
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
   });
   User.belongsTo(Role, {
     foreignKey: { name: 'role_id', allowNull: true },
+    as: 'role',
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
   });
@@ -156,6 +158,7 @@ export function setupAssociations() {
   });
   MenuItem.belongsTo(Content, {
     foreignKey: { name: 'content_id', allowNull: true },
+    as: 'content',
     onDelete: 'SET NULL',
   });
 }

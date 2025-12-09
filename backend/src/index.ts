@@ -33,6 +33,12 @@ app.use('/api/admin', adminRouter);
 app.use('/api/sites', siteRouter);
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
+// Global error handler
+app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error('Unhandled error:', err);
+  res.status(err.status || 500).json({ error: err.message || 'Internal server error' });
+});
+
 const PORT = Number(process.env.PORT);
 
 (async () => {
