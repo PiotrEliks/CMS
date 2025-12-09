@@ -20,7 +20,7 @@ const LayoutContent: React.FC<{ loading: boolean }> = ({ loading }) => {
         } ${isMobileOpen ? 'ml-0' : ''}`}
       >
         <AppHeader />
-        <div className="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
+        <div className="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6 bg-white dark:bg-gray-800">
           {loading ? (
             <div className="flex items-center justify-center h-[60vh]">
               <Loader />
