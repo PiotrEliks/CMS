@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { requireAuth } from '../../middlewares/auth.middleware.js';
 import * as UsersController from '../../controllers/site/users.controller.js';
 import { uploadAvatar } from '../../middlewares/updateAvatar.middleware.js';
+import { authorize } from '../../middlewares/authorize.middleware.js';
 
 const router = Router();
 
@@ -11,19 +12,18 @@ router.post('/me/avatar', requireAuth, uploadAvatar, UsersController.updateAvata
 router.delete('/me/avatar', requireAuth, UsersController.deleteAvatar);
 
 // User CRUD
-router.get('/', requireAuth, UsersController.getUsers);
-router.post('/add', requireAuth, UsersController.addUser);
-router.get('/:id', requireAuth, UsersController.getUser);
-router.put('/:id', requireAuth, UsersController.updateUser);
-router.delete('/:id', requireAuth, UsersController.deleteUser);
-
+router.get('/', requireAuth, authorize('users.read'), UsersController.getUsers);
+router.post('/add', requireAuth, authorize('users.create'), UsersController.addUser);
+router.get('/:id', requireAuth, authorize('users.read'), UsersController.getUser);
+router.put('/:id', requireAuth, authorize('users.update'), UsersController.updateUser);
+router.delete('/:id', requireAuth, authorize('users.delete'), UsersController.deleteUser);
 // Password management
 router.post('/:id/change-password', requireAuth, UsersController.changePassword);
 router.post('/:id/reset-password', requireAuth, UsersController.resetPassword);
 
 // Role management
-router.post('/:id/role', requireAuth, UsersController.assignRole);
-router.delete('/:id/role', requireAuth, UsersController.removeRole);
+router.post('/:id/role', requireAuth, authorize('users.change_role'), UsersController.assignRole);
+router.delete('/:id/role', requireAuth, authorize('users.change_role'), UsersController.removeRole);
 
 // Activation management
 router.post('/:id/activate', requireAuth, UsersController.activateUser);

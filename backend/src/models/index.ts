@@ -9,6 +9,8 @@ import { MenuItem } from './menuItem.model.js';
 import { ContentCategory } from './contentCategory.model.js';
 import { ContentsMedia } from './contentsMedia.model.js';
 import { ContentMenu } from './contentMenu.model.js';
+import { Permission } from './permission.model.js';
+import { RolePermission } from './role_permission.model.js';
 
 export {
   User,
@@ -22,6 +24,8 @@ export {
   ContentCategory,
   ContentsMedia,
   ContentMenu,
+  Permission,
+  RolePermission,
 };
 
 export function setupAssociations() {
@@ -161,4 +165,18 @@ export function setupAssociations() {
     as: 'content',
     onDelete: 'SET NULL',
   });
+
+Role.belongsToMany(Permission, {
+  through: RolePermission,
+  foreignKey: 'role_id',
+  otherKey: 'permission_id',
+  as: 'permissions',
+});
+
+Permission.belongsToMany(Role, {
+  through: RolePermission,
+  foreignKey: 'permission_id',
+  otherKey: 'role_id',
+  as: 'roles',
+});
 }

@@ -13,13 +13,22 @@ import {
   UserCircleIcon,
 } from '../icons';
 import { useSidebar } from '../context/SidebarContext';
+import { useAccess } from '../hooks/useAccess';
 
 type NavItem = {
   name: string;
   icon: React.ReactNode;
   path?: string;
-  subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
+  permission?: string;
+  subItems?: {
+    name: string;
+    path: string;
+    permission?: string;
+    pro?: boolean;
+    new?: boolean;
+  }[];
 };
+
 
 const navItems: NavItem[] = [
   {
@@ -36,11 +45,13 @@ const navItems: NavItem[] = [
     icon: <UserCircleIcon />,
     name: 'Użytkownicy',
     path: '/users',
+    permission: "users.read",
   },
   {
     icon: <UserCircleIcon />,
     name: 'Role',
     path: '/roles',
+    permission: "roles.read",
   },
   {
     icon: <ListIcon />,
@@ -86,7 +97,10 @@ const AppSidebar: React.FC = () => {
 
   const renderMenuItems = (items: NavItem[], menuType: 'main' | 'others') => (
     <ul className="flex flex-col gap-4">
-      {items.map((nav, index) => (
+      {items.map((nav, index) => {
+        const can = !nav.permission || useAccess(nav.permission);
+        if (!can) return null;
+        return (
         <li key={nav.name}>
           {nav.subItems ? (
             <button
@@ -198,7 +212,8 @@ const AppSidebar: React.FC = () => {
             </div>
           )}
         </li>
-      ))}
+        )
+      })}
     </ul>
   );
 

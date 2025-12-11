@@ -1,13 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { Role, User } from '../models/index.js';
+import { Role, User, Permission } from '../models/index.js';
 
 type JwtPayload = {
   sub: string;
   email: string;
-  role?: string;
-  display_name?: string;
-  last_access?: string;
   iat: number;
   exp: number;
 };
@@ -30,10 +27,31 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     const user = await User.findOne({
       where: { user_id: payload.sub },
       attributes: { exclude: ['password_hash'] },
-      include: [{ model: Role, as: 'role' }],
+      include: [
+        {
+          model: Role,
+          as: 'role',
+          include: [
+            {
+              model: Permission,
+              as: 'permissions',
+            },
+          ],
+        },
+      ],
     });
 
-    (req as any).user = user;
+    if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+    const plain = user.toJSON() as any;
+
+    const permissions: string[] =
+      plain.role?.permissions?.map((p: any) => p.code) ?? [];
+
+    (req as any).user = {
+      ...plain,
+      permissions,
+    };
 
     next();
   } catch (err) {

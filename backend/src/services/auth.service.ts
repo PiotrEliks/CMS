@@ -1,12 +1,24 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/user.model.js';
-import { Role } from '../models/index.js';
+import { Permission, Role } from '../models/index.js';
 
 export async function loginWithEmail(email: string, password: string) {
   const user = await User.findOne({
     where: { email: email.toLowerCase() },
-    include: [{ model: Role, as: 'role' }],
+    include: [
+      { 
+        model: Role, 
+        as: 'role',
+        include: [
+          {
+            model: Permission,
+            as: 'permissions',
+            through: { attributes: [] },
+          },
+        ],
+      }
+    ],
   });
   if (!user) throw new Error('Invalid credentials');
 
@@ -26,6 +38,8 @@ export async function loginWithEmail(email: string, password: string) {
   );
 
   const plain = user.toJSON() as any;
+  const permissions: string[] =
+  plain.role?.permissions?.map((p: any) => p.code) ?? [];
 
   return {
     accessToken,
@@ -37,6 +51,7 @@ export async function loginWithEmail(email: string, password: string) {
       last_access: user.last_access,
       role: plain.role,
       avatar_url: user.avatar_url,
+      permissions,
     },
   };
 }

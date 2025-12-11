@@ -9,6 +9,7 @@ import { UserIcon } from '../../icons';
 import UserFormModal from '../../components/ui/modal/UserFormModal';
 import { useUsers } from '../../store/users';
 import DeleteConfirmModal from '../../components/modal/DeleteConfirmModal';
+import { Access } from '../../components/permissions/Access';
 
 export default function UsersTable() {
   const { deleteUser } = useUsers();
@@ -56,9 +57,11 @@ export default function UsersTable() {
         <ComponentCard
           title="Użytkownicy"
           button={
-            <Button size="sm" variant="primary" startIcon={<UserIcon />} onClick={handleCreateNew}>
-              Utwórz nowego
-            </Button>
+            <Access allOf={['users.create']}>
+              <Button size="sm" variant="primary" startIcon={<UserIcon />} onClick={handleCreateNew}>
+                Utwórz nowego
+              </Button>
+            </Access>
           }
         >
           <BasicTableOne onEdit={handleEditUser} onDelete={askDeleteUser} />

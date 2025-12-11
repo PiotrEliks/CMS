@@ -11,17 +11,24 @@ export type Role = {
   status?: boolean;
 };
 
+export type Permission = {
+  permission_id: string;
+  code: string;
+  description?: string;
+};
 
 export type NewRolePayload = {
   display_name: string;
   type?: string;
   status?: boolean;
+  permissions?: string[];
 };
 
 export type UpdateRolePayload = {
-  display_name: string;
+  display_name?: string;
   type?: string;
   status?: boolean;
+  permissions?: string[];
 };
 
 type RolesState = {
@@ -30,11 +37,18 @@ type RolesState = {
   loading: boolean;
   error: string | null;
 
+  allPermissions: Permission[];
+  rolePermissions: string[];
+
   fetchRoles: () => Promise<void>;
   fetchRole: (id: string) => Promise<void>;
   addRole: (data: NewRolePayload) => Promise<Role>;
   updateRole: (id: string, data: UpdateRolePayload) => Promise<Role>;
   deleteRole: (id: string) => Promise<void>;
+
+  fetchAllPermissions: () => Promise<void>;
+  fetchRolePermissions: (roleId: string) => Promise<void>;
+  updateRolePermissions: (roleId: string, permissionIds: string[]) => Promise<void>;
 
   clearError: () => void;
   clearSelected: () => void;
@@ -50,8 +64,11 @@ export const useRoles = create<RolesState>((set, get) => ({
   loading: false,
   error: null,
 
+  allPermissions: [],
+  rolePermissions: [],
+
   clearError: () => set({ error: null }),
-  clearSelected: () => set({ selectedRole: null }),
+  clearSelected: () => set({ selectedRole: null, rolePermissions: [] }),
 
   fetchRoles: async () => {
     set({ loading: true, error: null });
@@ -80,7 +97,7 @@ export const useRoles = create<RolesState>((set, get) => ({
   addRole: async (data: NewRolePayload) => {
     set({ loading: true, error: null });
     try {
-      const res = await api.post('/roles/add', data);
+      const res = await api.post('/roles', data);
       const created: Role = res.data.role;
       const current = get().roles;
       set({ roles: [...current, created], loading: false });
@@ -104,7 +121,7 @@ export const useRoles = create<RolesState>((set, get) => ({
     }
   },
 
-  updateRole: async (id: string, data: any) => {
+  updateRole: async (id: string, data: UpdateRolePayload) => {
     set({ loading: true, error: null });
     try {
       const res = await api.put(`/roles/${id}`, data);
@@ -112,14 +129,14 @@ export const useRoles = create<RolesState>((set, get) => ({
 
       const current = get().roles;
       set({
-        roles: current.map((u) => (u.role_id === id ? updated : u)),
+        roles: current.map((r) => (r.role_id === id ? updated : r)),
         loading: false,
       });
 
       showAlert({
         variant: 'success',
         title: 'Zaktualizowano rolę',
-        message: 'Dane rolę zostały pomyślnie zaktualizowane.',
+        message: 'Dane roli zostały pomyślnie zaktualizowane.',
         duration: 3000,
       });
 
@@ -144,7 +161,7 @@ export const useRoles = create<RolesState>((set, get) => ({
 
       const current = get().roles;
       set({
-        roles: current.filter((u) => u.role_id !== id),
+        roles: current.filter((r) => r.role_id !== id),
         loading: false,
       });
       showAlert({
@@ -156,6 +173,64 @@ export const useRoles = create<RolesState>((set, get) => ({
     } catch (e: any) {
       const msg = e?.response?.data?.error ?? 'Nie udało się usunąć roli';
       set({ error: msg, loading: false });
+      showAlert({
+        variant: 'error',
+        title: 'Błąd',
+        message: msg,
+        duration: 5000,
+      });
+      throw e;
+    }
+  },
+
+  fetchAllPermissions: async () => {
+    try {
+      const res = await api.get('/permissions');
+      set({ allPermissions: res.data.permissions ?? [] });
+    } catch (e: any) {
+      const msg = e?.response?.data?.error ?? 'Nie udało się pobrać uprawnień';
+      set({ error: msg });
+      showAlert({
+        variant: 'error',
+        title: 'Błąd',
+        message: msg,
+        duration: 5000,
+      });
+      throw e;
+    }
+  },
+
+  fetchRolePermissions: async (roleId: string) => {
+    try {
+      const res = await api.get(`/roles/${roleId}/permissions`);
+      const ids: string[] = res.data.permissions?.map((p: Permission) => p.permission_id) ?? [];
+      set({ rolePermissions: ids });
+    } catch (e: any) {
+      const msg = e?.response?.data?.error ?? 'Nie udało się pobrać uprawnień roli';
+      set({ error: msg });
+      showAlert({
+        variant: 'error',
+        title: 'Błąd',
+        message: msg,
+        duration: 5000,
+      });
+      throw e;
+    }
+  },
+
+  updateRolePermissions: async (roleId: string, permissionIds: string[]) => {
+    try {
+      await api.put(`/roles/${roleId}/permissions`, { permissions: permissionIds });
+      set({ rolePermissions: permissionIds });
+      showAlert({
+        variant: 'success',
+        title: 'Zaktualizowano uprawnienia',
+        message: 'Uprawnienia roli zostały zapisane.',
+        duration: 3000,
+      });
+    } catch (e: any) {
+      const msg = e?.response?.data?.error ?? 'Nie udało się zaktualizować uprawnień roli';
+      set({ error: msg });
       showAlert({
         variant: 'error',
         title: 'Błąd',

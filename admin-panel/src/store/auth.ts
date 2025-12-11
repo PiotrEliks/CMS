@@ -9,6 +9,7 @@ type User = {
   display_name?: string;
   last_access?: string;
   avatar_url?: string | null;
+  permissions?: string[];
 };
 
 type Role = {

@@ -19,7 +19,6 @@ export default function RoleTableOne({ onEdit, onDelete }: Props) {
   useEffect(() => {
     fetchRoles();
   }, [fetchRoles]);
-  console.log(roles)
 
   if (loading) return <p>Ładowanie…</p>;
   if (error) return <p>Błąd: {error}</p>;

@@ -1,19 +1,31 @@
-import { Role, User } from '../models/index.js';
+import { Role, User, Permission, RolePermission } from '../models/index.js';
 import { BaseService } from './types/BaseService.js';
 import { FindOptions, PaginationOptions } from './types/IRepository.js';
+
+function normalizeRoleType(displayName: string): string {
+  return displayName
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_') 
+    .replace(/^_+|_+$/g, '')
+    .substring(0, 50);
+}
 
 export class RoleService extends BaseService<Role> {
   constructor() {
     super(Role);
   }
+  
 
   async createRole(data: {
     display_name: string;
-    type: string;
+    status: boolean;
   }) {
     return await super.create({
       display_name: data.display_name,
-      type: data.type,
+      type: normalizeRoleType(data.display_name),
+      status: data.status,
     } as any);
   }
 
@@ -30,7 +42,7 @@ export class RoleService extends BaseService<Role> {
     });
   }
 
-  async updateRole(roleId: string, data: { display_name?: string; type?: string }) {
+  async updateRole(roleId: string, data: { display_name?: string; type?: string; status: boolean }) {
     return await this.update(roleId, data as any);
   }
 
@@ -49,6 +61,50 @@ export class RoleService extends BaseService<Role> {
   async getRoleByType(type: string) {
     return await this.findOne({ where: { type } as any });
   }
+
+  async setPermissions(roleId: string, permissionCodes: string[]) {
+    const role = await Role.findByPk(roleId);
+    if (!role) throw new Error('Rola nie istnieje');
+
+    const perms = await Permission.findAll({
+      where: { code: permissionCodes },
+    });
+
+    await (role as any).setPermissions(perms);
+    return role.reload({ include: ['permissions'] });
+  }
+
+  async addPermission(roleId: string, permissionCode: string) {
+    const role = await Role.findByPk(roleId);
+    if (!role) throw new Error('Rola nie istnieje');
+
+    const perm = await Permission.findOne({ where: { code: permissionCode } });
+    if (!perm) throw new Error('Uprawnienie nie istnieje');
+
+    await (role as any).addPermission(perm);
+    return role.reload({ include: ['permissions'] });
+  }
+
+  async removePermission(roleId: string, permissionCode: string) {
+    const role = await Role.findByPk(roleId);
+    if (!role) throw new Error('Rola nie istnieje');
+
+    const perm = await Permission.findOne({ where: { code: permissionCode } });
+    if (!perm) return role;
+
+    await (role as any).removePermission(perm);
+    return role.reload({ include: ['permissions'] });
+  }
+
+  async getPermissions(roleId: string) {
+  const role = await this.findOne({
+    where: { role_id: roleId },
+    include: [{ model: Permission, as: 'permissions' }],
+  });
+
+  return role?.permissions ?? [];
+}
+
 }
 
 export const roleService = new RoleService();
