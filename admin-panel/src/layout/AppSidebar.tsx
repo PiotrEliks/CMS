@@ -39,7 +39,8 @@ const navItems: NavItem[] = [
   {
     icon: <CalenderIcon />,
     name: 'Media',
-    path: '/calendar',
+    path: '/media',
+    permission: "media.read",
   },
   {
     icon: <UserCircleIcon />,

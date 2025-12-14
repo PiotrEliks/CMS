@@ -13,6 +13,7 @@ import ForgotPasswordForm from './components/form/auth/ForgotPasswordForm';
 import ResetPasswordForm from './components/form/auth/ResetPasswordForm';
 import AlertContainer from './components/common/AlertContainer';
 import Roles from './pages/Roles';
+import Media from './pages/Media';
 
 export default function App() {
   const { checkAuth, user, loading } = useAuth();
@@ -77,6 +78,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Roles />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/media"
+            element={
+              <ProtectedRoute>
+                <Media />
               </ProtectedRoute>
             }
           />

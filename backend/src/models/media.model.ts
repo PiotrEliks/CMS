@@ -16,7 +16,9 @@ export class Media extends Model<InferAttributes<Media>, InferCreationAttributes
   declare alt_text: string | null;
   declare title: string | null;
   declare status: boolean;
+  declare thumbnail_path: string | null;
   declare created_at: CreationOptional<Date>;
+  declare uploaded_at: CreationOptional<Date>;
 }
 
 Media.init(
@@ -30,6 +32,8 @@ Media.init(
     title: { type: DataTypes.STRING(255) },
     status: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
     created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+    uploaded_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+    thumbnail_path: { type: DataTypes.STRING(1024), allowNull: true },
   },
   { sequelize, tableName: 'media', timestamps: true, updatedAt: false }
 );
