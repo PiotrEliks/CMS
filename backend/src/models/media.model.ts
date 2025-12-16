@@ -32,7 +32,7 @@ Media.init(
     title: { type: DataTypes.STRING(255) },
     status: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
     created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
-    uploaded_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+    uploaded_at: { type: DataTypes.DATE, allowNull: true, defaultValue: DataTypes.NOW },
     thumbnail_path: { type: DataTypes.STRING(1024), allowNull: true },
   },
   { sequelize, tableName: 'media', timestamps: true, updatedAt: false }
