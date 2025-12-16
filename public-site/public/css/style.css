@@ -1075,3 +1075,27 @@ h1, h2, h3, h4, h5,
   -webkit-transform: scale(1.2);
   -ms-transform: scale(1.2);
   transform: scale(1.2); }
+
+/* ==========================================================================
+   Custom React Component Styles
+   ========================================================================== */
+
+/* Utility: Clickable elements */
+.clickable {
+  cursor: pointer; }
+
+/* Mobile menu toggle button */
+.mobile-menu-toggle {
+  position: relative;
+  top: 3px;
+  cursor: pointer; }
+
+/* Content card cover image */
+.card-cover-image {
+  height: 200px;
+  background-size: cover;
+  background-position: center; }
+
+/* CTA section with fixed background */
+.cta-fixed-background {
+  background-attachment: fixed; }
