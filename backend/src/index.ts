@@ -7,7 +7,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
 import { initDatabase } from './db/init.js';
-import { ensureAdminSeed } from './db/seed.js';
+import { ensureAdminSeed, ensureHomepageSeed, ensureSiteSettingsSeed } from './db/seed.js';
 
 import adminRouter from './routes/admin/index.js';
 import siteRouter from './routes/site/index.js';
@@ -17,11 +17,19 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-const CORS_ORIGIN = process.env.CORS_ORIGIN;
+const CORS_ORIGINS = process.env.CORS_ORIGIN?.split(',').map(o => o.trim()) || [];
 
 app.use(
   cors({
-    origin: CORS_ORIGIN,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      if (CORS_ORIGINS.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
   })
 );
@@ -43,7 +51,11 @@ const PORT = Number(process.env.PORT);
 
 (async () => {
   try {
-    await initDatabase({ seed: ensureAdminSeed });
+    await initDatabase({ seed: async () => {
+      await ensureAdminSeed();
+      await ensureSiteSettingsSeed();
+      await ensureHomepageSeed();
+    }});
     console.log('Database ready.');
     app.listen(PORT, () => {
       console.log('Server running on port', PORT);
