@@ -3,7 +3,7 @@ import type { User } from '../../store/users';
 import PageBreadcrumb from '../../components/common/PageBreadCrumb';
 import ComponentCard from '../../components/common/ComponentCard';
 import PageMeta from '../../components/common/PageMeta';
-import BasicTableOne from '../../components/tables/BasicTables/UserTableOne';
+import UserTableOne from '../../components/tables/BasicTables/UserTableOne';
 import Button from '../../ui/button/Button';
 import { UserIcon } from '../../icons';
 import UserFormModal from '../../components/ui/modal/UserFormModal';
@@ -58,13 +58,18 @@ export default function UsersTable() {
           title="Użytkownicy"
           button={
             <Access allOf={['users.create']}>
-              <Button size="sm" variant="primary" startIcon={<UserIcon />} onClick={handleCreateNew}>
+              <Button
+                size="sm"
+                variant="primary"
+                startIcon={<UserIcon />}
+                onClick={handleCreateNew}
+              >
                 Utwórz nowego
               </Button>
             </Access>
           }
         >
-          <BasicTableOne onEdit={handleEditUser} onDelete={askDeleteUser} />
+          <UserTableOne onEdit={handleEditUser} onDelete={askDeleteUser} />
         </ComponentCard>
       </div>
 

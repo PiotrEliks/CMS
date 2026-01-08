@@ -4,7 +4,7 @@ export type PermissionCode = string;
 
 export function hasPermission(
   user: { permissions?: PermissionCode[] } | null,
-  required: PermissionCode | PermissionCode[],
+  required: PermissionCode | PermissionCode[]
 ) {
   if (!user || !user.permissions) return false;
 
@@ -14,7 +14,7 @@ export function hasPermission(
 
 export function hasAnyPermission(
   user: { permissions?: PermissionCode[] } | null,
-  required: PermissionCode[],
+  required: PermissionCode[]
 ) {
   if (!user || !user.permissions) return false;
   return required.some((perm) => user.permissions!.includes(perm));

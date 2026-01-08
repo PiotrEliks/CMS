@@ -17,7 +17,7 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-const CORS_ORIGINS = process.env.CORS_ORIGIN?.split(',').map(o => o.trim()) || [];
+const CORS_ORIGINS = process.env.CORS_ORIGIN?.split(',').map((o) => o.trim()) || [];
 
 app.use(
   cors({
@@ -51,11 +51,13 @@ const PORT = Number(process.env.PORT);
 
 (async () => {
   try {
-    await initDatabase({ seed: async () => {
-      await ensureAdminSeed();
-      await ensureSiteSettingsSeed();
-      await ensureHomepageSeed();
-    }});
+    await initDatabase({
+      seed: async () => {
+        await ensureAdminSeed();
+        await ensureSiteSettingsSeed();
+        await ensureHomepageSeed();
+      },
+    });
     console.log('Database ready.');
     app.listen(PORT, () => {
       console.log('Server running on port', PORT);

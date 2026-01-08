@@ -14,8 +14,8 @@ export const uploadMedia = asyncHandler(async (req: Request, res: Response) => {
   }
 
   const folder = path.basename(path.dirname(file.path));
-  const storage_path = `${folder}/${file.filename}`;
-  const fullPath = file.path;    
+  const storage_path = `/uploads/${folder}/${file.filename}`;
+  const fullPath = file.path;
   const mime_type = file.mimetype;
   console.log(storage_path);
 
@@ -26,7 +26,7 @@ export const uploadMedia = asyncHandler(async (req: Request, res: Response) => {
     const thumbnailsDir = path.resolve(process.cwd(), 'uploads', 'thumbnails');
     await fs.mkdir(thumbnailsDir, { recursive: true });
     const thumbFilename = await generatePdfThumbnail(fullPath, thumbnailsDir);
-    thumbnail_path = `thumbnails/${thumbFilename}`;
+    thumbnail_path = `/uploads/thumbnails/${thumbFilename}`;
   }
 
   const media = await mediaService.createFromUpload({

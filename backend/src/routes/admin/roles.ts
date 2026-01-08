@@ -11,8 +11,17 @@ router.get('/:id', requireAuth, authorize('roles.read'), RolesController.getRole
 router.put('/:id', requireAuth, authorize('roles.update'), RolesController.updateRole);
 router.delete('/:id', requireAuth, authorize('roles.delete'), RolesController.deleteRole);
 
-router.put('/:id/permissions', requireAuth, authorize('roles.assign_permissions'), RolesController.updateRolePermissions);
-router.get('/:id/permissions', requireAuth, authorize('roles.read'), RolesController.getRolePermissions);
-
+router.put(
+  '/:id/permissions',
+  requireAuth,
+  authorize('roles.assign_permissions'),
+  RolesController.updateRolePermissions
+);
+router.get(
+  '/:id/permissions',
+  requireAuth,
+  authorize('roles.read'),
+  RolesController.getRolePermissions
+);
 
 export default router;

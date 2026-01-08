@@ -10,7 +10,8 @@ import { keyValueService } from '../services/keyValue.service.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const SEED_IMAGES_SOURCE = process.env.SEED_IMAGES_PATH || path.join(__dirname, '../../../public-site/public/images');
+const SEED_IMAGES_SOURCE =
+  process.env.SEED_IMAGES_PATH || path.join(__dirname, '../../../public-site/public/images');
 const UPLOADS_DIR = path.join(__dirname, '../../uploads/seed');
 
 const PERMISSIONS_SEED: { code: string; description: string }[] = [
@@ -136,7 +137,8 @@ export async function ensureHomepageSeed() {
       welcome: {
         title: 'Hair Salon',
         subtitle: 'Welcome to',
-        description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Incidunt architecto ab hic rem placeat eius commodi eum eligendi recusandae sed qui cumque quibusdam.',
+        description:
+          'Lorem ipsum dolor sit amet consectetur adipisicing elit. Incidunt architecto ab hic rem placeat eius commodi eum eligendi recusandae sed qui cumque quibusdam.',
         image: getMediaUrl('img_2.jpg'),
       },
       openingHours: {
@@ -150,14 +152,30 @@ export async function ensureHomepageSeed() {
       services: {
         title: 'Featured Services',
         items: [
-          { icon: 'flaticon-razor', name: 'Barber Razor', description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit.', price: '$29' },
-          { icon: 'flaticon-shave', name: 'Barber Shave', description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit.', price: '$24' },
-          { icon: 'flaticon-location-pin', name: 'Location Pin', description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit.', price: '$46' },
+          {
+            icon: 'flaticon-razor',
+            name: 'Barber Razor',
+            description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit.',
+            price: '$29',
+          },
+          {
+            icon: 'flaticon-shave',
+            name: 'Barber Shave',
+            description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit.',
+            price: '$24',
+          },
+          {
+            icon: 'flaticon-location-pin',
+            name: 'Location Pin',
+            description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit.',
+            price: '$46',
+          },
         ],
       },
       testimonial: {
         title: 'New hairstyle!',
-        quote: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Similique dolorem quisquam laudantium.',
+        quote:
+          'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Similique dolorem quisquam laudantium.',
         author: 'Stella Martin',
         image: getMediaUrl('person_1.jpg'),
       },

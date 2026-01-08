@@ -10,10 +10,18 @@ if (!fs.existsSync(avatarsDir)) {
 }
 
 const storage = multer.diskStorage({
-  destination: (_req: Request, _file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) => {
+  destination: (
+    _req: Request,
+    _file: Express.Multer.File,
+    cb: (error: Error | null, destination: string) => void
+  ) => {
     cb(null, avatarsDir);
   },
-  filename: (_req: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void) => {
+  filename: (
+    _req: Request,
+    file: Express.Multer.File,
+    cb: (error: Error | null, filename: string) => void
+  ) => {
     const ext = path.extname(file.originalname);
     const base = path.basename(file.originalname, ext);
     const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);

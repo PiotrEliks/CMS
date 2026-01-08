@@ -1,12 +1,12 @@
-import { useState } from "react";
-import { useAuth } from "../../../store/auth";
-import Label from "../Label";
-import Input from "../input/InputField";
-import Button from "../../ui/button/Button";
+import { useState } from 'react';
+import { useAuth } from '../../../store/auth';
+import Label from '../Label';
+import Input from '../input/InputField';
+import Button from '../../ui/button/Button';
 
 export default function ForgotPasswordForm() {
   const { forgotPassword, loading, error, clearError } = useAuth();
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
 
   async function submit(e: any) {
@@ -21,7 +21,6 @@ export default function ForgotPasswordForm() {
   return (
     <div className="h-screen flex flex-col items-center justify-center flex-1">
       <div className="w-full max-w-md p-6 bg-white rounded-xl dark:bg-gray-900">
-
         <h1 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
           Zapomniałeś hasła?
         </h1>
@@ -32,7 +31,6 @@ export default function ForgotPasswordForm() {
           </p>
         ) : (
           <form onSubmit={submit} className="space-y-5">
-
             <div>
               <Label>Email</Label>
               <Input
@@ -51,7 +49,7 @@ export default function ForgotPasswordForm() {
             )}
 
             <Button className="w-full" disabled={loading}>
-              {loading ? "Wysyłanie…" : "Wyślij link resetujący"}
+              {loading ? 'Wysyłanie…' : 'Wyślij link resetujący'}
             </Button>
           </form>
         )}

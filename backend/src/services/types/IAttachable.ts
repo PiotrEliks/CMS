@@ -1,5 +1,9 @@
 export interface IAttachable {
-  attach(entityId: string | number, relatedId: string | number, metadata?: Record<string, any>): Promise<void>;
+  attach(
+    entityId: string | number,
+    relatedId: string | number,
+    metadata?: Record<string, any>
+  ): Promise<void>;
 
   detach(entityId: string | number, relatedId: string | number): Promise<void>;
 

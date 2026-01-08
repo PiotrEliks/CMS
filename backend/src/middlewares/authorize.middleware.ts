@@ -19,9 +19,7 @@ export function authorize(...requiredPermissions: string[]) {
 
     const userPerms = user.permissions ?? [];
 
-    const hasAll = requiredPermissions.every((perm) =>
-      userPerms.includes(perm),
-    );
+    const hasAll = requiredPermissions.every((perm) => userPerms.includes(perm));
 
     if (!hasAll) {
       return res.status(403).json({ error: 'Forbidden' });

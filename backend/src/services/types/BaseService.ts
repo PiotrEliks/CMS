@@ -1,4 +1,4 @@
-import { Model, ModelCtor, FindOptions } from "sequelize";
+import { Model, ModelCtor, FindOptions } from 'sequelize';
 
 export abstract class BaseService<T extends Model> {
   protected model: ModelCtor<T>;

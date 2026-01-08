@@ -67,16 +67,36 @@ export class MediaService extends BaseService<Media> {
     if (params.used === '1') {
       where[Op.or] = [
         ...(where[Op.or] ?? []),
-        { media_id: { [Op.in]: (Content as any).sequelize.literal(`(SELECT cover_media_id FROM contents WHERE cover_media_id IS NOT NULL)`) } },
-        { media_id: { [Op.in]: (Content as any).sequelize.literal(`(SELECT media_id FROM contents_media)`) } },
+        {
+          media_id: {
+            [Op.in]: (Content as any).sequelize.literal(
+              `(SELECT cover_media_id FROM contents WHERE cover_media_id IS NOT NULL)`
+            ),
+          },
+        },
+        {
+          media_id: {
+            [Op.in]: (Content as any).sequelize.literal(`(SELECT media_id FROM contents_media)`),
+          },
+        },
       ];
     }
 
     if (params.used === '0') {
       where[Op.and] = [
         ...(where[Op.and] ?? []),
-        { media_id: { [Op.notIn]: (Content as any).sequelize.literal(`(SELECT cover_media_id FROM contents WHERE cover_media_id IS NOT NULL)`) } },
-        { media_id: { [Op.notIn]: (Content as any).sequelize.literal(`(SELECT media_id FROM contents_media)`) } },
+        {
+          media_id: {
+            [Op.notIn]: (Content as any).sequelize.literal(
+              `(SELECT cover_media_id FROM contents WHERE cover_media_id IS NOT NULL)`
+            ),
+          },
+        },
+        {
+          media_id: {
+            [Op.notIn]: (Content as any).sequelize.literal(`(SELECT media_id FROM contents_media)`),
+          },
+        },
       ];
     }
 
@@ -88,7 +108,9 @@ export class MediaService extends BaseService<Media> {
     });
   }
 
-  async getUsage(mediaId: string): Promise<{ isUsed: boolean; count: number; places: MediaUsagePlace[] }> {
+  async getUsage(
+    mediaId: string
+  ): Promise<{ isUsed: boolean; count: number; places: MediaUsagePlace[] }> {
     const places: MediaUsagePlace[] = [];
 
     const covers = await Content.findAll({
@@ -143,7 +165,6 @@ export class MediaService extends BaseService<Media> {
       usage: Array.isArray(usage) ? usage : [],
     };
   }
-  
 
   async getByType(mimeType: string, options: PaginationOptions) {
     return await this.list({
@@ -164,7 +185,9 @@ export class MediaService extends BaseService<Media> {
     return items;
   }
 
-  async deleteMedia(mediaId: string): Promise<{ deleted: true } | { deleted: false; places: MediaUsagePlace[] }> {
+  async deleteMedia(
+    mediaId: string
+  ): Promise<{ deleted: true } | { deleted: false; places: MediaUsagePlace[] }> {
     const media = await this.findById(mediaId);
     if (!media) throw new Error('Media not found');
 
@@ -173,14 +196,19 @@ export class MediaService extends BaseService<Media> {
       return { deleted: false, places: usage.places };
     }
 
+    const getPhysicalPath = (p: string) => {
+      const relativePath = p.replace(/^\/?uploads\//, '');
+      return path.join(UPLOAD_DIR, relativePath);
+    };
+
     const storagePath = (media as any).storage_path as string;
     if (storagePath) {
-      const abs = path.join(UPLOAD_DIR, storagePath);
+      const abs = getPhysicalPath(storagePath);
       await safeUnlink(abs);
     }
 
     if ((media as any).thumbnail_path) {
-      const thumbAbs = path.join(UPLOAD_DIR, (media as any).thumbnail_path);
+      const thumbAbs = getPhysicalPath((media as any).thumbnail_path);
       await safeUnlink(thumbAbs);
     }
 
@@ -190,8 +218,10 @@ export class MediaService extends BaseService<Media> {
     return { deleted: true };
   }
 
-
-  async updateMetadata(mediaId: string, data: { alt_text?: string; title?: string; status?: boolean }) {
+  async updateMetadata(
+    mediaId: string,
+    data: { alt_text?: string; title?: string; status?: boolean }
+  ) {
     return await this.update(mediaId, data as any);
   }
 
@@ -212,7 +242,6 @@ export class MediaService extends BaseService<Media> {
 
     return result?.total || 0;
   }
-
 
   async getPublishedById(mediaId: string) {
     return await Media.findOne({

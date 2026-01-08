@@ -1,5 +1,9 @@
 import { KeyValue } from '../models/keyValue.model.js';
-import { SITE_SETTINGS, SITE_SETTINGS_DEFAULTS, SiteSettingKey } from '../constants/siteSettings.js';
+import {
+  SITE_SETTINGS,
+  SITE_SETTINGS_DEFAULTS,
+  SiteSettingKey,
+} from '../constants/siteSettings.js';
 
 export class KeyValueService {
   async get(key: string): Promise<string | null> {
@@ -30,7 +34,7 @@ export class KeyValueService {
     const records = await KeyValue.findAll({ where: { key: keys } });
     const result: Record<string, string | null> = {};
     for (const key of keys) {
-      const record = records.find(r => r.key === key);
+      const record = records.find((r) => r.key === key);
       result[key] = record?.value ?? null;
     }
     return result;
@@ -48,7 +52,7 @@ export class KeyValueService {
 
     const result = {} as Record<SiteSettingKey, string>;
     for (const key of keys) {
-      const record = records.find(r => r.key === key);
+      const record = records.find((r) => r.key === key);
       result[key] = record?.value ?? SITE_SETTINGS_DEFAULTS[key]?.value ?? '';
     }
     return result;

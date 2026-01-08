@@ -10,7 +10,12 @@ const router = Router();
 router.use(requireAuth);
 
 // Media management routes
-router.post('/', authorize('media.upload'), uploadMediaMiddleware.single('file'), MediaController.uploadMedia);
+router.post(
+  '/',
+  authorize('media.upload'),
+  uploadMediaMiddleware.single('file'),
+  MediaController.uploadMedia
+);
 router.get('/', authorize('media.read'), MediaController.listMedia);
 router.get('/recent', authorize('media.read'), MediaController.getRecentMedia);
 router.get('/stats/storage', authorize('media.read'), MediaController.getStorageStats);

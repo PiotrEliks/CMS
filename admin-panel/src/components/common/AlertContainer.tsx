@@ -1,4 +1,4 @@
-import Alert from '../ui/alert/Alert'
+import Alert from '../ui/alert/Alert';
 import { useAlerts } from '../../store/alerts';
 
 export default function AlertContainer() {

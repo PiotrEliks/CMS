@@ -1,9 +1,4 @@
-import {
-  DataTypes,
-  Model,
-  InferAttributes,
-  InferCreationAttributes,
-} from 'sequelize';
+import { DataTypes, Model, InferAttributes, InferCreationAttributes } from 'sequelize';
 import { sequelize } from '../db/sequelize.js';
 import { Role } from './role.model.js';
 import { Permission } from './permission.model.js';

@@ -1,10 +1,10 @@
-import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useAuth } from "../../../store/auth";
-import Label from "../Label";
-import Input from "../input/InputField";
-import Button from "../../ui/button/Button";
-import { EyeCloseIcon, EyeIcon } from "../../../icons";
+import { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../store/auth';
+import Label from '../Label';
+import Input from '../input/InputField';
+import Button from '../../ui/button/Button';
+import { EyeCloseIcon, EyeIcon } from '../../../icons';
 
 const STRONG_PASSWORD_REGEX =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
@@ -13,8 +13,8 @@ export default function ResetPasswordForm() {
   const { token } = useParams();
   const { resetPassword, loading, error, clearError } = useAuth();
 
-  const [password, setPassword] = useState("");
-  const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [password, setPassword] = useState('');
+  const [passwordConfirm, setPasswordConfirm] = useState('');
   const [localError, setLocalError] = useState<string | null>(null);
 
   const [showPassword, setShowPassword] = useState(false);
@@ -28,27 +28,26 @@ export default function ResetPasswordForm() {
     setLocalError(null);
 
     if (!password || !passwordConfirm) {
-      setLocalError("Wpisz i potwierdź nowe hasło.");
+      setLocalError('Wpisz i potwierdź nowe hasło.');
       return;
     }
 
     if (password !== passwordConfirm) {
-      setLocalError("Hasła nie są identyczne.");
+      setLocalError('Hasła nie są identyczne.');
       return;
     }
 
     if (!STRONG_PASSWORD_REGEX.test(password)) {
       setLocalError(
-        "Hasło musi mieć co najmniej 8 znaków, jedną małą literę, jedną wielką literę i jeden znak specjalny."
+        'Hasło musi mieć co najmniej 8 znaków, jedną małą literę, jedną wielką literę i jeden znak specjalny.'
       );
       return;
     }
 
     try {
       await resetPassword(token!, password);
-      navigate("/login");
-    } catch {
-    }
+      navigate('/login');
+    } catch {}
   }
 
   return (
@@ -63,7 +62,7 @@ export default function ResetPasswordForm() {
             <Label>Nowe hasło</Label>
             <div className="relative">
               <Input
-                type={showPassword ? "text" : "password"}
+                type={showPassword ? 'text' : 'password'}
                 placeholder="Wpisz nowe hasło"
                 value={password}
                 onChange={(e: any) => setPassword(e.target.value)}
@@ -73,7 +72,7 @@ export default function ResetPasswordForm() {
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
                 className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
-                aria-label={showPassword ? "Ukryj hasło" : "Pokaż hasło"}
+                aria-label={showPassword ? 'Ukryj hasło' : 'Pokaż hasło'}
               >
                 {showPassword ? (
                   <EyeIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
@@ -88,7 +87,7 @@ export default function ResetPasswordForm() {
             <Label>Powtórz nowe hasło</Label>
             <div className="relative">
               <Input
-                type={showPasswordConfirm ? "text" : "password"}
+                type={showPasswordConfirm ? 'text' : 'password'}
                 placeholder="Powtórz nowe hasło"
                 value={passwordConfirm}
                 onChange={(e: any) => setPasswordConfirm(e.target.value)}
@@ -98,7 +97,7 @@ export default function ResetPasswordForm() {
                 type="button"
                 onClick={() => setShowPasswordConfirm((v) => !v)}
                 className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
-                aria-label={showPasswordConfirm ? "Ukryj hasło" : "Pokaż hasło"}
+                aria-label={showPasswordConfirm ? 'Ukryj hasło' : 'Pokaż hasło'}
               >
                 {showPasswordConfirm ? (
                   <EyeIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
@@ -116,7 +115,7 @@ export default function ResetPasswordForm() {
           )}
 
           <Button className="w-full" disabled={loading}>
-            {loading ? "Zapisywanie…" : "Zmień hasło"}
+            {loading ? 'Zapisywanie…' : 'Zmień hasło'}
           </Button>
         </form>
       </div>

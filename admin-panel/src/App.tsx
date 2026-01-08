@@ -14,6 +14,9 @@ import ResetPasswordForm from './components/form/auth/ResetPasswordForm';
 import AlertContainer from './components/common/AlertContainer';
 import Roles from './pages/Roles';
 import Media from './pages/Media';
+import ContentsListPage from './pages/Content/ContentsListPage';
+import NewContentPage from './pages/Content/NewContentPage';
+import EditContentPage from './pages/Content/EditContentPage';
 
 export default function App() {
   const { checkAuth, user, loading } = useAuth();
@@ -86,6 +89,30 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Media />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/contents"
+            element={
+              <ProtectedRoute>
+                <ContentsListPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/contents/new"
+            element={
+              <ProtectedRoute>
+                <NewContentPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/contents/:id/edit"
+            element={
+              <ProtectedRoute>
+                <EditContentPage />
               </ProtectedRoute>
             }
           />

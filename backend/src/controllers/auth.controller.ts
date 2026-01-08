@@ -8,7 +8,11 @@ import { hashPassword } from '../utils/password.js';
 import { Op } from 'sequelize';
 
 export const login = asyncHandler(async (req: Request, res: Response) => {
-  const { email, password, keepSignedIn } = req.body as { email?: string; password?: string; keepSignedIn?: boolean };
+  const { email, password, keepSignedIn } = req.body as {
+    email?: string;
+    password?: string;
+    keepSignedIn?: boolean;
+  };
 
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required' });
@@ -25,9 +29,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     return res.status(401).json({ error: err.message || 'Invalid credentials' });
   }
 
-  const maxAge = keepSignedIn 
-  ? 1000 * 60 * 60 * 24 * 180
-  : 1000 * 60 * 60;
+  const maxAge = keepSignedIn ? 1000 * 60 * 60 * 24 * 180 : 1000 * 60 * 60;
 
   res.cookie('access_token', accessToken, {
     httpOnly: true,
@@ -59,7 +61,7 @@ export const forgotPassword = asyncHandler(async (req, res) => {
 
   const user = await User.findOne({ where: { email } });
   if (!user) {
-    return res.status(200).json({ ok: true }); 
+    return res.status(200).json({ ok: true });
   }
 
   const token = crypto.randomBytes(32).toString('hex');
@@ -71,7 +73,7 @@ export const forgotPassword = asyncHandler(async (req, res) => {
 
   await sendPasswordResetMail({
     to: user.email,
-    link: resetLink
+    link: resetLink,
   });
 
   res.json({ ok: true });
@@ -83,8 +85,8 @@ export const resetPassword = asyncHandler(async (req, res) => {
   const user = await User.findOne({
     where: {
       reset_token: token,
-      reset_token_expires: { [Op.gt]: new Date() }
-    }
+      reset_token_expires: { [Op.gt]: new Date() },
+    },
   });
 
   if (!user) {

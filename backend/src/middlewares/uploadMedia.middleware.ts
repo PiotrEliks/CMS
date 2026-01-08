@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import multer from 'multer';
+import { normalizeFilename } from '../utils/slugifyFilename.js';
 
 const UPLOAD_DIR = process.env.UPLOAD_DIR ?? path.resolve(process.cwd(), 'uploads');
 
@@ -9,22 +10,22 @@ const ensureDir = (p: string) => {
 };
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
+  destination: (_req, file, cb) => {
     const isImage = file.mimetype.startsWith('image/');
     const folder = isImage ? 'images' : 'documents';
     const dest = path.join(UPLOAD_DIR, folder);
     ensureDir(dest);
     cb(null, dest);
   },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname || '');
-    const base = path
-      .basename(file.originalname || 'file', ext)
-      .replace(/\s+/g, '-')
-      .replace(/[^\w\-]+/g, '')
-      .toLowerCase();
+
+  filename: (_req, file, cb) => {
+    const safe = normalizeFilename(file.originalname || 'file');
+    const ext = path.extname(safe);
+    const base = path.basename(safe, ext);
+    console.log(base);
 
     const unique = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
     cb(null, `${base}-${unique}${ext}`.toLowerCase());
   },
 });

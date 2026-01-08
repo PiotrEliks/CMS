@@ -42,7 +42,7 @@ type AuthState = {
   uploadAvatar: (file: File) => Promise<void>;
   deleteAvatar: () => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
-   resetPassword: (token: string, newPassword: string) => Promise<void>;
+  resetPassword: (token: string, newPassword: string) => Promise<void>;
 };
 
 const showAlert = (payload: AlertPayload) => {
@@ -131,7 +131,7 @@ export const useAuth = create<AuthState>((set) => ({
 
       const updatedUser = res.data.user ?? null;
       set({ user: updatedUser, avatarLoading: false });
-    showAlert({
+      showAlert({
         variant: 'success',
         title: 'Zaktualizowano zdjęcie profilowe',
         message: 'Twoje zdjęcie profilowe zostało pomyślnie zaktualizowane.',
@@ -182,7 +182,8 @@ export const useAuth = create<AuthState>((set) => ({
       showAlert({
         variant: 'success',
         title: 'Mail resetujący wysłany',
-        message: 'Jeśli konto z podanym adresem e-mail istnieje, wysłaliśmy maila z instrukcjami resetu hasła.',
+        message:
+          'Jeśli konto z podanym adresem e-mail istnieje, wysłaliśmy maila z instrukcjami resetu hasła.',
         duration: 5000,
       });
     } catch (e: any) {

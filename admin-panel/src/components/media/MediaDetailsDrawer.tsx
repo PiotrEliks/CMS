@@ -31,7 +31,7 @@ export default function MediaDetailsDrawer({
   if (!open || !media) return null;
 
   const isImage = (media.mime_type ?? '').startsWith('image/');
-  const previewUrl = media.url ? media.url : `/uploads/${media.storage_path}`;
+  const previewUrl = media.storage_path;
 
   const save = async () => {
     await update(media.media_id, { title, alt_text: alt, status });
@@ -52,7 +52,11 @@ export default function MediaDetailsDrawer({
         <div className="rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
           <div className="aspect-video bg-gray-50 dark:bg-gray-800 flex items-center justify-center">
             {isImage && (
-              <img src={`${import.meta.env.VITE_API_UPLOADS}${previewUrl}`} alt={alt} className="h-full w-full object-cover" />
+              <img
+                src={`${import.meta.env.VITE_API_UPLOADS}${previewUrl}`}
+                alt={alt}
+                className="h-full w-full object-cover"
+              />
             )}
             {isPdf && (
               <div className="mt-4 h-[500px] w-full rounded-lg border border-gray-200 overflow-hidden">
@@ -62,7 +66,7 @@ export default function MediaDetailsDrawer({
                   title={media.title ?? 'PDF preview'}
                 />
               </div>
-          )}
+            )}
           </div>
           <div className="p-4 text-sm">
             <p className="text-gray-700 dark:text-gray-200">

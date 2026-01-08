@@ -25,8 +25,17 @@ export class MenuService extends BaseService<Menu> implements ITreeService<MenuI
     return items;
   }
 
-
-  async addItem(data: { label: string; url?: string; order_index?: number; menu_id: string; parent_id?: string | null; content_id?: string }, parentId?: string | null): Promise<any> {
+  async addItem(
+    data: {
+      label: string;
+      url?: string;
+      order_index?: number;
+      menu_id: string;
+      parent_id?: string | null;
+      content_id?: string;
+    },
+    parentId?: string | null
+  ): Promise<any> {
     return await MenuItem.create({
       ...data,
       parent_id: parentId,
@@ -35,7 +44,6 @@ export class MenuService extends BaseService<Menu> implements ITreeService<MenuI
     } as any);
   }
 
-
   async updateItem(id: string, data: Partial<any>): Promise<any | null> {
     const item = await MenuItem.findByPk(id);
     if (!item) return null;
@@ -43,7 +51,9 @@ export class MenuService extends BaseService<Menu> implements ITreeService<MenuI
     return await item.update(data);
   }
 
-  async reorder(items: Array<{ id: string; order_index: number; parent_id?: string | null }>): Promise<any[]> {
+  async reorder(
+    items: Array<{ id: string; order_index: number; parent_id?: string | null }>
+  ): Promise<any[]> {
     for (const item of items) {
       if (item.parent_id) {
         const hasParentCycle = await this.hasCycle(item.id, item.parent_id);
@@ -66,7 +76,6 @@ export class MenuService extends BaseService<Menu> implements ITreeService<MenuI
     return await Promise.all(items.map((item) => MenuItem.findByPk(item.id)));
   }
 
-
   async deleteItem(id: string, cascadeChildren?: boolean): Promise<boolean> {
     const item = await MenuItem.findByPk(id);
     if (!item) return false;
@@ -81,12 +90,11 @@ export class MenuService extends BaseService<Menu> implements ITreeService<MenuI
     return true;
   }
 
-
   private async hasCycle(itemId: string, potentialParentId: string): Promise<boolean> {
     let currentId: string | null = potentialParentId;
     while (currentId) {
       if (currentId === itemId) {
-        return true; 
+        return true;
       }
 
       const item: any = await MenuItem.findByPk(currentId);
@@ -104,7 +112,6 @@ export class MenuService extends BaseService<Menu> implements ITreeService<MenuI
       await child.destroy();
     }
   }
-
 
   async getMenuWithItems(menuId: string) {
     return await this.findOne({

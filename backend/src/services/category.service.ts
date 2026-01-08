@@ -14,12 +14,7 @@ export class CategoryService extends BaseService<Category> implements ISluggable
   /**
    * Create new category with slug generation
    */
-  async create(data: {
-    name: string;
-    description?: string;
-    slug?: string;
-    order_index?: number;
-  }) {
+  async create(data: { name: string; description?: string; slug?: string; order_index?: number }) {
     // Generate slug if not provided
     let slug = data.slug || stringToSlug(data.name);
 
@@ -73,7 +68,11 @@ export class CategoryService extends BaseService<Category> implements ISluggable
   /**
    * Attach content to category
    */
-  async attach(categoryId: string, contentId: string, metadata?: Record<string, any>): Promise<void> {
+  async attach(
+    categoryId: string,
+    contentId: string,
+    metadata?: Record<string, any>
+  ): Promise<void> {
     const category = await this.findById(categoryId);
     if (!category) throw new Error('Category not found');
 

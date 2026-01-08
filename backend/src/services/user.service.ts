@@ -8,7 +8,6 @@ import { FindOptions, PaginationOptions } from './types/IRepository.js';
 import { generateRandomPassword, hashPassword } from '../utils/password.js';
 import { sendNewUserCredentialsMail } from '../utils/mailer.js';
 
-
 async function comparePassword(plain: string, hash: string): Promise<boolean> {
   return bcrypt.compare(plain, hash);
 }
@@ -18,14 +17,12 @@ export class UserService extends BaseService<User> {
     super(User);
   }
 
-
   async getUserWithRole(userId: string) {
     return await User.findByPk(userId, {
       attributes: { exclude: ['password_hash'] },
       include: [{ model: Role, as: 'role' }],
     });
   }
-
 
   async getUserByEmail(email: string) {
     return await this.findOne({
@@ -69,7 +66,6 @@ export class UserService extends BaseService<User> {
 
     return { items: rows, total: count };
   }
-
 
   async createWithEmail(data: {
     email: string;
@@ -188,7 +184,11 @@ export class UserService extends BaseService<User> {
     return await this.getUserWithRole(userId);
   }
 
-  async changePassword(userId: string, currentPassword: string, newPassword: string): Promise<void> {
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string
+  ): Promise<void> {
     if (!currentPassword || !newPassword) {
       throw new Error('Aby zmienić hasło, podaj zarówno aktualne, jak i nowe hasło.');
     }
@@ -211,7 +211,6 @@ export class UserService extends BaseService<User> {
     await user.update({ password_hash });
   }
 
-
   async resetPassword(userId: string, newPassword: string): Promise<void> {
     const user = await User.findByPk(userId);
     if (!user) {
@@ -232,7 +231,6 @@ export class UserService extends BaseService<User> {
 
     return comparePassword(password, (user as any).password_hash);
   }
-
 
   async assignRole(userId: string, roleId: string): Promise<void> {
     const user = await User.findByPk(userId);

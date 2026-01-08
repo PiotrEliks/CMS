@@ -4,19 +4,21 @@ import { contentService } from '../../services/content.service.js';
 import { Category, User } from '../../models/index.js';
 
 export const createContent = asyncHandler(async (req: Request, res: Response) => {
-  const { title, body, meta_description, meta_keywords, slug, status } = req.body;
+  const { title, body, lead, meta_description, meta_keywords, meta_title, slug, status } = req.body;
 
-  if (!title || !body) {
-    return res.status(400).json({ error: 'Title and body are required' });
+  if (!title) {
+    return res.status(400).json({ error: 'Title is required' });
   }
 
   const content = await contentService.create({
     title,
-    body,
-    meta_description,
-    meta_keywords,
-    slug,
-    status,
+    body: body || '',
+    lead: lead || '',
+    meta_description: meta_description || '',
+    meta_keywords: meta_keywords || '',
+    meta_title: meta_title || title,
+    slug: slug || '',
+    status: status || 'draft',
     created_by: (req as any).user?.sub,
   });
 
@@ -35,7 +37,6 @@ export const getContent = asyncHandler(async (req: Request, res: Response) => {
   return res.json(content);
 });
 
-
 export const getContentBySlug = asyncHandler(async (req: Request, res: Response) => {
   const { slug } = req.params;
 
@@ -47,7 +48,6 @@ export const getContentBySlug = asyncHandler(async (req: Request, res: Response)
 
   return res.json(content);
 });
-
 
 export const listContents = asyncHandler(async (req: Request, res: Response) => {
   const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
@@ -79,16 +79,17 @@ export const listPublishedContents = asyncHandler(async (req: Request, res: Resp
   return res.json({ items, total, limit, offset });
 });
 
-
 export const updateContent = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { title, body, meta_description, meta_keywords, slug, status } = req.body;
+  const { title, body, lead, meta_description, meta_keywords, meta_title, slug, status } = req.body;
 
   const content = await contentService.update(id, {
     title,
     body,
+    lead,
     meta_description,
     meta_keywords,
+    meta_title,
     slug,
     status,
     updated_by: (req as any).user?.sub,
@@ -158,7 +159,6 @@ export const attachMedia = asyncHandler(async (req: Request, res: Response) => {
   }
 });
 
-
 export const detachMedia = asyncHandler(async (req: Request, res: Response) => {
   const { id, mediaId } = req.params;
 
@@ -181,7 +181,6 @@ export const deleteContent = asyncHandler(async (req: Request, res: Response) =>
 
   return res.json({ ok: true });
 });
-
 
 export const generateSlug = asyncHandler(async (req: Request, res: Response) => {
   const { title, existingId } = req.body;

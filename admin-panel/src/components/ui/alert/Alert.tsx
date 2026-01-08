@@ -118,9 +118,7 @@ const Alert: React.FC<AlertProps> = ({
 
         <div className="flex-1">
           <div className="flex items-start justify-between gap-2">
-            <h4 className="mb-1 text-sm font-semibold text-gray-800 dark:text-white/90">
-              {title}
-            </h4>
+            <h4 className="mb-1 text-sm font-semibold text-gray-800 dark:text-white/90">{title}</h4>
 
             {onClose && (
               <button

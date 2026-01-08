@@ -46,6 +46,6 @@ export async function sendPasswordResetMail(options: { to: string; link: string 
       <p>Kliknij aby ustawić nowe hasło:</p>
       <p><a href="${options.link}">${options.link}</a></p>
       <p>Jeśli to nie Ty – zignoruj tę wiadomość.</p>
-    `
+    `,
   });
 }

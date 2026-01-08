@@ -166,17 +166,17 @@ export function setupAssociations() {
     onDelete: 'SET NULL',
   });
 
-Role.belongsToMany(Permission, {
-  through: RolePermission,
-  foreignKey: 'role_id',
-  otherKey: 'permission_id',
-  as: 'permissions',
-});
+  Role.belongsToMany(Permission, {
+    through: RolePermission,
+    foreignKey: 'role_id',
+    otherKey: 'permission_id',
+    as: 'permissions',
+  });
 
-Permission.belongsToMany(Role, {
-  through: RolePermission,
-  foreignKey: 'permission_id',
-  otherKey: 'role_id',
-  as: 'roles',
-});
+  Permission.belongsToMany(Role, {
+    through: RolePermission,
+    foreignKey: 'permission_id',
+    otherKey: 'role_id',
+    as: 'roles',
+  });
 }

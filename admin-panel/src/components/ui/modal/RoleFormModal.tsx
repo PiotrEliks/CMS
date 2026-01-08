@@ -76,7 +76,7 @@ export default function RoleFormModal({ open, onClose, roleToEdit }: Props) {
 
   const togglePermission = (id: string) => {
     setSelectedPermissions((prev) =>
-      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id],
+      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
     );
   };
 
@@ -101,8 +101,7 @@ export default function RoleFormModal({ open, onClose, roleToEdit }: Props) {
       }
 
       onClose();
-    } catch {
-    }
+    } catch {}
   };
 
   return (
@@ -231,8 +230,8 @@ export default function RoleFormModal({ open, onClose, roleToEdit }: Props) {
               {loading || permissionsLoading
                 ? 'Zapisywanie...'
                 : isEdit
-                ? 'Zapisz zmiany'
-                : 'Utwórz rolę'}
+                  ? 'Zapisz zmiany'
+                  : 'Utwórz rolę'}
             </Button>
           </div>
         </form>

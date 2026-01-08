@@ -55,10 +55,7 @@ type MediaState = {
 
   deleteOne: (
     id: string
-  ) => Promise<
-    | { ok: true }
-    | { ok: false; code: 'MEDIA_IN_USE'; places: MediaUsagePlace[] }
-  >;
+  ) => Promise<{ ok: true } | { ok: false; code: 'MEDIA_IN_USE'; places: MediaUsagePlace[] }>;
 
   clearError: () => void;
   clearSelected: () => void;

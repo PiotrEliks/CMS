@@ -32,7 +32,7 @@ export default function Media() {
 
   const canUpload = usePermission('media.upload');
   const canDelete = usePermission('media.delete');
-  const canUpdate = usePermission('media.update'); 
+  const canUpdate = usePermission('media.update');
   useEffect(() => {
     fetchMedia({ type: filters.type, search: filters.search });
   }, [filters.type, filters.search, fetchMedia]);

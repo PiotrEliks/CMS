@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import * as ContentController from '../../controllers/site/content.controller.js';
 import { requireAuth } from '../../middlewares/auth.middleware.js';
+import contentSectionsRouter from './contentSection.js';
 
 const router = Router();
 
@@ -27,5 +28,7 @@ router.delete('/:id/categories/:categoryId', ContentController.detachCategory);
 // Media management
 router.post('/:id/media/:mediaId', ContentController.attachMedia);
 router.delete('/:id/media/:mediaId', ContentController.detachMedia);
+
+router.use('/:contentId/sections', contentSectionsRouter);
 
 export default router;

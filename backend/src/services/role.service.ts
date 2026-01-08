@@ -7,7 +7,7 @@ function normalizeRoleType(displayName: string): string {
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '_') 
+    .replace(/[^a-z0-9]+/g, '_')
     .replace(/^_+|_+$/g, '')
     .substring(0, 50);
 }
@@ -16,12 +16,8 @@ export class RoleService extends BaseService<Role> {
   constructor() {
     super(Role);
   }
-  
 
-  async createRole(data: {
-    display_name: string;
-    status: boolean;
-  }) {
+  async createRole(data: { display_name: string; status: boolean }) {
     return await super.create({
       display_name: data.display_name,
       type: normalizeRoleType(data.display_name),
@@ -42,7 +38,10 @@ export class RoleService extends BaseService<Role> {
     });
   }
 
-  async updateRole(roleId: string, data: { display_name?: string; type?: string; status: boolean }) {
+  async updateRole(
+    roleId: string,
+    data: { display_name?: string; type?: string; status: boolean }
+  ) {
     return await this.update(roleId, data as any);
   }
 
@@ -97,14 +96,13 @@ export class RoleService extends BaseService<Role> {
   }
 
   async getPermissions(roleId: string) {
-  const role = await this.findOne({
-    where: { role_id: roleId },
-    include: [{ model: Permission, as: 'permissions' }],
-  });
+    const role = await this.findOne({
+      where: { role_id: roleId },
+      include: [{ model: Permission, as: 'permissions' }],
+    });
 
-  return role?.permissions ?? [];
-}
-
+    return role?.permissions ?? [];
+  }
 }
 
 export const roleService = new RoleService();

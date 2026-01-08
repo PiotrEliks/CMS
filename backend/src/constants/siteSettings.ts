@@ -19,10 +19,13 @@ export const SITE_SETTINGS = {
   SITE_TWITTER: 'SITE_TWITTER',
 } as const;
 
-export type SiteSettingKey = typeof SITE_SETTINGS[keyof typeof SITE_SETTINGS];
+export type SiteSettingKey = (typeof SITE_SETTINGS)[keyof typeof SITE_SETTINGS];
 
 // Default values for site settings
-export const SITE_SETTINGS_DEFAULTS: Record<SiteSettingKey, { value: string; description: string }> = {
+export const SITE_SETTINGS_DEFAULTS: Record<
+  SiteSettingKey,
+  { value: string; description: string }
+> = {
   [SITE_SETTINGS.SITE_HEADER_NAME]: {
     value: 'Hairsal',
     description: 'Site name displayed in the header/navbar',

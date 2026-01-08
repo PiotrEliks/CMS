@@ -25,7 +25,7 @@ export default function UserDropdown() {
     setIsOpen(false);
   }
 
-  const avatarSrc = user?.avatar_url ?? '/uploads/avatars/default-avatar.webp';
+  const avatarSrc = user?.avatar_url ?? '/uploads/avatars/default-avatar.jpg';
 
   return (
     <div className="relative">

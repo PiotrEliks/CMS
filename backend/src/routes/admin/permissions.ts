@@ -9,7 +9,7 @@ router.get(
   '/',
   requireAuth,
   authorize('roles.assign_permissions'),
-  PermissionsController.listPermissions,
+  PermissionsController.listPermissions
 );
 
 export default router;

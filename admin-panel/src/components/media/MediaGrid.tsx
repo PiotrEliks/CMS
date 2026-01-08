@@ -18,9 +18,9 @@ export default function MediaGrid({
     <div className="grid grid-cols-2 gap-4 md:grid-cols-4 xl:grid-cols-6">
       {items.map((m) => {
         const isImage = (m.mime_type ?? '').startsWith('image/');
-        const previewUrl = m.url ? m.url : `/uploads/${m.storage_path}`;
+        const previewUrl = m.storage_path;
         const isPdf = m.mime_type === 'application/pdf';
-
+        console.log(m);
         return (
           <div
             key={m.media_id}
@@ -32,23 +32,21 @@ export default function MediaGrid({
               type="button"
             >
               <div className="aspect-square bg-gray-50 dark:bg-gray-800 flex items-center justify-center">
-               {isImage && (
-                <img
-                  src={`${import.meta.env.VITE_API_UPLOADS}${previewUrl}`}
-                  className="h-full w-full object-cover"
-                />
-              )}
+                {isImage && (
+                  <img
+                    src={`${import.meta.env.VITE_API_UPLOADS}${previewUrl}`}
+                    className="h-full w-full object-cover"
+                  />
+                )}
 
-              {isPdf && m.thumbnail_path && (
-                <img
-                  src={`${import.meta.env.VITE_API_UPLOADS}/uploads/${m.thumbnail_path}`}
-                  className="h-full w-full object-cover"
-                />
-              )}
+                {isPdf && m.thumbnail_path && (
+                  <img
+                    src={`${import.meta.env.VITE_API_UPLOADS}${m.thumbnail_path}`}
+                    className="h-full w-full object-cover"
+                  />
+                )}
 
-              {isPdf && !m.thumbnail_path && (
-                <div className="text-xs text-gray-500">PDF</div>
-              )}
+                {isPdf && !m.thumbnail_path && <div className="text-xs text-gray-500">PDF</div>}
               </div>
             </button>
 

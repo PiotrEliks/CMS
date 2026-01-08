@@ -45,8 +45,7 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
 
     const plain = user.toJSON() as any;
 
-    const permissions: string[] =
-      plain.role?.permissions?.map((p: any) => p.code) ?? [];
+    const permissions: string[] = plain.role?.permissions?.map((p: any) => p.code) ?? [];
 
     (req as any).user = {
       ...plain,

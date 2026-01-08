@@ -72,7 +72,7 @@ export default function UserTableOne({ onEdit, onDelete }: Props) {
                       <img
                         width={40}
                         height={40}
-                        src={`${import.meta.env.VITE_API_UPLOADS}${user.avatar_url ?? '/uploads/avatars/default-avatar.webp'}`}
+                        src={`${import.meta.env.VITE_API_UPLOADS}${user.avatar_url ?? '/uploads/avatars/default-avatar.jpg'}`}
                         alt={user.display_name ?? 'User avatar'}
                       />
                     </div>
