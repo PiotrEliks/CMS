@@ -139,9 +139,7 @@ export default function EditContentPage() {
         title={`Edycja: ${content.title}`}
         description="Edytuj treść i zarządzaj sekcjami"
       />
-      <PageBreadcrumb
-        pageTitle={content.title}
-      />
+      <PageBreadcrumb pageTitle={content.title} />
 
       <div className="space-y-6">
         <div className="flex items-center justify-between">

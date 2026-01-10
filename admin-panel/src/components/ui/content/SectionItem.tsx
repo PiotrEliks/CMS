@@ -61,15 +61,13 @@ export default function SectionItem({ section, contentId }: SectionItemProps) {
     try {
       await deleteSection(contentId, section.section_id);
       setDeleteModalOpen(false);
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const handleDuplicate = async () => {
     try {
       await duplicateSection(contentId, section.section_id);
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   return (
@@ -162,6 +160,7 @@ export default function SectionItem({ section, contentId }: SectionItemProps) {
       </div>
 
       <SectionEditModal
+        key={section.section_id}
         open={editModalOpen}
         onClose={() => setEditModalOpen(false)}
         section={section}

@@ -8,6 +8,7 @@ import { X, GridIcon, Trash2 } from 'lucide-react';
 import Button from '../../ui/button/Button';
 import MediaLibraryModal from './MediaLibraryModal';
 import RichTextEditor from './RichTextEditor';
+import { api } from '../../../api/axios';
 
 interface SectionEditModalProps {
   open: boolean;
@@ -20,8 +21,10 @@ interface Media {
   media_id: string;
   file_name: string;
   file_path: string;
+  storage_path: string;
   mime_type: string;
   thumbnail_path?: string;
+  title?: string;
 }
 
 export default function SectionEditModal({
@@ -34,6 +37,12 @@ export default function SectionEditModal({
   const [loading, setLoading] = useState(false);
   const [mediaModalOpen, setMediaModalOpen] = useState(false);
   const [mediaModalMode, setMediaModalMode] = useState<'single' | 'multiple'>('single');
+  const [allowedMediaTypes, setAllowedMediaTypes] = useState<
+    ('image' | 'video' | 'audio' | 'document' | 'pdf')[]
+  >([]);
+
+  const [mediaObjects, setMediaObjects] = useState<Media[]>([]);
+  const [loadingMedia, setLoadingMedia] = useState(false);
 
   const [formData, setFormData] = useState({
     heading: section.heading || '',
@@ -45,7 +54,7 @@ export default function SectionEditModal({
   });
 
   useEffect(() => {
-    if (section) {
+    if (open && section) {
       setFormData({
         heading: section.heading || '',
         subheading: section.subheading || '',
@@ -54,8 +63,61 @@ export default function SectionEditModal({
         media_ids: section.media_ids || [],
         settings: section.settings || {},
       });
+
+      setMediaObjects([]);
+      if (section.media_ids && section.media_ids.length > 0) {
+        fetchMediaDetails(section.media_ids);
+      }
     }
-  }, [section]);
+  }, [open, section.section_id]);
+
+  const normalizeMedia = (apiMedia: any): Media => {
+    const data = apiMedia.media ? apiMedia.media : apiMedia;
+
+    return {
+      media_id: data.media_id,
+      file_name: data.title || data.file_name || 'Unknown',
+      file_path: data.storage_path || data.file_path,
+      storage_path: data.storage_path,
+      mime_type: data.mime_type,
+      thumbnail_path: data.thumbnail_path,
+      title: data.title,
+    };
+  };
+
+  const fetchMediaDetails = async (mediaIds: string[]) => {
+    if (!mediaIds || mediaIds.length === 0) {
+      setMediaObjects([]);
+      return;
+    }
+
+    setLoadingMedia(true);
+    try {
+      const mediaPromises = mediaIds.map((id) =>
+        api.get(`/media/${id}`).catch((err) => {
+          console.warn(`Failed to fetch media ${id}:`, err);
+          return null;
+        })
+      );
+      const responses = await Promise.all(mediaPromises);
+      const validMedia = responses
+        .filter((res) => res !== null)
+        .map((res) => normalizeMedia(res!.data));
+
+      setMediaObjects(validMedia);
+    } catch (error) {
+      console.error('Failed to fetch media details:', error);
+      setMediaObjects([]);
+    } finally {
+      setLoadingMedia(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!open) {
+      setMediaModalOpen(false);
+    }
+  }, [open, section]);
 
   if (!open) return null;
 
@@ -85,24 +147,80 @@ export default function SectionEditModal({
   };
 
   const handleMediaSelect = (media: Media | Media[]) => {
-    if (Array.isArray(media)) {
-      const ids = media.map((m) => m.media_id);
-      handleChange('media_ids', ids);
+    const incomingMedia = Array.isArray(media) ? media : [media];
+    const normalizedIncoming = incomingMedia.map((m) => normalizeMedia(m));
+
+    if (mediaModalMode === 'multiple') {
+      setFormData((prev) => {
+        const existingIds = prev.media_ids || [];
+        const newIds = normalizedIncoming.map((m) => m.media_id);
+        const combinedIds = Array.from(new Set([...existingIds, ...newIds]));
+        return { ...prev, media_ids: combinedIds };
+      });
+
+      setMediaObjects((prev) => {
+        const combinedMedia = [...prev];
+        normalizedIncoming.forEach((newM) => {
+          if (!combinedMedia.find((m) => m.media_id === newM.media_id)) {
+            combinedMedia.push(newM);
+          }
+        });
+        return combinedMedia;
+      });
     } else {
-      handleChange('media_ids', [media.media_id]);
+      const singleMedia = normalizedIncoming[0];
+      handleChange('media_ids', [singleMedia.media_id]);
+      setMediaObjects([singleMedia]);
     }
+
+    setMediaModalOpen(false);
   };
 
   const handleRemoveMedia = (mediaId: string) => {
-    handleChange(
-      'media_ids',
-      formData.media_ids.filter((id) => id !== mediaId)
-    );
+    const newMediaIds = formData.media_ids.filter((id) => id !== mediaId);
+    handleChange('media_ids', newMediaIds);
+    setMediaObjects((prev) => prev.filter((m) => m.media_id !== mediaId));
   };
 
-  const openMediaModal = (mode: 'single' | 'multiple') => {
+  const openMediaModal = (
+    mode: 'single' | 'multiple',
+    allowedTypes: ('image' | 'video' | 'audio' | 'document' | 'pdf')[],
+    e?: React.MouseEvent
+  ) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     setMediaModalMode(mode);
+    setAllowedMediaTypes(allowedTypes);
     setMediaModalOpen(true);
+  };
+
+  const getMediaById = (mediaId: string): Media | undefined => {
+    const found = mediaObjects.find((m) => m.media_id === mediaId);
+    if (!found) {
+      console.warn(
+        'Media not found:',
+        mediaId,
+        'Available media:',
+        mediaObjects.map((m) => ({
+          id: m.media_id,
+          file_name: m.file_name,
+          storage_path: m.storage_path,
+        }))
+      );
+    }
+    return found;
+  };
+
+  const getMediaUrl = (media: Media): string => {
+    const path = media.storage_path;
+    return `${import.meta.env.VITE_API_UPLOADS}${path}`;
+  };
+
+  const getThumbnailUrl = (media: Media): string => {
+    const path = media.thumbnail_path || media.storage_path;
+    return `${import.meta.env.VITE_API_UPLOADS}${path}`;
   };
 
   return (
@@ -122,6 +240,7 @@ export default function SectionEditModal({
                 </p>
               </div>
               <button
+                type="button"
                 onClick={onClose}
                 className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
               >
@@ -163,7 +282,11 @@ export default function SectionEditModal({
                   handleChange,
                   handleSettingsChange,
                   openMediaModal,
-                  handleRemoveMedia
+                  handleRemoveMedia,
+                  getMediaById,
+                  getMediaUrl,
+                  getThumbnailUrl,
+                  loadingMedia
                 )}
 
                 <div className="flex items-center gap-3">
@@ -184,10 +307,10 @@ export default function SectionEditModal({
               </div>
 
               <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-                <Button variant="outline" onClick={onClose} disabled={loading}>
+                <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
                   Anuluj
                 </Button>
-                <Button variant="primary" disabled={loading}>
+                <Button type="submit" variant="primary" disabled={loading}>
                   {loading ? 'Zapisywanie...' : 'Zapisz zmiany'}
                 </Button>
               </div>
@@ -202,6 +325,7 @@ export default function SectionEditModal({
         onSelect={handleMediaSelect}
         multiple={mediaModalMode === 'multiple'}
         maxSelection={20}
+        allowedTypes={allowedMediaTypes}
       />
     </>
   );
@@ -212,8 +336,16 @@ function renderTypeEditor(
   formData: any,
   handleChange: (field: string, value: any) => void,
   handleSettingsChange: (key: string, value: any) => void,
-  openMediaModal: (mode: 'single' | 'multiple') => void,
-  handleRemoveMedia: (mediaId: string) => void
+  openMediaModal: (
+    mode: 'single' | 'multiple',
+    allowedTypes: ('image' | 'video' | 'audio' | 'document' | 'pdf')[],
+    e?: React.MouseEvent
+  ) => void,
+  handleRemoveMedia: (mediaId: string) => void,
+  getMediaById: (id: string) => Media | undefined,
+  getMediaUrl: (media: Media) => string,
+  getThumbnailUrl: (media: Media) => string,
+  loadingMedia: boolean
 ) {
   switch (type) {
     case 'text':
@@ -237,32 +369,52 @@ function renderTypeEditor(
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Zdjęcie
           </label>
-          {formData.media_ids.length > 0 ? (
-            <div className="space-y-2">
+          {loadingMedia ? (
+            <div className="w-48 h-48 border-2 border-gray-300 dark:border-gray-600 rounded-lg flex items-center justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          ) : formData.media_ids.length > 0 ? (
+            <div className="space-y-2 flex flex-col items-start">
               <div className="relative inline-block">
-                <div className="w-48 h-48 border-2 border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
-                  <img
-                    src={`/uploads/${formData.media_ids[0]}`}
-                    alt="Preview"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+                {(() => {
+                  const media = getMediaById(formData.media_ids[0]);
+                  return media ? (
+                    <div className="w-48 h-48 border-2 border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
+                      <img
+                        src={getMediaUrl(media)}
+                        alt={media.file_name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-48 h-48 border-2 border-gray-300 dark:border-gray-600 rounded-lg flex items-center justify-center">
+                      <p className="text-sm text-gray-500">Nie znaleziono obrazu</p>
+                    </div>
+                  );
+                })()}
                 <button
                   type="button"
-                  onClick={() => handleRemoveMedia(formData.media_ids[0])}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleRemoveMedia(formData.media_ids[0]);
+                  }}
                   className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
-              <Button variant="outline" onClick={() => openMediaModal('single')}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={(e) => openMediaModal('single', ['image'], e)}
+              >
                 Zmień zdjęcie
               </Button>
             </div>
           ) : (
             <button
               type="button"
-              onClick={() => openMediaModal('single')}
+              onClick={(e) => openMediaModal('single', ['image'], e)}
               className="w-full border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center hover:border-primary transition-colors"
             >
               <GridIcon className="w-12 h-12 mx-auto text-gray-400 mb-2" />
@@ -279,36 +431,56 @@ function renderTypeEditor(
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Galeria ({formData.media_ids.length} zdjęć)
             </label>
-            {formData.media_ids.length > 0 ? (
+            {loadingMedia ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              </div>
+            ) : formData.media_ids.length > 0 ? (
               <div className="space-y-3">
                 <div className="grid grid-cols-4 gap-3">
-                  {formData.media_ids.map((mediaId: string) => (
-                    <div key={mediaId} className="relative group">
-                      <div className="aspect-square border-2 border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
-                        <img
-                          src={`/uploads/${mediaId}`}
-                          alt=""
-                          className="w-full h-full object-cover"
-                        />
+                  {formData.media_ids.map((mediaId: string) => {
+                    const media = getMediaById(mediaId);
+                    return (
+                      <div key={mediaId} className="relative group">
+                        <div className="aspect-square border-2 border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
+                          {media ? (
+                            <img
+                              src={getMediaUrl(media)}
+                              alt={media.file_name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-900">
+                              <p className="text-xs text-gray-500">Brak</p>
+                            </div>
+                          )}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleRemoveMedia(mediaId);
+                          }}
+                          className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveMedia(mediaId)}
-                        className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
-                <Button variant="outline" onClick={() => openMediaModal('multiple')}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={(e) => openMediaModal('multiple', ['image'], e)}
+                >
                   Dodaj więcej zdjęć
                 </Button>
               </div>
             ) : (
               <button
                 type="button"
-                onClick={() => openMediaModal('multiple')}
+                onClick={(e) => openMediaModal('multiple', ['image'], e)}
                 className="w-full border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center hover:border-primary transition-colors"
               >
                 <GridIcon className="w-12 h-12 mx-auto text-gray-400 mb-2" />
@@ -356,30 +528,52 @@ function renderTypeEditor(
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Dokument PDF
           </label>
-          {formData.media_ids.length > 0 ? (
-            <div className="space-y-2">
-              <div className="flex items-center gap-3 p-4 border border-gray-300 dark:border-gray-600 rounded-lg">
-                <span className="text-4xl">📄</span>
-                <div className="flex-1">
-                  <p className="font-medium text-gray-900 dark:text-white">PDF Selected</p>
-                  <p className="text-sm text-gray-500">ID: {formData.media_ids[0]}</p>
-                </div>
+          {loadingMedia ? (
+            <div className="w-48 h-48 border-2 border-gray-300 dark:border-gray-600 rounded-lg flex items-center justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          ) : formData.media_ids.length > 0 ? (
+            <div className="space-y-2 flex flex-col items-start">
+              <div className="relative inline-block">
+                {(() => {
+                  const media = getMediaById(formData.media_ids[0]);
+                  return media ? (
+                    <div className="w-48 h-48 border-2 border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
+                      <img
+                        src={getThumbnailUrl(media)}
+                        alt={media.file_name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-48 h-48 border-2 border-gray-300 dark:border-gray-600 rounded-lg flex items-center justify-center">
+                      <span className="text-4xl">📄</span>
+                    </div>
+                  );
+                })()}
                 <button
                   type="button"
-                  onClick={() => handleRemoveMedia(formData.media_ids[0])}
-                  className="text-red-500 hover:text-red-600"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleRemoveMedia(formData.media_ids[0]);
+                  }}
+                  className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
                 >
-                  <Trash2 className="w-5 h-5" />
+                  <Trash2 className="w-4 h-4" />
                 </button>
               </div>
-              <Button variant="outline" onClick={() => openMediaModal('single')}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={(e) => openMediaModal('single', ['pdf'], e)}
+              >
                 Zmień PDF
               </Button>
             </div>
           ) : (
             <button
               type="button"
-              onClick={() => openMediaModal('single')}
+              onClick={(e) => openMediaModal('single', ['pdf'], e)}
               className="w-full border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center hover:border-primary transition-colors"
             >
               <span className="text-4xl block mb-2">📄</span>
