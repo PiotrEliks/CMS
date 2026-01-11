@@ -18,6 +18,8 @@ import ContentsListPage from './pages/Content/ContentsListPage';
 import NewContentPage from './pages/Content/NewContentPage';
 import EditContentPage from './pages/Content/EditContentPage';
 import ContentPreviewPage from './pages/Content/ContentPreviewPage';
+import EditMenuPage from './pages/EditMenuPage';
+import MenusListPage from './pages/MenusListPage';
 
 export default function App() {
   const { checkAuth, user, loading } = useAuth();
@@ -118,6 +120,8 @@ export default function App() {
             }
           />
           <Route path="/contents/:id/preview" element={<ContentPreviewPage />} />
+          <Route path="/menus" element={<MenusListPage />} />
+          <Route path="/menus/:id" element={<EditMenuPage />} />
         </Route>
         <Route path="/forgot-password" element={<ForgotPasswordForm />} />
         <Route path="/reset-password/:token" element={<ResetPasswordForm />} />
