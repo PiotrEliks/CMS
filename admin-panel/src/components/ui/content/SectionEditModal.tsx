@@ -33,7 +33,7 @@ export default function SectionEditModal({
   section,
   contentId,
 }: SectionEditModalProps) {
-  const { updateSection } = useContentSections();
+  const { updateSection, createSection } = useContentSections();
   const [loading, setLoading] = useState(false);
   const [mediaModalOpen, setMediaModalOpen] = useState(false);
   const [mediaModalMode, setMediaModalMode] = useState<'single' | 'multiple'>('single');
@@ -123,13 +123,26 @@ export default function SectionEditModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!contentId || contentId === 'undefined') {
+      console.error('Missing contentId!');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await updateSection(contentId, section.section_id, formData);
+      if (section.section_id) {
+        await updateSection(contentId, section.section_id, formData);
+      } else {
+        await createSection(contentId, {
+          ...formData,
+          section_type: section.section_type,
+        });
+      }
       onClose();
     } catch (error) {
-      console.error('Failed to update section:', error);
+      console.error('Failed to save section:', error);
     } finally {
       setLoading(false);
     }
@@ -307,10 +320,10 @@ export default function SectionEditModal({
               </div>
 
               <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-                <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
+                <Button variant="outline" onClick={onClose} disabled={loading}>
                   Anuluj
                 </Button>
-                <Button type="submit" variant="primary" disabled={loading}>
+                <Button variant="primary" disabled={loading}>
                   {loading ? 'Zapisywanie...' : 'Zapisz zmiany'}
                 </Button>
               </div>

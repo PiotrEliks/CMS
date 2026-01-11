@@ -17,6 +17,7 @@ import Media from './pages/Media';
 import ContentsListPage from './pages/Content/ContentsListPage';
 import NewContentPage from './pages/Content/NewContentPage';
 import EditContentPage from './pages/Content/EditContentPage';
+import ContentPreviewPage from './pages/Content/ContentPreviewPage';
 
 export default function App() {
   const { checkAuth, user, loading } = useAuth();
@@ -116,6 +117,7 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/contents/:id/preview" element={<ContentPreviewPage />} />
         </Route>
         <Route path="/forgot-password" element={<ForgotPasswordForm />} />
         <Route path="/reset-password/:token" element={<ResetPasswordForm />} />

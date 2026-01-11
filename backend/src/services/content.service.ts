@@ -23,33 +23,27 @@ export class ContentService extends BaseService<Content> implements IPublishable
     created_by?: string;
     cover_media_id?: string;
   }) {
-    // Generate slug if not provided
     let slug = data.slug || stringToSlug(data.title);
 
-    // Make slug unique
     slug = await makeSlugUnique(slug, async (s) => {
       const existing = await Content.findOne({ where: { slug: s } });
       return !!existing;
     });
 
-    // Create content with defaults
     return await super.create({
       title: data.title,
       body: data.body || '',
       lead: data.lead || '',
       meta_description: data.meta_description || '',
       meta_keywords: data.meta_keywords || '',
-      meta_title: data.meta_title || data.title, // Default to title
+      meta_title: data.meta_title || data.title,
       slug,
-      status: data.status || 'draft',
+      status: data.status || 'D',
       created_by: data.created_by,
       cover_media_id: data.cover_media_id,
     } as any);
   }
 
-  /**
-   * Update content
-   */
   async update(
     id: string,
     data: {
@@ -65,7 +59,6 @@ export class ContentService extends BaseService<Content> implements IPublishable
       cover_media_id?: string;
     }
   ) {
-    // If slug is being updated, make it unique
     if (data.slug) {
       data.slug = await makeSlugUnique(data.slug, async (s) => {
         const where: any = { slug: s, content_id: { [Op.ne]: id } };
@@ -77,9 +70,6 @@ export class ContentService extends BaseService<Content> implements IPublishable
     return await super.update(id, data as any);
   }
 
-  /**
-   * Get content by slug
-   */
   async getBySlug(slug: string) {
     return await this.findOne({
       where: { slug },
@@ -93,9 +83,6 @@ export class ContentService extends BaseService<Content> implements IPublishable
     });
   }
 
-  /**
-   * Generate unique slug from title
-   */
   async generateSlug(title: string, existingId?: string | number): Promise<string> {
     let slug = stringToSlug(title);
 
@@ -111,35 +98,26 @@ export class ContentService extends BaseService<Content> implements IPublishable
     return slug;
   }
 
-  /**
-   * Publish content
-   */
   async publish(id: string): Promise<Content | null> {
     return await this.update(id, {
-      status: 'published',
+      status: 'P',
       published_at: new Date(),
     } as any);
   }
 
-  /**
-   * Unpublish content
-   */
   async unpublish(id: string): Promise<Content | null> {
     return await this.update(id, {
-      status: 'draft',
+      status: 'D',
       published_at: null,
     } as any);
   }
 
-  /**
-   * Get all published content
-   */
   async getPublished(options: FindOptions & PaginationOptions) {
     return await this.list({
       ...options,
       where: {
         ...options.where,
-        status: 'published',
+        status: 'P',
       },
       include: [
         { model: Category, as: 'categories' },
@@ -149,9 +127,6 @@ export class ContentService extends BaseService<Content> implements IPublishable
     });
   }
 
-  /**
-   * Attach category to content
-   */
   async attachCategory(contentId: string, categoryId: string) {
     const content = await this.findById(contentId);
     if (!content) throw new Error('Content not found');
@@ -159,9 +134,6 @@ export class ContentService extends BaseService<Content> implements IPublishable
     await (content as any).addCategory(categoryId);
   }
 
-  /**
-   * Detach category from content
-   */
   async detachCategory(contentId: string, categoryId: string) {
     const content = await this.findById(contentId);
     if (!content) throw new Error('Content not found');
@@ -169,9 +141,6 @@ export class ContentService extends BaseService<Content> implements IPublishable
     await (content as any).removeCategory(categoryId);
   }
 
-  /**
-   * Attach media to content
-   */
   async attachMedia(contentId: string, mediaId: string) {
     const content = await this.findById(contentId);
     if (!content) throw new Error('Content not found');
@@ -179,9 +148,6 @@ export class ContentService extends BaseService<Content> implements IPublishable
     await (content as any).addMedia(mediaId);
   }
 
-  /**
-   * Detach media from content
-   */
   async detachMedia(contentId: string, mediaId: string) {
     const content = await this.findById(contentId);
     if (!content) throw new Error('Content not found');
@@ -189,9 +155,6 @@ export class ContentService extends BaseService<Content> implements IPublishable
     await (content as any).removeMedia(mediaId);
   }
 
-  /**
-   * Get content with all associations
-   */
   async getWithAssociations(id: string) {
     return await this.findOne({
       where: { content_id: id },
@@ -205,9 +168,6 @@ export class ContentService extends BaseService<Content> implements IPublishable
     });
   }
 
-  /**
-   * List content by category
-   */
   async listByCategory(categoryId: string, options: PaginationOptions) {
     return await this.list({
       where: {},
@@ -226,9 +186,6 @@ export class ContentService extends BaseService<Content> implements IPublishable
     });
   }
 
-  /**
-   * Search content by title or body
-   */
   async search(query: string, options: PaginationOptions) {
     return await this.list({
       where: {

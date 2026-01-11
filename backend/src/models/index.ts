@@ -11,6 +11,8 @@ import { ContentsMedia } from './contentsMedia.model.js';
 import { ContentMenu } from './contentMenu.model.js';
 import { Permission } from './permission.model.js';
 import { RolePermission } from './role_permission.model.js';
+import { ContentSection } from './contentSection.model.js';
+import { PageComponent } from './pageComponent.model.js';
 
 export {
   User,
@@ -26,6 +28,8 @@ export {
   ContentMenu,
   Permission,
   RolePermission,
+  ContentSection,
+  PageComponent,
 };
 
 export function setupAssociations() {
@@ -178,5 +182,27 @@ export function setupAssociations() {
     foreignKey: 'permission_id',
     otherKey: 'role_id',
     as: 'roles',
+  });
+
+  Content.hasMany(ContentSection, {
+    foreignKey: { name: 'content_id', allowNull: false },
+    as: 'sections',
+    onDelete: 'CASCADE',
+  });
+  ContentSection.belongsTo(Content, {
+    foreignKey: { name: 'content_id', allowNull: false },
+    as: 'content',
+    onDelete: 'CASCADE',
+  });
+
+  Content.hasMany(PageComponent, {
+    foreignKey: { name: 'content_id', allowNull: false },
+    as: 'components',
+    onDelete: 'CASCADE',
+  });
+  PageComponent.belongsTo(Content, {
+    foreignKey: { name: 'content_id', allowNull: false },
+    as: 'content',
+    onDelete: 'CASCADE',
   });
 }

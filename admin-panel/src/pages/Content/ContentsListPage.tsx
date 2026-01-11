@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { PlusIcon, PencilIcon, Trash2, EyeIcon } from 'lucide-react';
+import { PlusIcon, PencilIcon, TrashBinIcon, EyeIcon } from '../../icons';
 import PageBreadcrumb from '../../components/common/PageBreadCrumb';
 import PageMeta from '../../components/common/PageMeta';
 import ComponentCard from '../../components/common/ComponentCard';
@@ -81,7 +81,7 @@ export default function ContentsListPage() {
               <p className="text-gray-500 dark:text-gray-400 mb-4">
                 Brak treści. Utwórz pierwszą treść aby rozpocząć.
               </p>
-              <Access allOf={['content.create']}>
+              <Access allOf={['content.create_any']}>
                 <Link to="/contents/new">
                   <Button variant="primary" startIcon={<PlusIcon />}>
                     Utwórz nową treść
@@ -144,9 +144,9 @@ export default function ContentsListPage() {
                       </td>
                       <td className="py-3 px-4 text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <Access allOf={['content.read']}>
+                          <Access allOf={['content.read_any']}>
                             <Link to={`/contents/${content.content_id}/preview`}>
-                              <Button size="sm">
+                              <Button size="sm" variant="outline">
                                 <EyeIcon className="w-4 h-4" />
                               </Button>
                             </Link>
@@ -154,7 +154,7 @@ export default function ContentsListPage() {
 
                           <Access allOf={['content.update_any']}>
                             <Link to={`/contents/${content.content_id}/edit`}>
-                              <Button size="sm">
+                              <Button size="sm" variant="outline">
                                 <PencilIcon className="w-4 h-4" />
                               </Button>
                             </Link>
@@ -163,13 +163,14 @@ export default function ContentsListPage() {
                           <Access allOf={['content.delete_any']}>
                             <Button
                               size="sm"
+                              variant="outline"
                               onClick={() => {
                                 setContentToDelete(content);
                                 setDeleteModalOpen(true);
                               }}
                               className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <TrashBinIcon className="w-4 h-4" />
                             </Button>
                           </Access>
                         </div>

@@ -1,170 +1,316 @@
+import { Menu } from '../models/menu.model.js';
+import { MenuItem } from '../models/menuItem.model.js';
+import { Content } from '../models/content.model.js';
 import { Op } from 'sequelize';
-import { Menu, MenuItem, Content } from '../models/index.js';
-import { BaseService } from './types/BaseService.js';
-import { ITreeService } from './types/ITreeService.js';
 
-export class MenuService extends BaseService<Menu> implements ITreeService<MenuItem> {
-  constructor() {
-    super(Menu);
-  }
+export class MenuService {
+  async getAllMenus(filters?: { status?: boolean; search?: string }) {
+    const where: any = {};
 
-  async getTree(): Promise<any[]> {
-    const items = await MenuItem.findAll({
-      where: { parent_id: null },
-      include: [
-        {
-          model: MenuItem,
-          as: 'children',
-          include: [{ model: Content, as: 'content' }],
-        },
-        { model: Content, as: 'content' },
-      ],
-      order: [['order_index', 'ASC']],
+    if (filters?.status !== undefined) {
+      where.status = filters.status;
+    }
+
+    if (filters?.search) {
+      where[Op.or] = [
+        { name: { [Op.iLike]: `%${filters.search}%` } },
+        { code: { [Op.iLike]: `%${filters.search}%` } },
+      ];
+    }
+
+    return await Menu.findAll({
+      where,
+      order: [['name', 'ASC']],
     });
-
-    return items;
   }
 
-  async addItem(
-    data: {
-      label: string;
-      url?: string;
-      order_index?: number;
-      menu_id: string;
-      parent_id?: string | null;
-      content_id?: string;
-    },
-    parentId?: string | null
-  ): Promise<any> {
-    return await MenuItem.create({
-      ...data,
-      parent_id: parentId,
-      order_index: data.order_index || 0,
-      status: 'active',
-    } as any);
+  async getMenuById(menuId: string) {
+    const menu = await Menu.findByPk(menuId);
+    if (!menu) {
+      throw new Error('Menu not found');
+    }
+    return menu;
   }
 
-  async updateItem(id: string, data: Partial<any>): Promise<any | null> {
-    const item = await MenuItem.findByPk(id);
-    if (!item) return null;
-
-    return await item.update(data);
+  async getMenuByCode(code: string) {
+    const menu = await Menu.findOne({ where: { code } });
+    if (!menu) {
+      throw new Error('Menu not found');
+    }
+    return menu;
   }
 
-  async reorder(
-    items: Array<{ id: string; order_index: number; parent_id?: string | null }>
-  ): Promise<any[]> {
-    for (const item of items) {
-      if (item.parent_id) {
-        const hasParentCycle = await this.hasCycle(item.id, item.parent_id);
-        if (hasParentCycle) {
-          throw new Error(`Cycle detected: cannot set ${item.parent_id} as parent of ${item.id}`);
-        }
+  async createMenu(data: { code: string; name: string; status?: boolean }) {
+    const existing = await Menu.findOne({ where: { code: data.code } });
+    if (existing) {
+      throw new Error('Menu with this code already exists');
+    }
+
+    return await Menu.create(data);
+  }
+
+  async updateMenu(menuId: string, updates: { code?: string; name?: string; status?: boolean }) {
+    const menu = await this.getMenuById(menuId);
+
+    if (updates.code && updates.code !== menu.code) {
+      const existing = await Menu.findOne({ where: { code: updates.code } });
+      if (existing) {
+        throw new Error('Menu with this code already exists');
       }
     }
 
-    const updated = await Promise.all(
-      items.map((item) =>
-        MenuItem.update(
-          { order_index: item.order_index, parent_id: item.parent_id },
-          { where: { menu_item_id: item.id } }
-        )
-      )
-    );
-
-    // Return updated items
-    return await Promise.all(items.map((item) => MenuItem.findByPk(item.id)));
+    await menu.update(updates);
+    return menu;
   }
 
-  async deleteItem(id: string, cascadeChildren?: boolean): Promise<boolean> {
-    const item = await MenuItem.findByPk(id);
-    if (!item) return false;
-
-    if (cascadeChildren) {
-      await this.deleteDescendants(id);
-    } else {
-      await MenuItem.update({ parent_id: item.parent_id }, { where: { parent_id: id } });
-    }
-
-    await item.destroy();
-    return true;
+  async deleteMenu(menuId: string) {
+    const menu = await this.getMenuById(menuId);
+    await menu.destroy();
+    return { deleted: true, menu_id: menuId };
   }
 
-  private async hasCycle(itemId: string, potentialParentId: string): Promise<boolean> {
-    let currentId: string | null = potentialParentId;
-    while (currentId) {
-      if (currentId === itemId) {
-        return true;
-      }
-
-      const item: any = await MenuItem.findByPk(currentId);
-      currentId = item?.parent_id || null;
-    }
-
-    return false;
-  }
-
-  private async deleteDescendants(parentId: string): Promise<void> {
-    const children = await MenuItem.findAll({ where: { parent_id: parentId } });
-
-    for (const child of children) {
-      await this.deleteDescendants(child.menu_item_id);
-      await child.destroy();
-    }
-  }
-
-  async getMenuWithItems(menuId: string) {
-    return await this.findOne({
-      where: { menu_id: menuId },
+  async getMenuWithItems(menuId: string, includeInactive = false) {
+    const menu = await Menu.findByPk(menuId, {
       include: [
         {
           model: MenuItem,
           as: 'items',
+          where: includeInactive ? undefined : { status: true },
+          required: false,
           include: [
-            { model: MenuItem, as: 'children' },
-            { model: Content, as: 'content' },
+            {
+              model: Content,
+              as: 'content',
+              attributes: ['content_id', 'title', 'slug'],
+            },
+            {
+              model: MenuItem,
+              as: 'children',
+              required: false,
+              include: [
+                {
+                  model: Content,
+                  as: 'content',
+                  attributes: ['content_id', 'title', 'slug'],
+                },
+              ],
+            },
           ],
         },
       ],
+      order: [[{ model: MenuItem, as: 'items' }, 'order_index', 'ASC']],
     });
+
+    if (!menu) {
+      throw new Error('Menu not found');
+    }
+
+    return menu;
   }
 
-  async updateMenu(menuId: string, data: { name?: string; description?: string }) {
-    return await this.update(menuId, data as any);
-  }
-
-  async getPublishedByCode(code: string) {
-    const menu = await Menu.findOne({ where: { code, status: true } });
-    if (!menu) return null;
-
-    // Get published items with content
-    const items = await MenuItem.findAll({
-      where: { menu_id: (menu as any).menu_id, status: true },
-      order: [['order_index', 'ASC']],
+  async getMenuByCodeWithItems(code: string, includeInactive = false) {
+    const menu = await Menu.findOne({
+      where: { code },
       include: [
         {
-          model: Content,
-          as: 'content',
+          model: MenuItem,
+          as: 'items',
+          where: includeInactive ? undefined : { status: true, parent_id: null },
           required: false,
-          where: {
-            status: true,
-            published_at: { [Op.lte]: new Date() },
-          },
-          attributes: ['slug'],
+          include: [
+            {
+              model: Content,
+              as: 'content',
+              attributes: ['content_id', 'title', 'slug'],
+            },
+            {
+              model: MenuItem,
+              as: 'children',
+              where: includeInactive ? undefined : { status: true },
+              required: false,
+              include: [
+                {
+                  model: Content,
+                  as: 'content',
+                  attributes: ['content_id', 'title', 'slug'],
+                },
+                {
+                  model: MenuItem,
+                  as: 'children',
+                  where: includeInactive ? undefined : { status: true },
+                  required: false,
+                  include: [
+                    {
+                      model: Content,
+                      as: 'content',
+                      attributes: ['content_id', 'title', 'slug'],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
         },
+      ],
+      order: [
+        [{ model: MenuItem, as: 'items' }, 'order_index', 'ASC'],
+        [
+          { model: MenuItem, as: 'items' },
+          { model: MenuItem, as: 'children' },
+          'order_index',
+          'ASC',
+        ],
       ],
     });
 
-    const flat = items.map((i: any) => ({
-      menu_item_id: i.menu_item_id,
-      label: i.label,
-      order_index: i.order_index ?? 0,
-      parent_id: i.parent_id ?? null,
-      content_slug: i.content?.slug ?? null,
-      external_url: i.external_url ?? null,
-    }));
+    if (!menu) {
+      throw new Error('Menu not found');
+    }
 
-    return { code: (menu as any).code, items: flat };
+    return menu;
+  }
+
+  async createMenuItem(data: {
+    menu_id: string;
+    label: string;
+    content_id?: string;
+    parent_id?: string;
+    order_index?: number;
+    status?: boolean;
+  }) {
+    await this.getMenuById(data.menu_id);
+
+    if (data.parent_id) {
+      const parent = await MenuItem.findByPk(data.parent_id);
+      if (!parent) {
+        throw new Error('Parent menu item not found');
+      }
+    }
+
+    if (data.content_id) {
+      const content = await Content.findByPk(data.content_id);
+      if (!content) {
+        throw new Error('Content not found');
+      }
+    }
+
+    if (data.order_index === undefined) {
+      const lastItem = await MenuItem.findOne({
+        where: {
+          menu_id: data.menu_id,
+          parent_id: data.parent_id || null,
+        },
+        order: [['order_index', 'DESC']],
+      });
+      data.order_index = lastItem ? lastItem.order_index + 1 : 0;
+    }
+
+    return await MenuItem.create(data);
+  }
+
+  async updateMenuItem(
+    menuItemId: string,
+    updates: {
+      label?: string;
+      content_id?: string;
+      parent_id?: string;
+      order_index?: number;
+      status?: boolean;
+    }
+  ) {
+    const menuItem = await MenuItem.findByPk(menuItemId);
+    if (!menuItem) {
+      throw new Error('Menu item not found');
+    }
+
+    if (updates.content_id) {
+      const content = await Content.findByPk(updates.content_id);
+      if (!content) {
+        throw new Error('Content not found');
+      }
+    }
+
+    if (updates.parent_id) {
+      if (updates.parent_id === menuItemId) {
+        throw new Error('Menu item cannot be its own parent');
+      }
+      const parent = await MenuItem.findByPk(updates.parent_id);
+      if (!parent) {
+        throw new Error('Parent menu item not found');
+      }
+    }
+
+    await menuItem.update(updates);
+    return menuItem;
+  }
+
+  async deleteMenuItem(menuItemId: string) {
+    const menuItem = await MenuItem.findByPk(menuItemId);
+    if (!menuItem) {
+      throw new Error('Menu item not found');
+    }
+    await menuItem.destroy();
+    return { deleted: true, menu_item_id: menuItemId };
+  }
+
+  async reorderMenuItems(menuId: string, itemIds: string[]) {
+    const items = await MenuItem.findAll({
+      where: {
+        menu_id: menuId,
+        menu_item_id: { [Op.in]: itemIds },
+      },
+    });
+
+    if (items.length !== itemIds.length) {
+      throw new Error('Some menu items not found');
+    }
+
+    const updates = itemIds.map((id, index) =>
+      MenuItem.update({ order_index: index }, { where: { menu_item_id: id } })
+    );
+
+    await Promise.all(updates);
+
+    return await this.getMenuWithItems(menuId);
+  }
+
+  async duplicateMenuItem(menuItemId: string) {
+    const original = await MenuItem.findByPk(menuItemId);
+    if (!original) {
+      throw new Error('Menu item not found');
+    }
+
+    const duplicate = await MenuItem.create({
+      menu_id: original.menu_id,
+      label: `${original.label} (copy)`,
+      content_id: original.content_id,
+      parent_id: original.parent_id,
+      order_index: original.order_index + 1,
+      status: original.status,
+    });
+
+    await MenuItem.update(
+      { order_index: MenuItem.sequelize!.literal('order_index + 1') },
+      {
+        where: {
+          menu_id: original.menu_id,
+          parent_id: original.parent_id || null,
+          order_index: { [Op.gt]: original.order_index },
+          menu_item_id: { [Op.ne]: duplicate.menu_item_id },
+        },
+      }
+    );
+
+    return duplicate;
+  }
+
+  async toggleMenuItemStatus(menuItemId: string) {
+    const menuItem = await MenuItem.findByPk(menuItemId);
+    if (!menuItem) {
+      throw new Error('Menu item not found');
+    }
+    await menuItem.update({ status: !menuItem.status });
+    return menuItem;
   }
 }
 

@@ -20,7 +20,6 @@ export default function MediaGrid({
         const isImage = (m.mime_type ?? '').startsWith('image/');
         const previewUrl = m.storage_path;
         const isPdf = m.mime_type === 'application/pdf';
-        console.log(m);
         return (
           <div
             key={m.media_id}

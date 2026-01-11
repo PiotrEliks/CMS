@@ -117,7 +117,6 @@ export const updateRolePermissions = asyncHandler(async (req: Request, res: Resp
     where: { permission_id: permissionIds as any },
   });
 
-  // dzięki relacji many-to-many: Role.belongsToMany(Permission, { through: RolePermission, as: 'permissions' })
   await (role as any).setPermissions(perms);
 
   const updatedWithPerms = await Role.findByPk(id, {

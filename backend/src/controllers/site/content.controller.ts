@@ -81,12 +81,25 @@ export const listPublishedContents = asyncHandler(async (req: Request, res: Resp
 
 export const updateContent = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { title, body, lead, meta_description, meta_keywords, meta_title, slug, status } = req.body;
+  const {
+    title,
+    body,
+    lead,
+    meta_description,
+    meta_keywords,
+    meta_title,
+    slug,
+    status,
+    cover_media_id,
+    author,
+  } = req.body;
 
   const content = await contentService.update(id, {
     title,
     body,
     lead,
+    author,
+    cover_media_id,
     meta_description,
     meta_keywords,
     meta_title,

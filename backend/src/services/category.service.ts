@@ -1,189 +1,204 @@
+import { Category } from '../models/category.model.js';
+import { Content } from '../models/content.model.js';
+import { ContentCategory } from '../models/contentCategory.model.js';
 import { Op } from 'sequelize';
-import { Category, Content, ContentCategory } from '../models/index.js';
-import { BaseService } from './types/BaseService.js';
-import { ISluggable } from './types/ISluggable.js';
-import { IAttachable } from './types/IAttachable.js';
-import { FindOptions, PaginationOptions } from './types/IRepository.js';
-import { stringToSlug, makeSlugUnique } from '../utils/slugger.js';
 
-export class CategoryService extends BaseService<Category> implements ISluggable, IAttachable {
-  constructor() {
-    super(Category);
-  }
+export class CategoryService {
+  async getAllCategories(filters?: { type?: string; status?: boolean; search?: string }) {
+    const where: any = {};
 
-  /**
-   * Create new category with slug generation
-   */
-  async create(data: { name: string; description?: string; slug?: string; order_index?: number }) {
-    // Generate slug if not provided
-    let slug = data.slug || stringToSlug(data.name);
-
-    // Ensure slug uniqueness
-    slug = await makeSlugUnique(slug, async (s) => {
-      const existing = await Category.findOne({ where: { slug: s } });
-      return !!existing;
-    });
-
-    return await super.create({
-      ...data,
-      slug,
-      order_index: data.order_index || 0,
-    } as any);
-  }
-
-  /**
-   * Get category by slug
-   */
-  async getBySlug(slug: string) {
-    return await this.findOne({
-      where: { slug },
-      include: [
-        {
-          model: Content,
-          as: 'contents',
-          attributes: ['content_id', 'title', 'slug', 'status'],
-        },
-      ],
-    });
-  }
-
-  /**
-   * Generate slug from name with uniqueness check
-   */
-  async generateSlug(name: string, existingId?: string | number): Promise<string> {
-    let slug = stringToSlug(name);
-
-    slug = await makeSlugUnique(slug, async (s) => {
-      const where: any = { slug: s };
-      if (existingId) {
-        where.category_id = { [Op.ne]: existingId };
-      }
-      const existing = await Category.findOne({ where });
-      return !!existing;
-    });
-
-    return slug;
-  }
-
-  /**
-   * Attach content to category
-   */
-  async attach(
-    categoryId: string,
-    contentId: string,
-    metadata?: Record<string, any>
-  ): Promise<void> {
-    const category = await this.findById(categoryId);
-    if (!category) throw new Error('Category not found');
-
-    await (category as any).addContent(contentId, { through: metadata });
-  }
-
-  /**
-   * Detach content from category
-   */
-  async detach(categoryId: string, contentId: string): Promise<void> {
-    const category = await this.findById(categoryId);
-    if (!category) throw new Error('Category not found');
-
-    await (category as any).removeContent(contentId);
-  }
-
-  /**
-   * Get all contents in category
-   */
-  async getRelated(categoryId: string): Promise<any[]> {
-    const category = await this.findById(categoryId);
-    if (!category) return [];
-
-    return await (category as any).getContents();
-  }
-
-  /**
-   * Check if content is in category
-   */
-  async isAttached(categoryId: string, contentId: string): Promise<boolean> {
-    const category = await this.findById(categoryId);
-    if (!category) return false;
-
-    const content = await (category as any).hasContent(contentId);
-    return !!content;
-  }
-
-  /**
-   * List categories with content count
-   */
-  async listWithCounts(options: PaginationOptions & FindOptions) {
-    const { limit, offset, ...findOptions } = options;
-
-    const categories = await (Category as any).findAndCountAll({
-      ...findOptions,
-      limit,
-      offset,
-      distinct: true,
-      include: [
-        {
-          model: Content,
-          as: 'contents',
-          attributes: [],
-        },
-      ],
-      subQuery: false,
-      raw: false,
-    });
-
-    return {
-      items: categories.rows,
-      total: categories.count,
-    };
-  }
-
-  /**
-   * Reorder categories
-   */
-  async reorder(items: Array<{ id: string; order_index: number }>) {
-    const updates = items.map((item) =>
-      this.update(item.id, { order_index: item.order_index } as any)
-    );
-
-    await Promise.all(updates);
-  }
-
-  /**
-   * Get published category by slug with published contents (public API)
-   * Exact logic from Piotr's original controller
-   */
-  async getPublishedBySlug(slug: string) {
-    const category = await Category.findOne({
-      where: { slug, status: true },
-      attributes: ['category_id', 'display_name', 'slug', 'path'],
-    });
-
-    if (!category) return null;
-
-    // Get content IDs from junction table (Piotr's original approach)
-    const contentLinks = await ContentCategory.findAll({
-      where: { category_category_id: (category as any).category_id },
-      attributes: ['content_content_id'],
-    });
-    const ids = contentLinks.map((x: any) => x.content_content_id);
-
-    if (ids.length === 0) {
-      return { category, items: [] };
+    if (filters?.type) {
+      where.type = filters.type;
     }
 
-    // Get published contents
-    const items = await Content.findAll({
-      where: {
-        content_id: { [Op.in]: ids },
-        status: true,
-        published_at: { [Op.lte]: new Date() },
-      },
-      order: [['published_at', 'DESC']],
-      attributes: ['content_id', 'slug', 'title', 'lead', 'published_at'],
+    if (filters?.status !== undefined) {
+      where.status = filters.status;
+    }
+
+    if (filters?.search) {
+      where[Op.or] = [
+        { display_name: { [Op.iLike]: `%${filters.search}%` } },
+        { slug: { [Op.iLike]: `%${filters.search}%` } },
+      ];
+    }
+
+    return await Category.findAll({
+      where,
+      order: [['display_name', 'ASC']],
+    });
+  }
+
+  async getCategoryById(categoryId: string) {
+    const category = await Category.findByPk(categoryId);
+    if (!category) {
+      throw new Error('Category not found');
+    }
+    return category;
+  }
+
+  async getCategoryBySlug(slug: string) {
+    const category = await Category.findOne({ where: { slug } });
+    if (!category) {
+      throw new Error('Category not found');
+    }
+    return category;
+  }
+
+  async createCategory(data: {
+    type?: string;
+    display_name: string;
+    slug: string;
+    path?: string;
+    status?: boolean;
+  }) {
+    const existing = await Category.findOne({ where: { slug: data.slug } });
+    if (existing) {
+      throw new Error('Category with this slug already exists');
+    }
+
+    return await Category.create(data);
+  }
+
+  async updateCategory(
+    categoryId: string,
+    updates: {
+      type?: string;
+      display_name?: string;
+      slug?: string;
+      path?: string;
+      status?: boolean;
+    }
+  ) {
+    const category = await this.getCategoryById(categoryId);
+
+    if (updates.slug && updates.slug !== category.slug) {
+      const existing = await Category.findOne({ where: { slug: updates.slug } });
+      if (existing) {
+        throw new Error('Category with this slug already exists');
+      }
+    }
+
+    await category.update(updates);
+    return category;
+  }
+
+  async deleteCategory(categoryId: string) {
+    const category = await this.getCategoryById(categoryId);
+    await category.destroy();
+    return { deleted: true, category_id: categoryId };
+  }
+
+  async getContentsByCategory(categoryId: string, includeInactive = false) {
+    const category = await Category.findByPk(categoryId, {
+      include: [
+        {
+          association: 'contents',
+          where: includeInactive ? undefined : { status: 'P' },
+          required: false,
+        },
+      ],
     });
 
-    return { category, items };
+    if (!category) {
+      throw new Error('Category not found');
+    }
+
+    return category;
+  }
+
+  async getCategoriesByContent(contentId: string) {
+    const content = await Content.findByPk(contentId, {
+      include: [
+        {
+          association: 'categories',
+        },
+      ],
+    });
+
+    if (!content) {
+      throw new Error('Content not found');
+    }
+
+    return content;
+  }
+
+  async assignCategoriesToContent(contentId: string, categoryIds: string[]) {
+    const content = await Content.findByPk(contentId);
+    if (!content) {
+      throw new Error('Content not found');
+    }
+
+    const categories = await Category.findAll({
+      where: { category_id: { [Op.in]: categoryIds } },
+    });
+
+    if (categories.length !== categoryIds.length) {
+      throw new Error('Some categories not found');
+    }
+
+    await ContentCategory.destroy({
+      where: { content_id: contentId },
+    });
+
+    const associations = categoryIds.map((categoryId) => ({
+      content_id: contentId,
+      category_id: categoryId,
+    }));
+
+    await ContentCategory.bulkCreate(associations);
+
+    return await this.getCategoriesByContent(contentId);
+  }
+
+  async removeCategoryFromContent(contentId: string, categoryId: string) {
+    await ContentCategory.destroy({
+      where: {
+        content_id: contentId,
+        category_id: categoryId,
+      },
+    });
+
+    return { removed: true, content_id: contentId, category_id: categoryId };
+  }
+
+  async getCategoryTree(type?: string) {
+    const where: any = { status: true };
+    if (type) {
+      where.type = type;
+    }
+
+    const categories = await Category.findAll({
+      where,
+      order: [
+        ['path', 'ASC'],
+        ['display_name', 'ASC'],
+      ],
+    });
+
+    const tree: any[] = [];
+    const map = new Map();
+
+    categories.forEach((cat) => {
+      const catObj = cat.toJSON();
+      map.set(catObj.category_id, { ...catObj, children: [] });
+    });
+
+    categories.forEach((cat) => {
+      const catObj = cat.toJSON();
+      if (!catObj.path || catObj.path === '/') {
+        tree.push(map.get(catObj.category_id));
+      } else {
+        const parentPath = catObj.path.split('/').slice(0, -1).join('/') || '/';
+        const parent = Array.from(map.values()).find((c: any) => c.path === parentPath);
+        if (parent) {
+          parent.children.push(map.get(catObj.category_id));
+        } else {
+          tree.push(map.get(catObj.category_id));
+        }
+      }
+    });
+
+    return tree;
   }
 }
 

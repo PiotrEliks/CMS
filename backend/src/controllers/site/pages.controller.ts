@@ -12,7 +12,7 @@ export async function getPageBySlug(req: Request, res: Response) {
       published_at: { [Op.lte]: new Date() },
     },
     attributes: {
-      exclude: ['created_by', 'updated_by'], // publicznie nie wystawiamy
+      exclude: ['created_by', 'updated_by'],
     },
   });
 
@@ -50,7 +50,6 @@ export async function listPages(req: Request, res: Response) {
   }
   if (type) where.type = type;
 
-  // filtrowanie po kategorii (jeśli podano)
   let contentIdsByCategory: string[] | null = null;
   if (categorySlug) {
     const cat = await Category.findOne({ where: { slug: categorySlug, status: true } });
@@ -74,7 +73,6 @@ export async function listPages(req: Request, res: Response) {
     attributes: ['content_id', 'slug', 'title', 'lead', 'published_at', 'type', 'cover_media_id'],
   });
 
-  // opcjonalnie dołącz okładki
   const mediaIds = rows.map((r) => r.cover_media_id).filter(Boolean) as string[];
   const covers = mediaIds.length
     ? await Media.findAll({

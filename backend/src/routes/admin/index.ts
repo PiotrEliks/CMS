@@ -7,6 +7,7 @@ import userRouter from './users.js';
 import mediaRouter from './media.js';
 import roleRouter from './roles.js';
 import permissionsRouter from './permissions.js';
+import pageComponentRouter from './pageComponent.js';
 
 const router = Router();
 
@@ -18,6 +19,7 @@ router.use('/users', userRouter);
 router.use('/media', mediaRouter);
 router.use('/roles', roleRouter);
 router.use('/permissions', permissionsRouter);
+router.use('/components', pageComponentRouter);
 
 router.get('/', (_req, res) => {
   res.json({ scope: 'admin' });

@@ -17,7 +17,6 @@ export const uploadMedia = asyncHandler(async (req: Request, res: Response) => {
   const storage_path = `/uploads/${folder}/${file.filename}`;
   const fullPath = file.path;
   const mime_type = file.mimetype;
-  console.log(storage_path);
 
   const url = FRONTEND_URL ? `${FRONTEND_URL}/uploads/${storage_path}` : null;
 

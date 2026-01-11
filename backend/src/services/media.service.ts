@@ -1,6 +1,6 @@
 import path from 'path';
 import { Op } from 'sequelize';
-import { Media, Content, ContentsMedia } from '../models/index.js';
+import { Media, Content, ContentsMedia, ContentSection } from '../models/index.js';
 import { BaseService } from './types/BaseService.js';
 import { PaginationOptions } from './types/IRepository.js';
 import { safeUnlink } from '../utils/fileSystem.js';
@@ -79,6 +79,13 @@ export class MediaService extends BaseService<Media> {
             [Op.in]: (Content as any).sequelize.literal(`(SELECT media_id FROM contents_media)`),
           },
         },
+        {
+          media_id: {
+            [Op.in]: (Content as any).sequelize.literal(
+              `(SELECT unnest(media_ids) FROM content_sections WHERE media_ids IS NOT NULL AND array_length(media_ids, 1) > 0)`
+            ),
+          },
+        },
       ];
     }
 
@@ -116,17 +123,16 @@ export class MediaService extends BaseService<Media> {
     const covers = await Content.findAll({
       where: { cover_media_id: mediaId },
       attributes: ['content_id', 'title', 'slug'],
-      limit: 200,
+      raw: true,
     });
-
-    for (const c of covers) {
+    covers.forEach((c: any) =>
       places.push({
         type: 'content.cover',
-        content_id: (c as any).content_id,
-        title: (c as any).title,
-        slug: (c as any).slug,
-      });
-    }
+        content_id: c.content_id,
+        title: c.title,
+        slug: c.slug,
+      })
+    );
 
     const attachments = await Content.findAll({
       include: [
@@ -134,25 +140,52 @@ export class MediaService extends BaseService<Media> {
           model: Media,
           as: 'media',
           where: { media_id: mediaId },
-          attributes: [],
-          through: { attributes: [] },
           required: true,
+          attributes: [],
         },
       ],
       attributes: ['content_id', 'title', 'slug'],
-      limit: 200,
+      raw: true,
     });
-
-    for (const c of attachments) {
+    attachments.forEach((c: any) =>
       places.push({
         type: 'content.attachment',
-        content_id: (c as any).content_id,
-        title: (c as any).title,
-        slug: (c as any).slug,
-      });
-    }
+        content_id: c.content_id,
+        title: c.title,
+        slug: c.slug,
+      })
+    );
 
-    return { isUsed: places.length > 0, count: places.length, places };
+    const sectionsWithMedia = await ContentSection.findAll({
+      where: {
+        media_ids: {
+          [Op.contains]: [mediaId],
+        },
+      },
+      include: [
+        {
+          model: Content,
+          as: 'content',
+          attributes: ['content_id', 'title', 'slug'],
+        },
+      ],
+    });
+
+    sectionsWithMedia.forEach((s: any) => {
+      const c = s.content;
+      places.push({
+        type: 'content.section' as any,
+        content_id: s.content_id,
+        title: c?.title || 'Section',
+        slug: c?.slug || '',
+      });
+    });
+
+    return {
+      isUsed: places.length > 0,
+      count: places.length,
+      places,
+    };
   }
 
   async getWithUsage(mediaId: string) {
@@ -162,7 +195,7 @@ export class MediaService extends BaseService<Media> {
     const usage = await this.getUsage(mediaId);
     return {
       media,
-      usage: Array.isArray(usage) ? usage : [],
+      usage: usage,
     };
   }
 
