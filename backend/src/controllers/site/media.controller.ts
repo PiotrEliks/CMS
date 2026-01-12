@@ -7,6 +7,78 @@ import { generatePdfThumbnail } from '../../utils/generatePdfThumbnail.js';
 
 const FRONTEND_URL = process.env.FRONTEND_URL;
 
+export const uploadMultipleMedia = asyncHandler(async (req: Request, res: Response) => {
+  const files = (req as any).files as Express.Multer.File[] | undefined;
+
+  if (!files || files.length === 0) {
+    return res.status(400).json({ error: 'Brak plików (field: files)' });
+  }
+
+  console.log(`[BULK UPLOAD] Uploading ${files.length} files`);
+
+  const results: any[] = [];
+  const errors: any[] = [];
+
+  for (const file of files) {
+    try {
+      const folder = path.basename(path.dirname(file.path));
+      const storage_path = `/uploads/${folder}/${file.filename}`;
+      const fullPath = file.path;
+      const mime_type = file.mimetype;
+
+      const url = FRONTEND_URL ? `${FRONTEND_URL}${storage_path}` : null;
+
+      let thumbnail_path: string | null = null;
+      if (mime_type === 'application/pdf') {
+        try {
+          const thumbnailsDir = path.resolve(process.cwd(), 'uploads', 'thumbnails');
+          await fs.mkdir(thumbnailsDir, { recursive: true });
+          const thumbFilename = await generatePdfThumbnail(fullPath, thumbnailsDir);
+          thumbnail_path = `/uploads/thumbnails/${thumbFilename}`;
+        } catch (thumbError) {
+          console.warn(`Failed to generate thumbnail for ${file.originalname}:`, thumbError);
+        }
+      }
+
+      const media = await mediaService.createFromUpload({
+        filename: file.originalname,
+        mime_type: file.mimetype,
+        file_size: file.size,
+        storage_path,
+        url,
+        thumbnail_path,
+        alt_text: null,
+        title: file.originalname,
+        uploaded_by: (req as any).user?.user_id ?? null,
+      });
+
+      results.push({
+        success: true,
+        media,
+        originalName: file.originalname,
+      });
+
+      console.log(`[BULK UPLOAD] ✓ ${file.originalname}`);
+    } catch (error: any) {
+      console.error(`[BULK UPLOAD] ✗ ${file.originalname}:`, error.message);
+
+      errors.push({
+        success: false,
+        originalName: file.originalname,
+        error: error.message || 'Upload failed',
+      });
+    }
+  }
+
+  return res.status(201).json({
+    total: files.length,
+    success: results.length,
+    failed: errors.length,
+    results,
+    errors,
+  });
+});
+
 export const uploadMedia = asyncHandler(async (req: Request, res: Response) => {
   const file = (req as any).file as Express.Multer.File | undefined;
   if (!file) {

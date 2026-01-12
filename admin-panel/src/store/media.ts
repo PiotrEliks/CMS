@@ -32,6 +32,13 @@ type ListFilters = {
   offset?: number;
 };
 
+type BulkUploadProgress = {
+  total: number;
+  completed: number;
+  failed: number;
+  current?: string;
+};
+
 type MediaState = {
   items: MediaItem[];
   total: number;
@@ -44,10 +51,21 @@ type MediaState = {
   selectedUsage: MediaUsagePlace[];
   detailsLoading: boolean;
 
+  bulkUploading: boolean;
+  bulkProgress: BulkUploadProgress | null;
+
   fetchMedia: (filters?: ListFilters) => Promise<void>;
   fetchMediaDetails: (id: string) => Promise<void>;
 
   upload: (file: File, meta?: { title?: string; alt_text?: string }) => Promise<MediaItem>;
+
+  uploadBulk: (files: File[]) => Promise<{
+    success: number;
+    failed: number;
+    results: any[];
+    errors: any[];
+  }>;
+
   update: (
     id: string,
     data: { title?: string; alt_text?: string; status?: boolean }
@@ -72,6 +90,9 @@ export const useMedia = create<MediaState>((set, get) => ({
   selected: null,
   selectedUsage: [],
   detailsLoading: false,
+
+  bulkUploading: false,
+  bulkProgress: null,
 
   clearError: () => set({ error: null }),
   clearSelected: () => set({ selected: null, selectedUsage: [] }),
@@ -143,6 +164,68 @@ export const useMedia = create<MediaState>((set, get) => ({
     } catch (e: any) {
       const msg = e?.response?.data?.error ?? 'Nie udało się wgrać pliku';
       set({ error: msg, loading: false });
+      showAlert({ variant: 'error', title: 'Błąd uploadu', message: msg, duration: 5000 });
+      throw e;
+    }
+  },
+
+  uploadBulk: async (files) => {
+    set({
+      bulkUploading: true,
+      error: null,
+      bulkProgress: {
+        total: files.length,
+        completed: 0,
+        failed: 0,
+      },
+    });
+
+    try {
+      const fd = new FormData();
+      files.forEach((file) => {
+        fd.append('files', file);
+      });
+
+      const res = await api.post('/media/bulk', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.total) {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            console.log(`Upload progress: ${percentCompleted}%`);
+          }
+        },
+      });
+
+      const { success, failed, results, errors } = res.data;
+
+      const newMedia = results.filter((r: any) => r.success).map((r: any) => r.media);
+
+      set({
+        items: [...newMedia, ...get().items],
+        bulkUploading: false,
+        bulkProgress: null,
+      });
+
+      if (failed > 0) {
+        showAlert({
+          variant: 'warning',
+          title: 'Częściowy sukces',
+          message: `Wgrano ${success} plików. ${failed} nie udało się.`,
+          duration: 5000,
+        });
+      } else {
+        showAlert({
+          variant: 'success',
+          title: 'Wgrano pliki',
+          message: `Pomyślnie wgrano ${success} plików.`,
+          duration: 3000,
+        });
+      }
+
+      return { success, failed, results, errors };
+    } catch (e: any) {
+      const msg = e?.response?.data?.error ?? 'Nie udało się wgrać plików';
+      set({ error: msg, bulkUploading: false, bulkProgress: null });
       showAlert({ variant: 'error', title: 'Błąd uploadu', message: msg, duration: 5000 });
       throw e;
     }

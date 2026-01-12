@@ -1,129 +1,231 @@
-import { useState, useRef } from 'react';
-import { UploadCloud, XCircle } from 'lucide-react';
+import { useState, useRef, type DragEvent } from 'react';
+import { createPortal } from 'react-dom';
+import { X, Upload, File, Trash2 } from 'lucide-react';
 import Button from '../ui/button/Button';
 import { useMedia } from '../../store/media';
 
-export default function MediaUploadModal({
-  open,
-  onClose,
-}: {
+interface MediaUploadModalProps {
   open: boolean;
   onClose: () => void;
-}) {
-  const { upload, loading } = useMedia();
-  const [file, setFile] = useState<File | null>(null);
-  const [title, setTitle] = useState('');
-  const [alt, setAlt] = useState('');
+}
+
+export default function MediaUploadModal({ open, onClose }: MediaUploadModalProps) {
+  const { upload, uploadBulk, bulkUploading, bulkProgress } = useMedia();
+
+  const [files, setFiles] = useState<File[]>([]);
+  const [dragOver, setDragOver] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!open) return null;
 
-  const handleClearFile = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newFiles = Array.from(e.target.files);
+      setFiles((prev) => [...prev, ...newFiles]);
     }
   };
 
-  const handleContainerClick = () => {
-    if (!file) {
-      fileInputRef.current?.click();
-    }
-  };
-
-  const submit = async (e: React.FormEvent) => {
+  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    if (!file) return;
-    await upload(file, { title, alt_text: alt });
-    setFile(null);
-    setTitle('');
-    setAlt('');
-    onClose();
+    setDragOver(false);
+
+    if (e.dataTransfer.files) {
+      const newFiles = Array.from(e.dataTransfer.files);
+      setFiles((prev) => [...prev, ...newFiles]);
+    }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-      <div className="w-full max-w-lg rounded-2xl bg-white p-6 dark:bg-gray-900 shadow-2xl">
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Dodaj plik</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600" type="button">
-            ✕
-          </button>
-        </div>
+  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setDragOver(true);
+  };
 
-        <form onSubmit={submit} className="space-y-4">
-          <div
-            onClick={handleContainerClick}
-            className={`
-              relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 
-              transition-all duration-200 
-              ${
-                file
-                  ? 'border-green-500 bg-green-50 dark:bg-green-900/10 cursor-default'
-                  : 'border-gray-300 hover:border-primary hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800 cursor-pointer'
-              }
-            `}
-          >
+  const handleDragLeave = () => {
+    setDragOver(false);
+  };
+
+  const removeFile = (index: number) => {
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSubmit = async () => {
+    if (files.length === 0) return;
+
+    setUploading(true);
+    try {
+      if (files.length === 1) {
+        await upload(files[0]);
+      } else {
+        await uploadBulk(files);
+      }
+
+      setFiles([]);
+      onClose();
+    } catch (error) {
+      console.error('Upload failed:', error);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(2)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+  };
+
+  const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+
+  return createPortal(
+    <div className="fixed inset-0 z-50 overflow-y-auto">
+      <div className="flex min-h-screen items-center justify-center p-4">
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
+          onClick={onClose}
+        />
+
+        <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full">
+          <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+            <div>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white">Dodaj Pliki</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                Przeciągnij pliki lub kliknij, aby wybrać (max 20 plików, 50MB każdy)
+              </p>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+            >
+              <X className="w-5 h-5 text-gray-500" />
+            </button>
+          </div>
+
+          <div className="p-6 space-y-4">
+            <div
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onClick={() => fileInputRef.current?.click()}
+              className={`
+                border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
+                transition-colors duration-200
+                ${
+                  dragOver
+                    ? 'border-primary bg-primary/5'
+                    : 'border-gray-300 dark:border-gray-700 hover:border-primary hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                }
+              `}
+            >
+              <Upload className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+              <p className="text-gray-600 dark:text-gray-400 mb-2">
+                <span className="font-semibold text-primary">Kliknij aby wybrać</span> lub
+                przeciągnij pliki tutaj
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-500">
+                PNG, JPG, WEBP, PDF (max 50MB każdy, max 20 plików)
+              </p>
+            </div>
+
             <input
               ref={fileInputRef}
               type="file"
-              accept=".pdf, .jpg, .jpeg, .webp"
-              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+              multiple
+              accept="image/*,application/pdf"
+              onChange={handleFileSelect}
               className="hidden"
             />
 
-            {file && (
-              <button
-                type="button"
-                onClick={handleClearFile}
-                className="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition-colors"
-                title="Usuń plik"
-              >
-                <XCircle className="w-6 h-6" />
-              </button>
+            {files.length > 0 && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Wybrane pliki ({files.length})
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Łącznie: {formatFileSize(totalSize)}
+                  </p>
+                </div>
+
+                <div className="max-h-64 overflow-y-auto space-y-2">
+                  {files.map((file, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg"
+                    >
+                      <File className="w-8 h-8 text-gray-400 flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                          {file.name}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {formatFileSize(file.size)}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => removeFile(index)}
+                        className="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors"
+                        disabled={uploading}
+                      >
+                        <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
 
-            <UploadCloud
-              className={`w-10 h-10 mb-2 ${file ? 'text-green-500' : 'text-gray-400'}`}
-            />
-
-            <div className="text-center">
-              <p className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                {file ? 'Wybrano plik:' : 'Kliknij, aby wybrać plik'}
-              </p>
-              <p className="mt-1 text-xs text-gray-500 max-w-[250px] truncate">
-                {file ? file.name : 'PDF, JPG lub WebP'}
-              </p>
-            </div>
+            {bulkProgress && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-700 dark:text-gray-300">
+                    Postęp: {bulkProgress.completed} / {bulkProgress.total}
+                  </span>
+                  {bulkProgress.failed > 0 && (
+                    <span className="text-red-600 dark:text-red-400">
+                      Błędy: {bulkProgress.failed}
+                    </span>
+                  )}
+                </div>
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                  <div
+                    className="bg-primary h-2 rounded-full transition-all duration-300"
+                    style={{
+                      width: `${(bulkProgress.completed / bulkProgress.total) * 100}%`,
+                    }}
+                  />
+                </div>
+                {bulkProgress.current && (
+                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                    Aktualnie: {bulkProgress.current}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
 
-          <div className="space-y-3">
-            <input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Tytuł (opcjonalnie)"
-              className="w-full rounded-lg border border-gray-200 bg-transparent px-4 py-2 text-sm focus:ring-2 focus:ring-primary outline-none dark:border-gray-700 dark:text-white"
-            />
-            <input
-              value={alt}
-              onChange={(e) => setAlt(e.target.value)}
-              placeholder="ALT (dla obrazów, opcjonalnie)"
-              className="w-full rounded-lg border border-gray-200 bg-transparent px-4 py-2 text-sm focus:ring-2 focus:ring-primary outline-none dark:border-gray-700 dark:text-white"
-            />
-          </div>
-
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="outline" size="sm" onClick={onClose}>
+          <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+            <Button variant="outline" onClick={onClose} disabled={uploading}>
               Anuluj
             </Button>
-            <Button size="sm" disabled={loading || !file}>
-              {loading ? 'Wgrywanie…' : 'Dodaj plik'}
+            <Button
+              variant="primary"
+              onClick={handleSubmit}
+              disabled={files.length === 0 || uploading}
+            >
+              {uploading
+                ? bulkProgress
+                  ? `Uploading... (${bulkProgress.completed}/${bulkProgress.total})`
+                  : 'Uploading...'
+                : files.length === 1
+                  ? 'Dodaj Plik'
+                  : `Dodaj ${files.length} Plików`}
             </Button>
           </div>
-        </form>
+        </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
