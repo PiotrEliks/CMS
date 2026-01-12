@@ -3,14 +3,14 @@ import { Link, useLocation } from 'react-router';
 
 // Assume these icons are imported from an icon library
 import {
-  CalenderIcon,
   ChevronDownIcon,
-  GridIcon,
   HorizontaLDots,
   ListIcon,
-  PageIcon,
-  TableIcon,
   UserCircleIcon,
+  GroupIcon,
+  DocsIcon,
+  FolderIcon,
+  BoltIcon,
 } from '../icons';
 import { useSidebar } from '../context/SidebarContext';
 import { useAccess } from '../hooks/useAccess';
@@ -31,13 +31,23 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   {
-    icon: <GridIcon />,
+    icon: <BoltIcon />,
+    name: 'Ustawienia',
+    path: '/settings',
+  },
+  {
+    icon: <DocsIcon />,
     name: 'Strony',
     path: '/contents',
     permission: 'contents.read',
   },
   {
-    icon: <CalenderIcon />,
+    icon: <ListIcon />,
+    name: 'Menu',
+    path: '/menus',
+  },
+  {
+    icon: <FolderIcon />,
     name: 'Media',
     path: '/media',
     permission: 'media.read',
@@ -49,15 +59,10 @@ const navItems: NavItem[] = [
     permission: 'users.read',
   },
   {
-    icon: <UserCircleIcon />,
+    icon: <GroupIcon />,
     name: 'Role',
     path: '/roles',
     permission: 'roles.read',
-  },
-  {
-    icon: <ListIcon />,
-    name: 'Menu',
-    path: '/menus',
   },
 ];
 
