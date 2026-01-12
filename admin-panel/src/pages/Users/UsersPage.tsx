@@ -7,7 +7,7 @@ export default function UsersPage() {
     <>
       <PageMeta
         title="Zarządzanie użytkownikami"
-        description="This is React.js Profile Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
+        description="Strona zarządzania użytkownikami w panelu administracyjnym"
       />
       <PageBreadcrumb pageTitle="Zarządzanie użytkownikami" />
       <div className="rounded-2xl border border-gray-200 dark:border-gray-800 lg:p-6">

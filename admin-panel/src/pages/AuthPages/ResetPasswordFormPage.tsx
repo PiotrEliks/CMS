@@ -5,6 +5,7 @@ import Label from '../../form/Label';
 import Input from '../../form/input/InputField';
 import Button from '../../ui/button/Button';
 import { EyeCloseIcon, EyeIcon } from '../../icons';
+import PageMeta from '../../components/common/PageMeta';
 
 const STRONG_PASSWORD_REGEX =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
@@ -51,74 +52,77 @@ export default function ResetPasswordFormPage() {
   }
 
   return (
-    <div className="h-screen flex flex-col items-center justify-center flex-1">
-      <div className="w-full max-w-md p-6 bg-white rounded-xl dark:bg-gray-900">
-        <h1 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
-          Ustaw nowe hasło
-        </h1>
+    <>
+      <PageMeta title='Resetowanie hasła' description='Strona resetowania hasła w panelu administracyjnym' />
+      <div className="h-screen flex flex-col items-center justify-center flex-1">
+        <div className="w-full max-w-md p-6 bg-white rounded-xl dark:bg-gray-900">
+          <h1 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
+            Ustaw nowe hasło
+          </h1>
 
-        <form onSubmit={submit} className="space-y-5" noValidate>
-          <div>
-            <Label>Nowe hasło</Label>
-            <div className="relative">
-              <Input
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Wpisz nowe hasło"
-                value={password}
-                onChange={(e: any) => setPassword(e.target.value)}
-                disabled={loading}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword((v) => !v)}
-                className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
-                aria-label={showPassword ? 'Ukryj hasło' : 'Pokaż hasło'}
-              >
-                {showPassword ? (
-                  <EyeIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
-                ) : (
-                  <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
-                )}
-              </button>
+          <form onSubmit={submit} className="space-y-5" noValidate>
+            <div>
+              <Label>Nowe hasło</Label>
+              <div className="relative">
+                <Input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Wpisz nowe hasło"
+                  value={password}
+                  onChange={(e: any) => setPassword(e.target.value)}
+                  disabled={loading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
+                  aria-label={showPassword ? 'Ukryj hasło' : 'Pokaż hasło'}
+                >
+                  {showPassword ? (
+                    <EyeIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
+                  ) : (
+                    <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
+                  )}
+                </button>
+              </div>
             </div>
-          </div>
 
-          <div>
-            <Label>Powtórz nowe hasło</Label>
-            <div className="relative">
-              <Input
-                type={showPasswordConfirm ? 'text' : 'password'}
-                placeholder="Powtórz nowe hasło"
-                value={passwordConfirm}
-                onChange={(e: any) => setPasswordConfirm(e.target.value)}
-                disabled={loading}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPasswordConfirm((v) => !v)}
-                className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
-                aria-label={showPasswordConfirm ? 'Ukryj hasło' : 'Pokaż hasło'}
-              >
-                {showPasswordConfirm ? (
-                  <EyeIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
-                ) : (
-                  <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
-                )}
-              </button>
+            <div>
+              <Label>Powtórz nowe hasło</Label>
+              <div className="relative">
+                <Input
+                  type={showPasswordConfirm ? 'text' : 'password'}
+                  placeholder="Powtórz nowe hasło"
+                  value={passwordConfirm}
+                  onChange={(e: any) => setPasswordConfirm(e.target.value)}
+                  disabled={loading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPasswordConfirm((v) => !v)}
+                  className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
+                  aria-label={showPasswordConfirm ? 'Ukryj hasło' : 'Pokaż hasło'}
+                >
+                  {showPasswordConfirm ? (
+                    <EyeIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
+                  ) : (
+                    <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
+                  )}
+                </button>
+              </div>
             </div>
-          </div>
 
-          {(localError || error) && (
-            <div className="px-3 py-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
-              {localError ?? error}
-            </div>
-          )}
+            {(localError || error) && (
+              <div className="px-3 py-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
+                {localError ?? error}
+              </div>
+            )}
 
-          <Button className="w-full" disabled={loading}>
-            {loading ? 'Zapisywanie…' : 'Zmień hasło'}
-          </Button>
-        </form>
+            <Button className="w-full" disabled={loading}>
+              {loading ? 'Zapisywanie…' : 'Zmień hasło'}
+            </Button>
+          </form>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

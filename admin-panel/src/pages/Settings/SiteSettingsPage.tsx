@@ -44,7 +44,7 @@ export default function SiteSettingsPage() {
 
   return (
     <>
-      <PageMeta title="Ustawienia Strony" description="" />
+      <PageMeta title="Ustawienia Strony" description="To jest strona zarządzania ustawieniami strony w panelu administracyjnym" />
       <PageBreadcrumb pageTitle="Ustawienia Strony" />
 
       <div className="space-y-6">

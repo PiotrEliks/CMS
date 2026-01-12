@@ -153,7 +153,7 @@ export default function EditContentPage() {
 
   return (
     <>
-      <PageMeta title={isNew ? 'Utwórz treść' : `Edytuj: ${formData.title}`} description="" />
+      <PageMeta title={isNew ? 'Utwórz treść' : `Edytuj: ${formData.title}`} description="To jest strona edycji treści w panelu administracyjnym" />
       <PageBreadcrumb pageTitle={isNew ? 'Utwórz treść' : 'Edytuj treść'} />
 
       <div className="space-y-6">

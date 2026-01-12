@@ -63,7 +63,7 @@ export default function NewContentPage() {
 
   return (
     <>
-      <PageMeta title="Nowa Treść" description="Utwórz nową treść" />
+      <PageMeta title="Dodawanie nowej treści" description="To jest strona dodawania nowej treści w panelu administracyjnym" />
       <PageBreadcrumb pageTitle="Nowa Treść" />
 
       <div className="space-y-6">

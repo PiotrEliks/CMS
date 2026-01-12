@@ -7,6 +7,8 @@ import MediaUploadModal from '../../components/media/MediaUploadModal';
 import MediaDetailsDrawer from '../../components/media/MediaDetailsDrawer';
 import MediaInUseModal from '../../components/media/MediaInUseModal';
 import { usePermission } from '../../utils/permissions';
+import PageMeta from '../../components/common/PageMeta';
+import PageBreadcrumb from '../../components/common/PageBreadCrumb';
 
 export default function MediaPage() {
   const {
@@ -51,6 +53,11 @@ export default function MediaPage() {
 
   return (
     <>
+      <PageMeta
+        title="Zarządzanie mediami"
+        description="Strona zarządzania mediami w panelu administracyjnym"
+      />
+      <PageBreadcrumb pageTitle="Zarządzanie mediami" />
       <ComponentCard
         title={`Media (${total})`}
         button={

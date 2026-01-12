@@ -7,7 +7,7 @@ export default function RolesPage() {
     <>
       <PageMeta
         title="Zarządzanie rolami"
-        description="This is React.js Profile Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
+        description="Strona zarządzania rolami użytkowników w panelu administracyjnym"
       />
       <PageBreadcrumb pageTitle="Zarządzanie rolami" />
       <div className="rounded-2xl border border-gray-200 dark:border-gray-800 lg:p-6">
