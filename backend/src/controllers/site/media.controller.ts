@@ -18,7 +18,7 @@ export const uploadMedia = asyncHandler(async (req: Request, res: Response) => {
   const fullPath = file.path;
   const mime_type = file.mimetype;
 
-  const url = FRONTEND_URL ? `${FRONTEND_URL}/uploads/${storage_path}` : null;
+  const url = FRONTEND_URL ? `${FRONTEND_URL}${storage_path}` : null;
 
   let thumbnail_path: string | null = null;
   if (mime_type === 'application/pdf') {
@@ -46,13 +46,13 @@ export const uploadMedia = asyncHandler(async (req: Request, res: Response) => {
 export const getMedia = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
 
-  const media = await mediaService.getWithUsage(id);
+  const result = await mediaService.getWithUsage(id);
 
-  if (!media) {
+  if (!result) {
     return res.status(404).json({ error: 'Media not found' });
   }
 
-  return res.json(media);
+  return res.json(result);
 });
 
 export const getPublishedMedia = asyncHandler(async (req: Request, res: Response) => {
@@ -128,8 +128,20 @@ export const deleteMedia = asyncHandler(async (req: Request, res: Response) => {
   try {
     await mediaService.deleteMedia(id);
     return res.json({ ok: true });
-  } catch (error) {
-    return res.status(404).json({ error: (error as Error).message });
+  } catch (error: any) {
+    if (error.code === 'MEDIA_IN_USE') {
+      return res.status(409).json({
+        error: 'Media jest używane i nie może być usunięte',
+        code: 'MEDIA_IN_USE',
+        places: error.places || [],
+      });
+    }
+
+    if (error.message === 'Media not found') {
+      return res.status(404).json({ error: 'Media nie znaleziono' });
+    }
+
+    throw error;
   }
 });
 

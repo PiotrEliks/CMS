@@ -11,6 +11,7 @@ export class Media extends Model<InferAttributes<Media>, InferCreationAttributes
   declare media_id: CreationOptional<string>;
   declare storage_path: string;
   declare mime_type: string | null;
+  declare file_size: number | null;
   declare width: number | null;
   declare height: number | null;
   declare alt_text: string | null;
@@ -26,6 +27,7 @@ Media.init(
     media_id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
     storage_path: { type: DataTypes.STRING(1024), allowNull: false },
     mime_type: { type: DataTypes.STRING(100) },
+    file_size: { type: DataTypes.INTEGER },
     width: { type: DataTypes.INTEGER },
     height: { type: DataTypes.INTEGER },
     alt_text: { type: DataTypes.STRING(255) },

@@ -1,6 +1,6 @@
 import path from 'path';
 import { Op } from 'sequelize';
-import { Media, Content, ContentsMedia, ContentSection } from '../models/index.js';
+import { Media, Content, ContentSection, PageComponent } from '../models/index.js';
 import { BaseService } from './types/BaseService.js';
 import { PaginationOptions } from './types/IRepository.js';
 import { safeUnlink } from '../utils/fileSystem.js';
@@ -9,14 +9,18 @@ const UPLOAD_DIR = process.env.UPLOAD_DIR ?? path.resolve(process.cwd(), 'upload
 
 export type MediaUsagePlace =
   | { type: 'content.cover'; content_id: string; title: string; slug: string }
-  | { type: 'content.attachment'; content_id: string; title: string; slug: string };
-
-type UsagePlace = {
-  kind: 'content.cover' | 'content.media';
-  content_id: string;
-  title: string;
-  slug: string;
-};
+  | { type: 'content.body'; content_id: string; title: string; slug: string }
+  | {
+      type: 'section.media';
+      section_id: string;
+      content_id: string;
+      section_type: string;
+      content_title: string;
+    }
+  | { type: 'component.hero'; component_id: string; content_id: string; content_title: string }
+  | { type: 'component.services'; component_id: string; content_id: string; content_title: string }
+  | { type: 'user.avatar'; user_id: string; email: string };
+// TODO: Add other component types as needed
 
 export class MediaService extends BaseService<Media> {
   constructor() {
@@ -58,52 +62,8 @@ export class MediaService extends BaseService<Media> {
       const q = params.search.trim();
       where[Op.or] = [
         { title: { [Op.iLike]: `%${q}%` } },
-        { title: { [Op.iLike]: `%${q}%` } },
         { alt_text: { [Op.iLike]: `%${q}%` } },
         { storage_path: { [Op.iLike]: `%${q}%` } },
-      ];
-    }
-
-    if (params.used === '1') {
-      where[Op.or] = [
-        ...(where[Op.or] ?? []),
-        {
-          media_id: {
-            [Op.in]: (Content as any).sequelize.literal(
-              `(SELECT cover_media_id FROM contents WHERE cover_media_id IS NOT NULL)`
-            ),
-          },
-        },
-        {
-          media_id: {
-            [Op.in]: (Content as any).sequelize.literal(`(SELECT media_id FROM contents_media)`),
-          },
-        },
-        {
-          media_id: {
-            [Op.in]: (Content as any).sequelize.literal(
-              `(SELECT unnest(media_ids) FROM content_sections WHERE media_ids IS NOT NULL AND array_length(media_ids, 1) > 0)`
-            ),
-          },
-        },
-      ];
-    }
-
-    if (params.used === '0') {
-      where[Op.and] = [
-        ...(where[Op.and] ?? []),
-        {
-          media_id: {
-            [Op.notIn]: (Content as any).sequelize.literal(
-              `(SELECT cover_media_id FROM contents WHERE cover_media_id IS NOT NULL)`
-            ),
-          },
-        },
-        {
-          media_id: {
-            [Op.notIn]: (Content as any).sequelize.literal(`(SELECT media_id FROM contents_media)`),
-          },
-        },
       ];
     }
 
@@ -115,48 +75,44 @@ export class MediaService extends BaseService<Media> {
     });
   }
 
-  async getUsage(
-    mediaId: string
-  ): Promise<{ isUsed: boolean; count: number; places: MediaUsagePlace[] }> {
+  async getUsage(mediaId: string): Promise<MediaUsagePlace[]> {
     const places: MediaUsagePlace[] = [];
 
     const covers = await Content.findAll({
       where: { cover_media_id: mediaId },
       attributes: ['content_id', 'title', 'slug'],
-      raw: true,
+      limit: 100,
     });
-    covers.forEach((c: any) =>
+
+    for (const c of covers) {
       places.push({
         type: 'content.cover',
-        content_id: c.content_id,
-        title: c.title,
-        slug: c.slug,
-      })
-    );
+        content_id: (c as any).content_id,
+        title: (c as any).title,
+        slug: (c as any).slug,
+      });
+    }
 
-    const attachments = await Content.findAll({
-      include: [
-        {
-          model: Media,
-          as: 'media',
-          where: { media_id: mediaId },
-          required: true,
-          attributes: [],
+    const contentsWithBody = await Content.findAll({
+      where: {
+        body: {
+          [Op.like]: `%${mediaId}%`,
         },
-      ],
+      },
       attributes: ['content_id', 'title', 'slug'],
-      raw: true,
+      limit: 100,
     });
-    attachments.forEach((c: any) =>
-      places.push({
-        type: 'content.attachment',
-        content_id: c.content_id,
-        title: c.title,
-        slug: c.slug,
-      })
-    );
 
-    const sectionsWithMedia = await ContentSection.findAll({
+    for (const c of contentsWithBody) {
+      places.push({
+        type: 'content.body',
+        content_id: (c as any).content_id,
+        title: (c as any).title,
+        slug: (c as any).slug,
+      });
+    }
+
+    const sections = await ContentSection.findAll({
       where: {
         media_ids: {
           [Op.contains]: [mediaId],
@@ -166,26 +122,55 @@ export class MediaService extends BaseService<Media> {
         {
           model: Content,
           as: 'content',
-          attributes: ['content_id', 'title', 'slug'],
+          attributes: ['content_id', 'title'],
         },
       ],
+      attributes: ['section_id', 'content_id', 'section_type'],
+      limit: 100,
     });
 
-    sectionsWithMedia.forEach((s: any) => {
-      const c = s.content;
+    for (const s of sections) {
       places.push({
-        type: 'content.section' as any,
-        content_id: s.content_id,
-        title: c?.title || 'Section',
-        slug: c?.slug || '',
+        type: 'section.media',
+        section_id: (s as any).section_id,
+        content_id: (s as any).content_id,
+        section_type: (s as any).section_type,
+        content_title: (s as any).content?.title || 'Unknown',
       });
+    }
+
+    const sequelize = PageComponent.sequelize!;
+
+    const components = await PageComponent.findAll({
+      where: {
+        [Op.and]: [
+          sequelize.where(sequelize.cast(sequelize.col('data'), 'TEXT'), {
+            [Op.like]: `%${mediaId}%`,
+          }),
+        ],
+      },
+      include: [
+        {
+          model: Content,
+          as: 'content',
+          attributes: ['content_id', 'title'],
+        },
+      ],
+      attributes: ['component_id', 'content_id', 'component_type'],
+      limit: 100,
     });
 
-    return {
-      isUsed: places.length > 0,
-      count: places.length,
-      places,
-    };
+    for (const comp of components) {
+      const componentType = (comp as any).component_type;
+      places.push({
+        type: `component.${componentType}` as any,
+        component_id: (comp as any).component_id,
+        content_id: (comp as any).content_id,
+        content_title: (comp as any).content?.title || 'Unknown',
+      });
+    }
+
+    return places;
   }
 
   async getWithUsage(mediaId: string) {
@@ -195,7 +180,7 @@ export class MediaService extends BaseService<Media> {
     const usage = await this.getUsage(mediaId);
     return {
       media,
-      usage: usage,
+      usage,
     };
   }
 
@@ -218,37 +203,55 @@ export class MediaService extends BaseService<Media> {
     return items;
   }
 
-  async deleteMedia(
-    mediaId: string
-  ): Promise<{ deleted: true } | { deleted: false; places: MediaUsagePlace[] }> {
+  async deleteMedia(mediaId: string): Promise<void> {
     const media = await this.findById(mediaId);
-    if (!media) throw new Error('Media not found');
-
-    const usage = await this.getUsage(mediaId);
-    if (usage.isUsed) {
-      return { deleted: false, places: usage.places };
+    if (!media) {
+      throw new Error('Media not found');
     }
 
-    const getPhysicalPath = (p: string) => {
-      const relativePath = p.replace(/^\/?uploads\//, '');
-      return path.join(UPLOAD_DIR, relativePath);
-    };
+    const usage = await this.getUsage(mediaId);
+    if (usage.length > 0) {
+      const error: any = new Error('Media is in use and cannot be deleted');
+      error.code = 'MEDIA_IN_USE';
+      error.places = usage;
+      throw error;
+    }
 
     const storagePath = (media as any).storage_path as string;
     if (storagePath) {
-      const abs = getPhysicalPath(storagePath);
+      const relativePath = storagePath.startsWith('/uploads/')
+        ? storagePath.substring(1)
+        : storagePath;
+
+      const abs = path.resolve(process.cwd(), relativePath);
+
+      console.log('[DELETE] Attempting to delete:', {
+        storagePath,
+        relativePath,
+        absolute: abs,
+      });
+
       await safeUnlink(abs);
     }
 
     if ((media as any).thumbnail_path) {
-      const thumbAbs = getPhysicalPath((media as any).thumbnail_path);
+      const thumbPath = (media as any).thumbnail_path as string;
+      const relativeThumb = thumbPath.startsWith('/uploads/') ? thumbPath.substring(1) : thumbPath;
+
+      const thumbAbs = path.resolve(process.cwd(), relativeThumb);
+
+      console.log('[DELETE] Attempting to delete thumbnail:', {
+        thumbPath,
+        relativeThumb,
+        absolute: thumbAbs,
+      });
+
       await safeUnlink(thumbAbs);
     }
 
-    await ContentsMedia.destroy({ where: { media_id: mediaId } });
     await this.delete(mediaId);
 
-    return { deleted: true };
+    console.log('[DELETE] Successfully deleted media:', mediaId);
   }
 
   async updateMetadata(
@@ -258,22 +261,13 @@ export class MediaService extends BaseService<Media> {
     return await this.update(mediaId, data as any);
   }
 
-  async search(query: string, options: PaginationOptions) {
-    return await this.list({
-      where: {},
-      order: [['uploaded_at', 'DESC']],
-      limit: options.limit,
-      offset: options.offset,
-    });
-  }
-
   async getTotalStorageUsed(): Promise<number> {
     const result = await (Media as any).findOne({
-      attributes: [['SUM(file_size)', 'total']],
+      attributes: [[Media.sequelize!.fn('SUM', Media.sequelize!.col('file_size')), 'total']],
       raw: true,
     });
 
-    return result?.total || 0;
+    return parseInt(result?.total) || 0;
   }
 
   async getPublishedById(mediaId: string) {

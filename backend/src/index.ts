@@ -34,8 +34,8 @@ app.use(
   })
 );
 app.use(cookieParser());
-app.use(express.json({ type: ['application/json', 'application/*+json'] }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ type: ['application/json', 'application/*+json'], limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 app.use('/api/admin', adminRouter);
 app.use('/api/sites', siteRouter);

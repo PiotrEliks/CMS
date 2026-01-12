@@ -22,17 +22,31 @@ const storage = multer.diskStorage({
     const safe = normalizeFilename(file.originalname || 'file');
     const ext = path.extname(safe);
     const base = path.basename(safe, ext);
-    console.log(base);
 
-    const unique = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    const unique = `${Date.now()}-${Math.random().toString(16).slice(2, 10)}`;
 
-    cb(null, `${base}-${unique}${ext}`.toLowerCase());
+    cb(null, `${base}-${unique}${ext}`);
   },
 });
 
 export const uploadMediaMiddleware = multer({
   storage,
   limits: {
-    fileSize: 20 * 1024 * 1024,
+    fileSize: 50 * 1024 * 1024,
+  },
+  fileFilter: (_req, file, cb) => {
+    const allowedMimeTypes = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/webp',
+      'application/pdf',
+    ];
+
+    if (allowedMimeTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error(`Nieobsługiwany typ pliku: ${file.mimetype}`));
+    }
   },
 });

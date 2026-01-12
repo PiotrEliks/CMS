@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import multer from 'multer';
 import * as MediaController from '../../controllers/site/media.controller.js';
 import { requireAuth } from '../../middlewares/auth.middleware.js';
 import { authorize } from '../../middlewares/authorize.middleware.js';
@@ -13,7 +14,24 @@ router.use(requireAuth);
 router.post(
   '/',
   authorize('media.upload'),
-  uploadMediaMiddleware.single('file'),
+  (req, res, next) => {
+    uploadMediaMiddleware.single('file')(req, res, (err) => {
+      if (err instanceof multer.MulterError) {
+        if (err.code === 'LIMIT_FILE_SIZE') {
+          return res.status(413).json({
+            error: 'Plik za duży. Max: 50MB',
+          });
+        }
+        return res.status(400).json({
+          error: `Upload error: ${err.message}`,
+        });
+      }
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      next();
+    });
+  },
   MediaController.uploadMedia
 );
 router.get('/', authorize('media.read'), MediaController.listMedia);
