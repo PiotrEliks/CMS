@@ -1,26 +1,26 @@
 import { useEffect } from 'react';
 import { Route, Routes, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from './store/auth';
-import ProtectedRoute from './components/ProtectedRoute';
-import HomePage from './pages/Dashboard/Home';
 import { attach401Interceptor } from './api/axios';
 import { ScrollToTop } from './components/common/ScrollToTop';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 import AppLayout from './layout/AppLayout';
-import SignIn from './pages/AuthPages/SignIn';
-import UserProfiles from './pages/UserProfiles';
-import Users from './pages/Users';
-import ForgotPasswordForm from './components/form/auth/ForgotPasswordForm';
-import ResetPasswordForm from './components/form/auth/ResetPasswordForm';
+import HomePage from './pages/HomePage';
+import SignInPage from './pages/AuthPages/SignInPage';
+import UserProfilePage from './pages/Users/UserProfilePage';
+import UsersPage from './pages/Users/UsersPage';
+import ForgotPasswordFormPage from './pages/AuthPages/ForgotPasswordFormPage';
+import ResetPasswordFormPage from './pages/AuthPages/ResetPasswordFormPage';
 import AlertContainer from './components/common/AlertContainer';
-import Roles from './pages/Roles';
-import Media from './pages/Media';
+import RolesPage from './pages/Roles/RolesPage';
+import MediaPage from './pages/Media/MediaPage';
 import ContentsListPage from './pages/Content/ContentsListPage';
 import NewContentPage from './pages/Content/NewContentPage';
 import EditContentPage from './pages/Content/EditContentPage';
 import ContentPreviewPage from './pages/Content/ContentPreviewPage';
-import EditMenuPage from './pages/EditMenuPage';
-import MenusListPage from './pages/MenusListPage';
-import SiteSettingsPage from './pages/SiteSettingsPage';
+import EditMenuPage from './pages/Menus/EditMenuPage';
+import MenusListPage from './pages/Menus/MenusListPage';
+import SiteSettingsPage from './pages/Settings/SiteSettingsPage';
 
 export default function App() {
   const { checkAuth, user, loading } = useAuth();
@@ -68,7 +68,7 @@ export default function App() {
             path="/profile"
             element={
               <ProtectedRoute>
-                <UserProfiles />
+                <UserProfilePage />
               </ProtectedRoute>
             }
           />
@@ -76,7 +76,7 @@ export default function App() {
             path="/users"
             element={
               <ProtectedRoute>
-                <Users />
+                <UsersPage />
               </ProtectedRoute>
             }
           />
@@ -84,7 +84,7 @@ export default function App() {
             path="/roles"
             element={
               <ProtectedRoute>
-                <Roles />
+                <RolesPage />
               </ProtectedRoute>
             }
           />
@@ -92,7 +92,7 @@ export default function App() {
             path="/media"
             element={
               <ProtectedRoute>
-                <Media />
+                <MediaPage />
               </ProtectedRoute>
             }
           />
@@ -125,9 +125,9 @@ export default function App() {
           <Route path="/menus/:id" element={<EditMenuPage />} />
           <Route path="/settings" element={<SiteSettingsPage />} />
         </Route>
-        <Route path="/forgot-password" element={<ForgotPasswordForm />} />
-        <Route path="/reset-password/:token" element={<ResetPasswordForm />} />
-        <Route path="/login" element={<SignIn />} />
+        <Route path="/forgot-password" element={<ForgotPasswordFormPage />} />
+        <Route path="/reset-password/:token" element={<ResetPasswordFormPage />} />
+        <Route path="/login" element={<SignInPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
