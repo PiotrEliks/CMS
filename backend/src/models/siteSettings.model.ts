@@ -26,6 +26,7 @@ export interface SiteSettingsData {
 
   footer_logo_media_id?: string;
   footer_menu_id?: string;
+  footer_description?: string;
   footer_background_color?: string;
   footer_copyright_text?: string;
   footer_show_social?: boolean;

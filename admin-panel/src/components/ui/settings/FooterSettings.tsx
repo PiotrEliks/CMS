@@ -10,6 +10,8 @@ interface FooterSettingsProps {
   settings: any;
 }
 
+const MAX_DESCRIPTION_LENGTH = 250;
+
 export default function FooterSettings({ settings: initialSettings }: FooterSettingsProps) {
   const { updateSettings, saving } = useSiteSettings();
   const { items: menus, fetchMenus } = useMenus();
@@ -27,11 +29,19 @@ export default function FooterSettings({ settings: initialSettings }: FooterSett
     setSettings((prev: any) => ({ ...prev, [field]: value }));
   };
 
+  const handleDescriptionChange = (value: string) => {
+    if (value.length <= MAX_DESCRIPTION_LENGTH) {
+      handleChange('footer_description', value);
+    }
+  };
+
   const handleSave = async () => {
     await updateSettings('footer', settings);
   };
 
   const activeMenus = menus.filter((m: any) => m.status);
+  const descriptionLength = settings.footer_description?.length || 0;
+  const remainingChars = MAX_DESCRIPTION_LENGTH - descriptionLength;
 
   return (
     <ComponentCard title="Ustawienia Footer" desc="Konfiguruj wygląd i zawartość stopki strony">
@@ -70,6 +80,34 @@ export default function FooterSettings({ settings: initialSettings }: FooterSett
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
             Wybierz menu które będzie wyświetlane w footerze
           </p>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            O Stronie - Krótki Opis
+          </label>
+          <textarea
+            value={settings.footer_description || ''}
+            onChange={(e) => handleDescriptionChange(e.target.value)}
+            rows={4}
+            maxLength={MAX_DESCRIPTION_LENGTH}
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white resize-none"
+            placeholder="Krótki opis Twojej firmy lub strony, który pojawi się w sekcji O nas w stopce..."
+          />
+          <div className="flex items-center justify-between mt-1">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Będzie wyświetlany w sekcji "O nas" w footerze
+            </p>
+            <p
+              className={`text-xs font-medium ${
+                remainingChars < 20
+                  ? 'text-red-600 dark:text-red-400'
+                  : 'text-gray-500 dark:text-gray-400'
+              }`}
+            >
+              {descriptionLength} / {MAX_DESCRIPTION_LENGTH}
+            </p>
+          </div>
         </div>
 
         <div>

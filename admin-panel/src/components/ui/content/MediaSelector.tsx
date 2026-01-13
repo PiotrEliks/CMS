@@ -74,7 +74,7 @@ export default function MediaSelector({
         </div>
       ) : (
         <Button variant="outline" startIcon={<ImageIcon />} onClick={() => setModalOpen(true)}>
-          Select Image
+          Wybierz zdjęcie
         </Button>
       )}
 

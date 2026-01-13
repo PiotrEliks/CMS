@@ -103,6 +103,7 @@ export class SiteSettingsService {
       footer: {
         footer_logo_media_id: all.footer.footer_logo_media_id,
         footer_menu_id: all.footer.footer_menu_id,
+        footer_description: all.footer.footer_description,
         footer_background_color: all.footer.footer_background_color,
         footer_copyright_text: all.footer.footer_copyright_text,
         footer_show_social: all.footer.footer_show_social,
