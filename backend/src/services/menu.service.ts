@@ -174,11 +174,16 @@ export class MenuService {
     menu_id: string;
     label: string;
     content_id?: string;
+    external_url?: string;
     parent_id?: string;
     order_index?: number;
     status?: boolean;
   }) {
     await this.getMenuById(data.menu_id);
+
+    if (data.content_id && data.external_url) {
+      throw new Error('Menu item cannot have both content_id and external_url');
+    }
 
     if (data.parent_id) {
       const parent = await MenuItem.findByPk(data.parent_id);
@@ -194,6 +199,12 @@ export class MenuService {
       }
     }
 
+    if (data.external_url) {
+      if (!data.external_url.match(/^https?:\/\/.+/)) {
+        throw new Error('External URL must start with http:// or https://');
+      }
+    }
+
     if (data.order_index === undefined) {
       const lastItem = await MenuItem.findOne({
         where: {
@@ -205,14 +216,25 @@ export class MenuService {
       data.order_index = lastItem ? lastItem.order_index + 1 : 0;
     }
 
-    return await MenuItem.create(data);
+    const createData: any = {
+      menu_id: data.menu_id,
+      label: data.label,
+      content_id: data.content_id ?? null,
+      external_url: data.external_url ?? null,
+      parent_id: data.parent_id || null,
+      order_index: data.order_index,
+      status: data.status ?? true,
+    };
+
+    return await MenuItem.create(createData);
   }
 
   async updateMenuItem(
     menuItemId: string,
     updates: {
       label?: string;
-      content_id?: string;
+      content_id?: string | null;
+      external_url?: string | null;
       parent_id?: string;
       order_index?: number;
       status?: boolean;
@@ -223,10 +245,23 @@ export class MenuService {
       throw new Error('Menu item not found');
     }
 
+    const newContentId = updates.content_id !== undefined ? updates.content_id : menuItem.content_id;
+    const newExternalUrl = updates.external_url !== undefined ? updates.external_url : menuItem.external_url;
+
+    if (newContentId && newExternalUrl) {
+      throw new Error('Menu item cannot have both content_id and external_url');
+    }
+
     if (updates.content_id) {
       const content = await Content.findByPk(updates.content_id);
       if (!content) {
         throw new Error('Content not found');
+      }
+    }
+
+    if (updates.external_url) {
+      if (!updates.external_url.match(/^https?:\/\/.+/)) {
+        throw new Error('External URL must start with http:// or https://');
       }
     }
 
@@ -240,7 +275,23 @@ export class MenuService {
       }
     }
 
-    await menuItem.update(updates);
+    const updateData: any = {};
+    
+    if (updates.label !== undefined) updateData.label = updates.label;
+    if (updates.status !== undefined) updateData.status = updates.status;
+    if (updates.order_index !== undefined) updateData.order_index = updates.order_index;
+    if (updates.parent_id !== undefined) updateData.parent_id = updates.parent_id;
+    
+    if (updates.content_id !== undefined) {
+      updateData.content_id = updates.content_id;
+    }
+    if (updates.external_url !== undefined) {
+      updateData.external_url = updates.external_url;
+    }
+
+    console.log('[MenuService] Updating menu item:', menuItemId, 'with:', updateData);
+
+    await menuItem.update(updateData);
     return menuItem;
   }
 

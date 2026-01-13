@@ -101,7 +101,7 @@ export class MenuController {
   async createMenuItem(req: Request, res: Response) {
     try {
       const { menuId } = req.params;
-      const { label, content_id, parent_id, order_index, status } = req.body;
+      const { label, content_id, external_url, parent_id, order_index, status } = req.body;
 
       if (!label) {
         return res.status(400).json({ error: 'label is required' });
@@ -111,6 +111,7 @@ export class MenuController {
         menu_id: menuId,
         label,
         content_id,
+        external_url,
         parent_id,
         order_index,
         status,
@@ -125,11 +126,12 @@ export class MenuController {
   async updateMenuItem(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const { label, content_id, parent_id, order_index, status } = req.body;
+      const { label, content_id, external_url, parent_id, order_index, status } = req.body;
 
       const menuItem = await menuService.updateMenuItem(id, {
         label,
         content_id,
+        external_url,
         parent_id,
         order_index,
         status,
