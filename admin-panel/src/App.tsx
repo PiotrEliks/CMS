@@ -21,6 +21,7 @@ import ContentPreviewPage from './pages/Content/ContentPreviewPage';
 import EditMenuPage from './pages/Menus/EditMenuPage';
 import MenusListPage from './pages/Menus/MenusListPage';
 import SiteSettingsPage from './pages/Settings/SiteSettingsPage';
+import CategoriesPage from './pages/Category/CategoriesPage';
 
 export default function App() {
   const { checkAuth, user, loading } = useAuth();
@@ -124,6 +125,14 @@ export default function App() {
           <Route path="/menus" element={<MenusListPage />} />
           <Route path="/menus/:id" element={<EditMenuPage />} />
           <Route path="/settings" element={<SiteSettingsPage />} />
+          <Route
+            path="/categories"
+            element={
+              <ProtectedRoute>
+                <CategoriesPage />
+              </ProtectedRoute>
+            }
+          />
         </Route>
         <Route path="/forgot-password" element={<ForgotPasswordFormPage />} />
         <Route path="/reset-password/:token" element={<ResetPasswordFormPage />} />

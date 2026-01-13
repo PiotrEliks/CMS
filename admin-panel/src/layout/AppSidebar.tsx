@@ -11,6 +11,7 @@ import {
   DocsIcon,
   FolderIcon,
   BoltIcon,
+  GridIcon
 } from '../icons';
 import { useSidebar } from '../context/SidebarContext';
 import { useAccess } from '../hooks/useAccess';
@@ -45,6 +46,11 @@ const navItems: NavItem[] = [
     icon: <ListIcon />,
     name: 'Menu',
     path: '/menus',
+  },
+  {
+    icon: <GridIcon />,
+    name: 'Kategorie',
+    path: '/categories',
   },
   {
     icon: <FolderIcon />,
