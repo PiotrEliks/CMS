@@ -14,14 +14,23 @@ interface ComponentItemProps {
 const componentIcons: Record<string, any> = {
   hero: Layout,
   services: Grid,
-  // TODO: Add other component icons here
+  testimonial: Grid,
+  team: Grid,
+  pricing: Grid,
+  hours: Grid,
+  contact_form: Grid,
+  map: Grid,
 };
 
 const componentLabels: Record<string, string> = {
-  hero: 'Hero Slider',
-  services: 'Services',
-  testimonial: 'Testimonials',
-  //TODO: Add other component labels here
+  hero: 'Slider',
+  services: 'Usługi',
+  testimonial: 'Opinie',
+  team: 'Zespół',
+  pricing: 'Cennik',
+  hours: 'Godziny otwarcia',
+  contact_form: 'Formularz kontaktowy',
+  map: 'Mapa',
 };
 
 export default function ComponentItem({ component, onEdit, showInactive }: ComponentItemProps) {
@@ -70,10 +79,21 @@ export default function ComponentItem({ component, onEdit, showInactive }: Compo
     const data = component.data;
     switch (component.component_type) {
       case 'hero':
-        return data.slides?.[0]?.title || 'No title';
+        return data.slides?.[0]?.title || 'Brak tytułu';
       case 'services':
-        return `${data.items?.length || 0} services`;
-      // TODO: Add other component preview texts here
+        return `${data.items?.length || 0} usług`;
+      case 'testimonial':
+        return `${data.items?.length || 0} opinii`;
+      case 'team':
+        return `${data.members?.length || 0} członków`;
+      case 'pricing':
+        return `${data.services?.length || 0} pozycji`;
+      case 'hours':
+        return '';
+      case 'contact_form':
+        return '';
+      case 'map':
+        return '';
       default:
         return data.title || 'Component';
     }

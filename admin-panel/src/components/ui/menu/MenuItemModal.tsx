@@ -43,7 +43,7 @@ export default function MenuItemEditModal({
   const [contents, setContents] = useState<Content[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [showContentPicker, setShowContentPicker] = useState(false);
-  
+
   const [linkType, setLinkType] = useState<LinkType>('none');
 
   const isNew = !item.menu_item_id;
@@ -52,7 +52,7 @@ export default function MenuItemEditModal({
     if (open) {
       setFormData(item);
       fetchContents();
-      
+
       if (item.content_id) {
         setLinkType('content');
       } else if (item.external_url) {
@@ -127,7 +127,7 @@ export default function MenuItemEditModal({
 
   const handleLinkTypeChange = (type: LinkType) => {
     setLinkType(type);
-    
+
     if (type === 'none') {
       setFormData((prev) => ({ ...prev, content_id: null, external_url: null }));
     } else if (type === 'content') {
@@ -181,7 +181,6 @@ export default function MenuItemEditModal({
           </div>
 
           <div className="p-6 space-y-6">
-
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Nazwa *
@@ -209,9 +208,7 @@ export default function MenuItemEditModal({
                     className="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
                   />
                   <div>
-                    <div className="font-medium text-gray-900 dark:text-white">
-                      Brak linku
-                    </div>
+                    <div className="font-medium text-gray-900 dark:text-white">Brak linku</div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">
                       Tylko etykieta (np. dla kategorii nadrzędnych)
                     </div>
@@ -271,11 +268,7 @@ export default function MenuItemEditModal({
                         {selectedContent.type}
                       </div>
                     </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setShowContentPicker(true)}
-                    >
+                    <Button size="sm" variant="outline" onClick={() => setShowContentPicker(true)}>
                       Zmień
                     </Button>
                     <Button

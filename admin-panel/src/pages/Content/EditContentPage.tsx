@@ -11,6 +11,9 @@ import MediaSelector from '../../components/ui/content/MediaSelector';
 import CategorySelector from '../../components/ui/content/CategorySelector';
 import PageBuilder from '../../components/ui/content/PageBuilder';
 import ContentSections from '../../components/ui/content/ContentSections';
+import ContentDisplayOrder from '../../components/ui/content/ContentDisplayOrder';
+import type { ContentSection } from '../../store/contentSections';
+import type { PageComponent } from '../../store/pageComponents';
 
 interface Content {
   content_id: string;
@@ -38,7 +41,14 @@ export default function EditContentPage() {
 
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<'basic' | 'sections' | 'components' | 'seo'>('basic');
+
+  const [activeTab, setActiveTab] = useState<'basic' | 'sections' | 'components' | 'order' | 'seo'>(
+    'basic'
+  );
+  const [editSectionModalOpen, setEditSectionModalOpen] = useState(false);
+  const [editComponentModalOpen, setEditComponentModalOpen] = useState(false);
+  const [selectedSection, setSelectedSection] = useState<ContentSection | null>(null);
+  const [selectedComponent, setSelectedComponent] = useState<PageComponent | null>(null);
 
   const [formData, setFormData] = useState<Partial<Content>>({
     title: '',
@@ -153,12 +163,13 @@ export default function EditContentPage() {
 
   return (
     <>
-      <PageMeta title={isNew ? 'Utwórz treść' : `Edytuj: ${formData.title}`} description="To jest strona edycji treści w panelu administracyjnym" />
-      <PageBreadcrumb 
-        pageTitle={isNew ? 'Utwórz treść' : 'Edytuj treść'} 
-        items={[
-          { label: 'Treści', path: '/contents' }
-        ]}
+      <PageMeta
+        title={isNew ? 'Utwórz treść' : `Edytuj: ${formData.title}`}
+        description="To jest strona edycji treści w panelu administracyjnym"
+      />
+      <PageBreadcrumb
+        pageTitle={isNew ? 'Utwórz treść' : 'Edytuj treść'}
+        items={[{ label: 'Treści', path: '/contents' }]}
       />
 
       <div className="space-y-6">
@@ -200,6 +211,7 @@ export default function EditContentPage() {
               { key: 'basic', label: 'Informacje podstawowe' },
               { key: 'sections', label: 'Proste sekcje' },
               { key: 'components', label: 'Konstruktor stron' },
+              { key: 'order', label: 'Kolejność wyświetlania' },
               { key: 'seo', label: 'SEO i metadane' },
             ].map((tab) => (
               <button
@@ -337,6 +349,22 @@ export default function EditContentPage() {
         {activeTab === 'components' && !isNew && (
           <ComponentCard title="Konstruktor stron (Zaawansowane komponenty)">
             <PageBuilder contentId={id!} />
+          </ComponentCard>
+        )}
+
+        {activeTab === 'order' && !isNew && (
+          <ComponentCard title="Kolejność wyświetlania">
+            <ContentDisplayOrder
+              contentId={id!}
+              onEditSection={(section) => {
+                setSelectedSection(section);
+                setEditSectionModalOpen(true);
+              }}
+              onEditComponent={(component) => {
+                setSelectedComponent(component);
+                setEditComponentModalOpen(true);
+              }}
+            />
           </ComponentCard>
         )}
 

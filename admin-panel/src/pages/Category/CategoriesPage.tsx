@@ -55,10 +55,7 @@ export default function CategoriesPage() {
 
   return (
     <>
-      <PageMeta
-        title="Kategorie"
-        description="Zarządzaj kategoriami treści w systemie CMS"
-      />
+      <PageMeta title="Kategorie" description="Zarządzaj kategoriami treści w systemie CMS" />
       <PageBreadcrumb pageTitle="Kategorie" />
 
       <div className="space-y-6">
@@ -188,9 +185,7 @@ export default function CategoriesPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
             <p className="text-sm text-gray-600 dark:text-gray-400">Wszystkie kategorie</p>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
-              {items.length}
-            </p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{items.length}</p>
           </div>
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
             <p className="text-sm text-gray-600 dark:text-gray-400">Aktywne</p>

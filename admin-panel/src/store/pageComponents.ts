@@ -17,6 +17,7 @@ export interface PageComponent {
   component_type: ComponentType;
   data: any;
   order_index: number;
+  display_order: number;
   status: boolean;
   created_at: string;
   updated_at: string;
@@ -85,14 +86,13 @@ export interface TeamComponentData {
   columns?: number;
 }
 
-// ⭐ NOWY - Uproszczony Pricing z usługami
 export interface PricingComponentData {
   title?: string;
   subtitle?: string;
   services: Array<{
     name: string;
     price: string;
-    description?: string; // max 200 znaków
+    description?: string;
     media_id?: string;
   }>;
 }

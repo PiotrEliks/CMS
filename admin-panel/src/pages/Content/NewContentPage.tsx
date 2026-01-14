@@ -63,13 +63,11 @@ export default function NewContentPage() {
 
   return (
     <>
-      <PageMeta title="Dodawanie nowej treści" description="To jest strona dodawania nowej treści w panelu administracyjnym" />
-      <PageBreadcrumb 
-        pageTitle="Nowa Treść" 
-        items={[
-          { label: 'Treści', path: '/contents' }
-        ]}
+      <PageMeta
+        title="Dodawanie nowej treści"
+        description="To jest strona dodawania nowej treści w panelu administracyjnym"
       />
+      <PageBreadcrumb pageTitle="Nowa Treść" items={[{ label: 'Treści', path: '/contents' }]} />
 
       <div className="space-y-6">
         <div className="flex items-center justify-between">

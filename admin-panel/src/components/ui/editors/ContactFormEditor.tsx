@@ -115,7 +115,13 @@ export default function ContactFormEditor({ data, onChange }: ContactFormEditorP
           { type: 'email', name: 'email', label: 'Email', required: true },
           { type: 'tel', name: 'phone', label: 'Telefon', required: false },
           { type: 'text', name: 'company', label: 'Firma', required: false },
-          { type: 'select', name: 'topic', label: 'Temat', required: true, options: ['Oferta', 'Pytanie', 'Wsparcie techniczne', 'Inne'] },
+          {
+            type: 'select',
+            name: 'topic',
+            label: 'Temat',
+            required: true,
+            options: ['Oferta', 'Pytanie', 'Wsparcie techniczne', 'Inne'],
+          },
           { type: 'textarea', name: 'message', label: 'Wiadomość', required: true },
         ];
         break;
@@ -159,18 +165,10 @@ export default function ContactFormEditor({ data, onChange }: ContactFormEditorP
           Szybkie szablony
         </label>
         <div className="flex flex-wrap gap-2">
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => loadTemplate('basic')}
-          >
+          <Button size="sm" variant="outline" onClick={() => loadTemplate('basic')}>
             Podstawowy (3 pola)
           </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => loadTemplate('detailed')}
-          >
+          <Button size="sm" variant="outline" onClick={() => loadTemplate('detailed')}>
             Szczegółowy (6 pól)
           </Button>
         </div>

@@ -1,6 +1,11 @@
 import { PageComponent, ComponentType, ComponentData } from '../models/pageComponent.model.js';
 import { Op } from 'sequelize';
 
+export interface DisplayOrderItem {
+  component_id: string;
+  display_order: number;
+}
+
 export class PageComponentService {
   async getComponentsByContentId(contentId: string, includeInactive = false) {
     const where: any = { content_id: contentId };
@@ -10,7 +15,10 @@ export class PageComponentService {
 
     return await PageComponent.findAll({
       where,
-      order: [['order_index', 'ASC']],
+      order: [
+        ['display_order', 'ASC'],
+        ['order_index', 'ASC'],
+      ],
     });
   }
 
@@ -27,6 +35,7 @@ export class PageComponentService {
     component_type: ComponentType;
     data: ComponentData;
     order_index?: number;
+    display_order?: number;
     status?: boolean;
   }) {
     if (data.order_index === undefined) {
@@ -37,6 +46,15 @@ export class PageComponentService {
       data.order_index = lastComponent ? lastComponent.order_index + 1 : 0;
     }
 
+    if (data.display_order === undefined) {
+      const lastDisplay = await PageComponent.findOne({
+        where: { content_id: data.content_id },
+        order: [['display_order', 'DESC']],
+      });
+      data.display_order =
+        lastDisplay && lastDisplay.display_order !== null ? lastDisplay.display_order + 1 : 0;
+    }
+
     return await PageComponent.create(data);
   }
 
@@ -45,6 +63,7 @@ export class PageComponentService {
     updates: {
       data?: ComponentData;
       order_index?: number;
+      display_order?: number;
       status?: boolean;
     }
   ) {
@@ -55,7 +74,24 @@ export class PageComponentService {
 
   async deleteComponent(componentId: string) {
     const component = await this.getComponentById(componentId);
+
+    const contentId = component.content_id;
+    const deletedDisplay = component.display_order;
+
     await component.destroy();
+
+    if (deletedDisplay !== null && deletedDisplay !== undefined) {
+      await PageComponent.update(
+        { display_order: PageComponent.sequelize!.literal('display_order - 1') },
+        {
+          where: {
+            content_id: contentId,
+            display_order: { [Op.gt]: deletedDisplay },
+          },
+        }
+      );
+    }
+
     return { deleted: true, component_id: componentId };
   }
 
@@ -80,14 +116,46 @@ export class PageComponentService {
     return await this.getComponentsByContentId(contentId);
   }
 
+  async reorderDisplayOrder(contentId: string, items: DisplayOrderItem[]) {
+    const componentIds = items.map((item) => item.component_id);
+    const components = await PageComponent.findAll({
+      where: {
+        content_id: contentId,
+        component_id: { [Op.in]: componentIds },
+      },
+    });
+
+    if (components.length !== items.length) {
+      throw new Error('Some components do not belong to this content');
+    }
+
+    const updates = items.map((item) =>
+      PageComponent.update(
+        { display_order: item.display_order },
+        { where: { component_id: item.component_id } }
+      )
+    );
+
+    await Promise.all(updates);
+
+    return await this.getComponentsByContentId(contentId);
+  }
+
   async duplicateComponent(componentId: string) {
     const original = await this.getComponentById(componentId);
+
+    const lastDisplay = await PageComponent.findOne({
+      where: { content_id: original.content_id },
+      order: [['display_order', 'DESC']],
+    });
 
     const duplicate = await PageComponent.create({
       content_id: original.content_id,
       component_type: original.component_type,
       data: original.data,
       order_index: original.order_index + 1,
+      display_order:
+        lastDisplay && lastDisplay.display_order !== null ? lastDisplay.display_order + 1 : 0,
       status: original.status,
     });
 
@@ -117,7 +185,10 @@ export class PageComponentService {
         content_id: contentId,
         component_type: componentType,
       },
-      order: [['order_index', 'ASC']],
+      order: [
+        ['display_order', 'ASC'],
+        ['order_index', 'ASC'],
+      ],
     });
   }
 
@@ -127,6 +198,7 @@ export class PageComponentService {
       component_type: ComponentType;
       data: ComponentData;
       order_index?: number;
+      display_order?: number;
       status?: boolean;
     }>
   ) {

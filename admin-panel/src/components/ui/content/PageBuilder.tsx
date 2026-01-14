@@ -170,7 +170,45 @@ function getDefaultDataForType(type: ComponentType): any {
         layout: 'grid',
         columns: 3,
       };
-    // TODO: Add other component default data here
+    case 'testimonial':
+      return {
+        title: 'Opinie klientów',
+        items: [{ quote: 'Świetna usługa!', author: 'Jan Kowalski' }],
+        layout: 'slider',
+      };
+    case 'team':
+      return {
+        title: 'Nasz zespół',
+        members: [{ name: 'Anna Nowak', role: 'CEO', bio: '' }],
+      };
+    case 'pricing':
+      return {
+        title: 'Cennik',
+        plans: [{ name: 'Podstawowy', price: '99 PLN', features: ['Funkcja 1', 'Funkcja 2'] }],
+      };
+    case 'hours':
+      return {
+        title: 'Godziny otwarcia',
+        schedule: [
+          { day: 'Poniedziałek', open: '09:00', close: '17:00' },
+          { day: 'Wtorek', open: '09:00', close: '17:00' },
+        ],
+      };
+    case 'contact_form':
+      return {
+        title: 'Skontaktuj się z nami',
+        fields: [
+          { label: 'Imię', type: 'text', required: true },
+          { label: 'Email', type: 'email', required: true },
+          { label: 'Wiadomość', type: 'textarea', required: true },
+        ],
+        submitText: 'Wyślij',
+      };
+    case 'map':
+      return {
+        location: 'Warszawa, Polska',
+        zoom: 12,
+      };
     default:
       return {};
   }

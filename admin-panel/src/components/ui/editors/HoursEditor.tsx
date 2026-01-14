@@ -39,7 +39,10 @@ export default function HoursEditor({ data, onChange }: HoursEditorProps) {
   };
 
   const removeHours = (index: number) => {
-    handleChange('hours', formData.hours.filter((_, i) => i !== index));
+    handleChange(
+      'hours',
+      formData.hours.filter((_, i) => i !== index)
+    );
   };
 
   const loadTemplate = (template: 'weekdays' | 'everyday' | 'weekend') => {
@@ -55,9 +58,7 @@ export default function HoursEditor({ data, onChange }: HoursEditorProps) {
         break;
 
       case 'everyday':
-        hours = [
-          { days: 'Poniedziałek - Niedziela', time: '8:00 - 22:00', closed: false },
-        ];
+        hours = [{ days: 'Poniedziałek - Niedziela', time: '8:00 - 22:00', closed: false }];
         break;
 
       case 'weekend':
@@ -91,25 +92,13 @@ export default function HoursEditor({ data, onChange }: HoursEditorProps) {
           Szybkie szablony
         </label>
         <div className="flex flex-wrap gap-2">
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => loadTemplate('weekdays')}
-          >
+          <Button size="sm" variant="outline" onClick={() => loadTemplate('weekdays')}>
             Dni robocze (Pn-Pt + So)
           </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => loadTemplate('everyday')}
-          >
+          <Button size="sm" variant="outline" onClick={() => loadTemplate('everyday')}>
             Codziennie
           </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => loadTemplate('weekend')}
-          >
+          <Button size="sm" variant="outline" onClick={() => loadTemplate('weekend')}>
             Tylko weekend
           </Button>
         </div>
@@ -225,14 +214,14 @@ export default function HoursEditor({ data, onChange }: HoursEditorProps) {
       </div>
 
       <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-        <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
-          Podgląd
-        </h4>
+        <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Podgląd</h4>
         <div className="space-y-2">
           {formData.hours.map((hour, index) => (
             <div key={index} className="flex justify-between text-sm">
               <span className="text-gray-700 dark:text-gray-300">{hour.days}</span>
-              <span className={`font-medium ${hour.closed ? 'text-red-600' : 'text-gray-900 dark:text-white'}`}>
+              <span
+                className={`font-medium ${hour.closed ? 'text-red-600' : 'text-gray-900 dark:text-white'}`}
+              >
                 {hour.closed ? 'Nieczynne' : hour.time}
               </span>
             </div>

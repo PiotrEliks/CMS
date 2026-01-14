@@ -75,7 +75,10 @@ export default function MenusListPage() {
 
   return (
     <>
-      <PageMeta title="Zarządzanie menu" description="To jest strona zarządzania menu w panelu administracyjnym" />
+      <PageMeta
+        title="Zarządzanie menu"
+        description="To jest strona zarządzania menu w panelu administracyjnym"
+      />
       <PageBreadcrumb pageTitle="Zarządzanie menu" />
 
       <ComponentCard

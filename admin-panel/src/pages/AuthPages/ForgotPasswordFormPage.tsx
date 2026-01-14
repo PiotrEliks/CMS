@@ -21,7 +21,10 @@ export default function ForgotPasswordFormPage() {
 
   return (
     <>
-      <PageMeta title='Zapomniane hasło' description='Strona resetowania hasła w panelu administracyjnym' />
+      <PageMeta
+        title="Zapomniane hasło"
+        description="Strona resetowania hasła w panelu administracyjnym"
+      />
       <div className="h-screen flex flex-col items-center justify-center flex-1">
         <div className="w-full max-w-md p-6 bg-white rounded-xl dark:bg-gray-900">
           <h1 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">

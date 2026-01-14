@@ -95,9 +95,7 @@ export default function CategoryModal({ open, onClose, category, onSuccess }: Ca
                 {isEdit ? 'Edytuj kategorię' : 'Dodaj kategorię'}
               </h3>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                {isEdit
-                  ? 'Zaktualizuj informacje o kategorii'
-                  : 'Utwórz nową kategorię treści'}
+                {isEdit ? 'Zaktualizuj informacje o kategorii' : 'Utwórz nową kategorię treści'}
               </p>
             </div>
             <button

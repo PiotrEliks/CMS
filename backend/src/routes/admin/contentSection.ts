@@ -2,6 +2,7 @@ import { Router } from 'express';
 import * as ContentSectionsController from '../../controllers/site/contentSections.controller.js';
 import { requireAuth } from '../../middlewares/auth.middleware.js';
 import { authorize } from '../../middlewares/authorize.middleware.js';
+import { contentSectionService } from '../../services/contentSection.service.js';
 
 const router = Router({ mergeParams: true });
 
@@ -30,5 +31,18 @@ router.post(
   authorize('content.create'),
   ContentSectionsController.duplicateSection
 );
+
+router.post('/reorder-display', authorize('content.update'), async (req, res) => {
+  try {
+    const { contentId } = req.params;
+    const { items } = req.body;
+
+    const sections = await contentSectionService.reorderDisplayOrder(contentId, items);
+    res.json(sections);
+  } catch (error) {
+    console.error('Error reordering display:', error);
+    res.status(500).json({ message: 'Failed to reorder' });
+  }
+});
 
 export default router;

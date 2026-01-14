@@ -91,7 +91,6 @@ export default function ComponentTypeSelector({
   onClose,
   onSelect,
 }: ComponentTypeSelectorProps) {
-
   if (!open) return null;
 
   return createPortal(

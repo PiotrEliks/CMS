@@ -43,7 +43,10 @@ export default function TestimonialEditor({ data, onChange }: TestimonialEditorP
   };
 
   const removeTestimonial = (index: number) => {
-    handleChange('items', formData.items.filter((_, i) => i !== index));
+    handleChange(
+      'items',
+      formData.items.filter((_, i) => i !== index)
+    );
   };
 
   const renderStars = (rating: number, onChange?: (rating: number) => void) => {

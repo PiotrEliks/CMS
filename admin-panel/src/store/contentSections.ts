@@ -8,6 +8,7 @@ export interface ContentSection {
   content_id: string;
   section_type: SectionType;
   order_index: number;
+  display_order: number;
   heading?: string;
   subheading?: string;
   body?: string;

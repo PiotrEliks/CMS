@@ -32,6 +32,7 @@ export class ContentSection extends Model<
   declare content_id: string;
   declare section_type: SectionType;
   declare order_index: number;
+  declare display_order: number;
   declare heading: string | null;
   declare subheading: string | null;
   declare body: string | null;
@@ -63,6 +64,11 @@ ContentSection.init(
       allowNull: false,
     },
     order_index: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
+    display_order: {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0,

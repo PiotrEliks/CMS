@@ -93,9 +93,7 @@ export const useCategories = create<CategoriesState>((set, get) => ({
     }
 
     set({
-      items: get().items.map((c) =>
-        c.category_id === id ? { ...c, ...data } : c
-      ),
+      items: get().items.map((c) => (c.category_id === id ? { ...c, ...data } : c)),
     });
 
     try {

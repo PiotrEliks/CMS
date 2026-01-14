@@ -11,7 +11,7 @@ import {
   DocsIcon,
   FolderIcon,
   BoltIcon,
-  GridIcon
+  GridIcon,
 } from '../icons';
 import { useSidebar } from '../context/SidebarContext';
 import { useAccess } from '../hooks/useAccess';

@@ -1,5 +1,15 @@
 import { useState } from 'react';
-import { Plus, Trash2, User, Mail, Phone, Linkedin, Twitter, Facebook, Instagram } from 'lucide-react';
+import {
+  Plus,
+  Trash2,
+  User,
+  Mail,
+  Phone,
+  Linkedin,
+  Twitter,
+  Facebook,
+  Instagram,
+} from 'lucide-react';
 import { type TeamComponentData } from '../../../store/pageComponents';
 import Button from '../../ui/button/Button';
 import MediaSelector from '../content/MediaSelector';
@@ -46,7 +56,10 @@ export default function TeamEditor({ data, onChange }: TeamEditorProps) {
   };
 
   const removeMember = (index: number) => {
-    handleChange('members', formData.members.filter((_, i) => i !== index));
+    handleChange(
+      'members',
+      formData.members.filter((_, i) => i !== index)
+    );
   };
 
   const updateSocial = (memberIndex: number, platform: string, value: string) => {
@@ -150,12 +163,8 @@ export default function TeamEditor({ data, onChange }: TeamEditorProps) {
                       <User className="w-6 h-6 text-gray-400" />
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-900 dark:text-white">
-                        {member.name}
-                      </h4>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {member.role}
-                      </p>
+                      <h4 className="font-medium text-gray-900 dark:text-white">{member.name}</h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{member.role}</p>
                     </div>
                   </div>
                   <button

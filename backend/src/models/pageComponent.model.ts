@@ -80,14 +80,13 @@ export interface TeamComponentData {
   columns?: number;
 }
 
-// ⭐ NOWY - Uproszczony Pricing z usługami
 export interface PricingComponentData {
   title?: string;
   subtitle?: string;
   services: Array<{
     name: string;
     price: string;
-    description?: string; // max 200 znaków
+    description?: string;
     media_id?: string;
   }>;
 }
@@ -147,6 +146,7 @@ export class PageComponent extends Model<
   declare component_type: ComponentType;
   declare data: ComponentData;
   declare order_index: number;
+  declare display_order: number;
   declare status: boolean;
   declare created_at: CreationOptional<Date>;
   declare updated_at: CreationOptional<Date>;
@@ -177,7 +177,7 @@ PageComponent.init(
         'pricing',
         'hours',
         'contact_form',
-        'map',
+        'map'
       ),
       allowNull: false,
     },
@@ -187,6 +187,11 @@ PageComponent.init(
       defaultValue: {},
     },
     order_index: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
+    display_order: {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0,

@@ -45,7 +45,10 @@ const PageBreadcrumb: React.FC<BreadcrumbProps> = ({ pageTitle, items = [] }) =>
           {items.map((item, index) => (
             <li key={index}>
               {item.path ? (
-                <Link className="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400" to={item.path}>
+                <Link
+                  className="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400"
+                  to={item.path}
+                >
                   {item.label}
                   <svg
                     className="stroke-current"

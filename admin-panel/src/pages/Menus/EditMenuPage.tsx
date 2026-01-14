@@ -83,11 +83,9 @@ export default function EditMenuPage() {
   return (
     <>
       <PageMeta title={isNew ? 'Utwórz menu' : `Edycja: ${formData.name}`} description="" />
-      <PageBreadcrumb 
-        pageTitle={isNew ? 'Utwórz menu' : 'Edytuj menu'} 
-        items={[
-          { label: 'Zarządzanie menu', path: '/menus' }
-        ]}
+      <PageBreadcrumb
+        pageTitle={isNew ? 'Utwórz menu' : 'Edytuj menu'}
+        items={[{ label: 'Zarządzanie menu', path: '/menus' }]}
       />
 
       <div className="space-y-6">

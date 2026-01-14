@@ -245,8 +245,10 @@ export class MenuService {
       throw new Error('Menu item not found');
     }
 
-    const newContentId = updates.content_id !== undefined ? updates.content_id : menuItem.content_id;
-    const newExternalUrl = updates.external_url !== undefined ? updates.external_url : menuItem.external_url;
+    const newContentId =
+      updates.content_id !== undefined ? updates.content_id : menuItem.content_id;
+    const newExternalUrl =
+      updates.external_url !== undefined ? updates.external_url : menuItem.external_url;
 
     if (newContentId && newExternalUrl) {
       throw new Error('Menu item cannot have both content_id and external_url');
@@ -276,12 +278,12 @@ export class MenuService {
     }
 
     const updateData: any = {};
-    
+
     if (updates.label !== undefined) updateData.label = updates.label;
     if (updates.status !== undefined) updateData.status = updates.status;
     if (updates.order_index !== undefined) updateData.order_index = updates.order_index;
     if (updates.parent_id !== undefined) updateData.parent_id = updates.parent_id;
-    
+
     if (updates.content_id !== undefined) {
       updateData.content_id = updates.content_id;
     }

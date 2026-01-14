@@ -43,7 +43,10 @@ export default function PricingEditor({ data, onChange }: PricingEditorProps) {
   };
 
   const removeService = (index: number) => {
-    handleChange('services', formData.services.filter((_, i) => i !== index));
+    handleChange(
+      'services',
+      formData.services.filter((_, i) => i !== index)
+    );
   };
 
   const getRemainingChars = (text: string) => {
@@ -113,12 +116,8 @@ export default function PricingEditor({ data, onChange }: PricingEditorProps) {
                       <DollarSign className="w-6 h-6 text-gray-400" />
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-900 dark:text-white">
-                        {service.name}
-                      </h4>
-                      <p className="text-lg font-bold text-primary">
-                        {service.price} zł
-                      </p>
+                      <h4 className="font-medium text-gray-900 dark:text-white">{service.name}</h4>
+                      <p className="text-lg font-bold text-primary">{service.price} zł</p>
                     </div>
                   </div>
                   <button
