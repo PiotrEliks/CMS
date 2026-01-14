@@ -5,6 +5,12 @@ import Button from '../../ui/button/Button';
 import { type PageComponent, usePageComponents } from '../../../store/pageComponents';
 import HeroEditor from '../editors/HeroEditor';
 import ServicesEditor from '../editors/ServicesEditor';
+import MapEditor from '../editors/MapEditor';
+import ContactFormEditor from '../editors/ContactFormEditor';
+import TestimonialEditor from '../editors/TestimonialEditor';
+import HoursEditor from '../editors/HoursEditor';
+import PricingEditor from '../editors/PricingEditor';
+import TeamEditor from '../editors/TeamEditor';
 
 interface ComponentEditModalProps {
   open: boolean;
@@ -73,28 +79,32 @@ export default function ComponentEditModal({
         return <HeroEditor {...editorProps} />;
       case 'services':
         return <ServicesEditor {...editorProps} />;
-      // TODO: Add other component editors here
+      case 'map':
+        return <MapEditor {...editorProps} />;
+      case 'contact_form':
+        return <ContactFormEditor {...editorProps} />;
+      case 'testimonial':
+        return <TestimonialEditor {...editorProps} />;
+      case 'team':
+        return <TeamEditor {...editorProps} />;
+      case 'pricing':
+        return <PricingEditor {...editorProps} />;
+      case 'hours':
+        return <HoursEditor {...editorProps} />;
       default:
-        return <div className="text-center py-8 text-gray-500">Unknown component type</div>;
+        return <div className="text-center py-8 text-gray-500">Nieznany typ komponentu</div>;
     }
   };
 
   const componentLabels: Record<string, string> = {
-    hero: 'Hero Slider',
-    services: 'Services',
-    testimonial: 'Testimonials',
-    cta: 'Call to Action',
-    team: 'Team',
-    pricing: 'Pricing',
-    hours: 'Opening Hours',
-    features: 'Features',
-    gallery_advanced: 'Gallery',
-    accordion: 'Accordion',
-    tabs: 'Tabs',
-    stats: 'Statistics',
-    contact_form: 'Contact Form',
-    map: 'Map',
-    newsletter: 'Newsletter',
+    hero: 'Slider',
+    services: 'Usługi',
+    testimonial: 'Opinie',
+    team: 'Zespół',
+    pricing: 'Cennik',
+    hours: 'Godziny otwarcia',
+    contact_form: 'Formularz kontaktowy',
+    map: 'Mapa',
   };
 
   return createPortal(
@@ -109,10 +119,10 @@ export default function ComponentEditModal({
           <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
             <div>
               <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                {isNew ? 'Create' : 'Edit'} {componentLabels[component.component_type]}
+                {isNew ? 'Utwórz' : 'Edytuj'} {componentLabels[component.component_type]}
               </h3>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                Configure your component settings and content
+                Skonfiguruj ustawienia tego komponentu
               </p>
             </div>
             <button
@@ -134,16 +144,16 @@ export default function ComponentEditModal({
                 className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
               />
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Component visible
+                Komponent widoczny na stronie
               </span>
             </label>
 
             <div className="flex items-center gap-3">
               <Button variant="outline" onClick={onClose} disabled={loading}>
-                Cancel
+                Anuluj
               </Button>
               <Button variant="primary" onClick={handleSave} disabled={loading}>
-                {loading ? 'Saving...' : isNew ? 'Create Component' : 'Save Changes'}
+                {loading ? 'Zapisywanie...' : isNew ? 'Utwórz komponent' : 'Zapisz zmiany'}
               </Button>
             </div>
           </div>

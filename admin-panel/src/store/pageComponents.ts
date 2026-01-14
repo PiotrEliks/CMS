@@ -1,8 +1,15 @@
 import { create } from 'zustand';
 import { api } from '../api/axios';
 
-export type ComponentType = 'hero' | 'services';
-// TODO: Add other component types here
+export type ComponentType =
+  | 'hero'
+  | 'services'
+  | 'testimonial'
+  | 'team'
+  | 'pricing'
+  | 'hours'
+  | 'contact_form'
+  | 'map';
 
 export interface PageComponent {
   component_id: string;
@@ -57,18 +64,6 @@ export interface TestimonialComponentData {
   layout?: 'slider' | 'grid' | 'masonry';
 }
 
-export interface CTAComponentData {
-  title: string;
-  description?: string;
-  buttonText: string;
-  buttonLink: string;
-  secondaryButtonText?: string;
-  secondaryButtonLink?: string;
-  backgroundMediaId?: string;
-  backgroundColor?: string;
-  textColor?: string;
-}
-
 export interface TeamComponentData {
   title?: string;
   subtitle?: string;
@@ -90,20 +85,16 @@ export interface TeamComponentData {
   columns?: number;
 }
 
+// ⭐ NOWY - Uproszczony Pricing z usługami
 export interface PricingComponentData {
   title?: string;
   subtitle?: string;
-  plans: Array<{
+  services: Array<{
     name: string;
     price: string;
-    period?: string;
-    description?: string;
-    features: string[];
-    buttonText?: string;
-    buttonLink?: string;
-    highlighted?: boolean;
+    description?: string; // max 200 znaków
+    media_id?: string;
   }>;
-  billingToggle?: boolean;
 }
 
 export interface HoursComponentData {
@@ -113,60 +104,33 @@ export interface HoursComponentData {
     time: string;
     closed?: boolean;
   }>;
-  timezone?: string;
   specialNote?: string;
 }
 
-export interface FeaturesComponentData {
+export interface ContactFormComponentData {
   title?: string;
   subtitle?: string;
-  items: Array<{
-    icon?: string;
-    title: string;
-    description?: string;
-    media_id?: string;
-  }>;
-  layout?: 'grid' | 'list';
-  columns?: number;
-}
-
-export interface StatsComponentData {
-  title?: string;
-  items: Array<{
-    number: string;
+  fields: Array<{
+    type: 'text' | 'email' | 'tel' | 'textarea' | 'select' | 'checkbox';
+    name: string;
     label: string;
-    suffix?: string;
-    prefix?: string;
-    description?: string;
+    placeholder?: string;
+    required?: boolean;
+    options?: string[];
   }>;
-  backgroundColor?: string;
+  submitText?: string;
+  successMessage?: string;
+  emailTo?: string;
 }
 
-export interface AccordionComponentData {
+export interface MapComponentData {
   title?: string;
-  items: Array<{
-    question: string;
-    answer: string;
-    defaultOpen?: boolean;
-  }>;
-}
-
-export interface TabsComponentData {
-  title?: string;
-  tabs: Array<{
-    label: string;
-    content: string;
-    media_id?: string;
-  }>;
-}
-
-export interface GalleryAdvancedComponentData {
-  title?: string;
-  media_ids: string[];
-  layout?: 'grid' | 'masonry' | 'carousel' | 'justified';
-  columns?: number;
-  lightbox?: boolean;
-  captions?: boolean;
+  latitude: number;
+  longitude: number;
+  zoom?: number;
+  marker?: boolean;
+  markerTitle?: string;
+  height?: string;
 }
 
 interface PageComponentsState {

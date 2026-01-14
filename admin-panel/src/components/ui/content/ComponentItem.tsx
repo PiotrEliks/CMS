@@ -106,7 +106,7 @@ export default function ComponentItem({ component, onEdit, showInactive }: Compo
           </button>
 
           <div className="p-2 bg-primary/10 rounded-lg">
-            <Icon className="w-5 h-5 text-primary" />
+            <Icon className="w-5 h-5 text-primary dark:text-white" />
           </div>
 
           <div className="flex-1 min-w-0">

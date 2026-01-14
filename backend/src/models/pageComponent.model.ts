@@ -7,8 +7,15 @@ import {
 } from 'sequelize';
 import { sequelize } from '../db/sequelize.js';
 
-export type ComponentType = 'hero' | 'services';
-// TODO: Add other component types here
+export type ComponentType =
+  | 'hero'
+  | 'services'
+  | 'testimonial'
+  | 'team'
+  | 'pricing'
+  | 'hours'
+  | 'contact_form'
+  | 'map';
 
 export interface HeroComponentData {
   slides: Array<{
@@ -39,8 +46,97 @@ export interface ServicesComponentData {
   columns?: number;
 }
 
-export type ComponentData = HeroComponentData | ServicesComponentData;
-// TODO: Add other component data types here
+export interface TestimonialComponentData {
+  title?: string;
+  items: Array<{
+    quote: string;
+    author: string;
+    role?: string;
+    company?: string;
+    rating?: number;
+    media_id?: string;
+  }>;
+  layout?: 'slider' | 'grid' | 'masonry';
+}
+
+export interface TeamComponentData {
+  title?: string;
+  subtitle?: string;
+  members: Array<{
+    name: string;
+    role: string;
+    bio?: string;
+    media_id?: string;
+    email?: string;
+    phone?: string;
+    social?: {
+      linkedin?: string;
+      twitter?: string;
+      facebook?: string;
+      instagram?: string;
+    };
+  }>;
+  layout?: 'grid' | 'list';
+  columns?: number;
+}
+
+// ⭐ NOWY - Uproszczony Pricing z usługami
+export interface PricingComponentData {
+  title?: string;
+  subtitle?: string;
+  services: Array<{
+    name: string;
+    price: string;
+    description?: string; // max 200 znaków
+    media_id?: string;
+  }>;
+}
+
+export interface HoursComponentData {
+  title?: string;
+  hours: Array<{
+    days: string;
+    time: string;
+    closed?: boolean;
+  }>;
+  specialNote?: string;
+}
+
+export interface ContactFormComponentData {
+  title?: string;
+  subtitle?: string;
+  fields: Array<{
+    type: 'text' | 'email' | 'tel' | 'textarea' | 'select' | 'checkbox';
+    name: string;
+    label: string;
+    placeholder?: string;
+    required?: boolean;
+    options?: string[];
+  }>;
+  submitText?: string;
+  successMessage?: string;
+  emailTo?: string;
+}
+
+export interface MapComponentData {
+  title?: string;
+  latitude: number;
+  longitude: number;
+  zoom?: number;
+  marker?: boolean;
+  markerTitle?: string;
+  height?: string;
+}
+
+export type ComponentData =
+  | HeroComponentData
+  | ServicesComponentData
+  | TestimonialComponentData
+  | TeamComponentData
+  | PricingComponentData
+  | HoursComponentData
+  | ContactFormComponentData
+  | MapComponentData;
 
 export class PageComponent extends Model<
   InferAttributes<PageComponent>,
@@ -75,8 +171,13 @@ PageComponent.init(
     component_type: {
       type: DataTypes.ENUM(
         'hero',
-        'services'
-        // TODO: Add other component types here
+        'services',
+        'testimonial',
+        'team',
+        'pricing',
+        'hours',
+        'contact_form',
+        'map',
       ),
       allowNull: false,
     },
