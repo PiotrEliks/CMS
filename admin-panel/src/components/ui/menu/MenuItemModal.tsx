@@ -19,6 +19,7 @@ interface Content {
   title: string;
   slug: string;
   type: string;
+  status: string;
 }
 
 interface MenuItemEditModalProps {
@@ -150,8 +151,8 @@ export default function MenuItemEditModal({
 
   const filteredContents = contents.filter(
     (c) =>
-      c.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.slug.toLowerCase().includes(searchTerm.toLowerCase())
+      (c.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      c.slug.toLowerCase().includes(searchTerm.toLowerCase())) && c.status === 'P'
   );
 
   return createPortal(
