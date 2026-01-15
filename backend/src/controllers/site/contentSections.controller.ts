@@ -1,8 +1,21 @@
 import { Request, Response } from 'express';
 import { contentSectionService } from '../../services/contentSection.service.js';
+import { Content } from '../../models/index.js';
 
 const asyncHandler = (fn: Function) => (req: Request, res: Response, next: Function) => {
   Promise.resolve(fn(req, res, next)).catch(next);
+};
+
+const updateContentEditInfo = async (contentId: string, userId: string) => {
+  await Content.update(
+    {
+      updated_by: userId,
+      updated_at: new Date(),
+    },
+    {
+      where: { content_id: contentId },
+    }
+  );
 };
 
 export const getSections = asyncHandler(async (req: Request, res: Response) => {
@@ -59,6 +72,11 @@ export const createSection = asyncHandler(async (req: Request, res: Response) =>
       order_index,
     });
 
+    const userId = (req as any).user?.user_id || (req as any).user?.sub;
+    if (userId) {
+      await updateContentEditInfo(contentId, userId);
+    }
+
     return res.status(201).json({ section });
   } catch (error: any) {
     console.error('Error creating section:', error);
@@ -70,7 +88,7 @@ export const createSection = asyncHandler(async (req: Request, res: Response) =>
 });
 
 export const updateSection = asyncHandler(async (req: Request, res: Response) => {
-  const { sectionId } = req.params;
+  const { contentId, sectionId } = req.params;
   const { section_type, heading, subheading, body, media_ids, settings, status, order_index } =
     req.body;
 
@@ -86,6 +104,11 @@ export const updateSection = asyncHandler(async (req: Request, res: Response) =>
       order_index,
     });
 
+    const userId = (req as any).user?.user_id || (req as any).user?.sub;
+    if (userId && contentId) {
+      await updateContentEditInfo(contentId, userId);
+    }
+
     return res.json({ section });
   } catch (error: any) {
     console.error('Error updating section:', error);
@@ -97,10 +120,19 @@ export const updateSection = asyncHandler(async (req: Request, res: Response) =>
 });
 
 export const deleteSection = asyncHandler(async (req: Request, res: Response) => {
-  const { sectionId } = req.params;
+  const { contentId, sectionId } = req.params;
 
   try {
+    const section = await contentSectionService.getSectionById(sectionId);
+    const actualContentId = section.content_id;
+
     await contentSectionService.deleteSection(sectionId);
+
+    const userId = (req as any).user?.user_id || (req as any).user?.sub;
+    if (userId) {
+      await updateContentEditInfo(actualContentId, userId);
+    }
+
     return res.json({ ok: true, message: 'Section deleted successfully' });
   } catch (error: any) {
     console.error('Error deleting section:', error);
@@ -129,6 +161,12 @@ export const reorderSections = asyncHandler(async (req: Request, res: Response) 
 
   try {
     const sections = await contentSectionService.reorderSections(contentId, items);
+
+    const userId = (req as any).user?.user_id || (req as any).user?.sub;
+    if (userId) {
+      await updateContentEditInfo(contentId, userId);
+    }
+
     return res.json({ sections });
   } catch (error: any) {
     console.error('Error reordering sections:', error);
@@ -140,10 +178,16 @@ export const reorderSections = asyncHandler(async (req: Request, res: Response) 
 });
 
 export const duplicateSection = asyncHandler(async (req: Request, res: Response) => {
-  const { sectionId } = req.params;
+  const { contentId, sectionId } = req.params;
 
   try {
     const section = await contentSectionService.duplicateSection(sectionId);
+
+    const userId = (req as any).user?.user_id || (req as any).user?.sub;
+    if (userId) {
+      await updateContentEditInfo(section.content_id, userId);
+    }
+
     return res.status(201).json({ section });
   } catch (error: any) {
     console.error('Error duplicating section:', error);

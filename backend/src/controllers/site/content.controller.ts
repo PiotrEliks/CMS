@@ -1,7 +1,18 @@
 import { Request, Response } from 'express';
 import { asyncHandler } from '../../utils/asyncHandler.js';
-import { contentService } from '../../services/content.service.js';
-import { Category, User } from '../../models/index.js';
+import { contentService, ContentFilters } from '../../services/content.service.js';
+
+const toStartOfDay = (dateString: string): Date => {
+  const date = new Date(dateString);
+  date.setUTCHours(0, 0, 0, 0);
+  return date;
+};
+
+const toEndOfDay = (dateString: string): Date => {
+  const date = new Date(dateString);
+  date.setUTCHours(23, 59, 59, 999);
+  return date;
+};
 
 export const createContent = asyncHandler(async (req: Request, res: Response) => {
   const { title, body, lead, meta_description, meta_keywords, meta_title, slug, status } = req.body;
@@ -18,8 +29,8 @@ export const createContent = asyncHandler(async (req: Request, res: Response) =>
     meta_keywords: meta_keywords || '',
     meta_title: meta_title || title,
     slug: slug || '',
-    status: status || 'draft',
-    created_by: (req as any).user?.sub,
+    status: status || 'D',
+    created_by: (req as any).user?.user_id || (req as any).user?.sub,
   });
 
   return res.status(201).json(content);
@@ -28,7 +39,7 @@ export const createContent = asyncHandler(async (req: Request, res: Response) =>
 export const getContent = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
 
-  const content = await contentService.findById(id);
+  const content = await contentService.getWithAssociations(id);
 
   if (!content) {
     return res.status(404).json({ error: 'Content not found' });
@@ -53,17 +64,39 @@ export const listContents = asyncHandler(async (req: Request, res: Response) => 
   const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
   const offset = parseInt(req.query.offset as string) || 0;
 
-  const { items, total } = await contentService.list({
-    where: {},
-    limit,
-    offset,
-    include: [
-      { model: Category, as: 'categories' },
-      { model: User, as: 'creator', attributes: ['user_id', 'display_name'] },
-    ],
+  const filters: ContentFilters = {
+    title: req.query.title as string,
+    status: req.query.status as string,
+    created_by: req.query.created_by as string,
+    updated_by: req.query.updated_by as string,
+  };
+
+  if (req.query.created_from) {
+    filters.created_from = toStartOfDay(req.query.created_from as string).toISOString();
+  }
+  if (req.query.created_to) {
+    filters.created_to = toEndOfDay(req.query.created_to as string).toISOString();
+  }
+  if (req.query.updated_from) {
+    filters.updated_from = toStartOfDay(req.query.updated_from as string).toISOString();
+  }
+  if (req.query.updated_to) {
+    filters.updated_to = toEndOfDay(req.query.updated_to as string).toISOString();
+  }
+
+  Object.keys(filters).forEach((key) => {
+    if (filters[key as keyof ContentFilters] === undefined) {
+      delete filters[key as keyof ContentFilters];
+    }
   });
 
-  return res.json({ items, total, limit, offset });
+  const result = await contentService.listWithEditInfo({
+    limit,
+    offset,
+    filters,
+  });
+
+  return res.json(result);
 });
 
 export const listPublishedContents = asyncHandler(async (req: Request, res: Response) => {
@@ -91,21 +124,19 @@ export const updateContent = asyncHandler(async (req: Request, res: Response) =>
     slug,
     status,
     cover_media_id,
-    author,
   } = req.body;
 
   const content = await contentService.update(id, {
     title,
     body,
     lead,
-    author,
     cover_media_id,
     meta_description,
     meta_keywords,
     meta_title,
     slug,
     status,
-    updated_by: (req as any).user?.sub,
+    updated_by: (req as any).user?.user_id || (req as any).user?.sub,
   } as any);
 
   if (!content) {

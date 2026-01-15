@@ -5,10 +5,13 @@ import PageBreadcrumb from '../../components/common/PageBreadCrumb';
 import PageMeta from '../../components/common/PageMeta';
 import Button from '../../ui/button/Button';
 import { api } from '../../api/axios';
+import { useAlerts } from '../../store/alerts';
 
 export default function NewContentPage() {
   const navigate = useNavigate();
   const [saving, setSaving] = useState(false);
+
+  const { showAlert } = useAlerts();
 
   const [formData, setFormData] = useState({
     title: '',
@@ -42,7 +45,12 @@ export default function NewContentPage() {
 
   const handleCreate = async () => {
     if (!formData.title || !formData.slug) {
-      alert('Tytuł i slug są wymagane');
+      showAlert({
+        variant: 'error',
+        title: 'Tytuł i slug są wymagane',
+        message: 'Treść nie została utworzona.',
+        duration: 3000,
+      });
       return;
     }
 
@@ -51,7 +59,13 @@ export default function NewContentPage() {
       const res = await api.post('/contents', formData);
       const newContentId = res.data.content_id;
 
-      alert('Treść utworzona!');
+      showAlert({
+        variant: 'success',
+        title: 'Utworzono treśc',
+        message: 'Treść została utworzona.',
+        duration: 3000,
+      });
+
       navigate(`/contents/${newContentId}/edit`);
     } catch (error: any) {
       console.error('Failed to create content:', error);

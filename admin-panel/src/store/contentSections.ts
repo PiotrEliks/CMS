@@ -162,7 +162,7 @@ export const useContentSections = create<ContentSectionsState>((set, get) => ({
   toggleSectionStatus: async (sectionId) => {
     set({ loading: true, error: null });
     try {
-      const res = await api.patch(`/sections/${sectionId}/toggle`);
+      const res = await api.put(`/contents/sections/${sectionId}/toggle`);
       const toggled = res.data;
 
       set((state) => ({

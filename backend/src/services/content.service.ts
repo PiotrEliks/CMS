@@ -1,10 +1,21 @@
 import { Op } from 'sequelize';
-import { Content, Category, Media, User } from '../models/index.js';
+import { Content, Category, Media, User, ContentSection, PageComponent } from '../models/index.js';
 import { BaseService } from './types/BaseService.js';
 import { IPublishable } from './types/IPublishable.js';
 import { ISluggable } from './types/ISluggable.js';
 import { FindOptions, PaginationOptions } from './types/IRepository.js';
 import { stringToSlug, makeSlugUnique } from '../utils/slugger.js';
+
+export interface ContentFilters {
+  title?: string;
+  status?: string;
+  created_by?: string;
+  updated_by?: string;
+  created_from?: string;
+  created_to?: string;
+  updated_from?: string;
+  updated_to?: string;
+}
 
 export class ContentService extends BaseService<Content> implements IPublishable, ISluggable {
   constructor() {
@@ -68,6 +79,128 @@ export class ContentService extends BaseService<Content> implements IPublishable
     }
 
     return await super.update(id, data as any);
+  }
+
+  private buildWhereClause(filters: ContentFilters) {
+    const where: any = {};
+
+    if (filters.title) {
+      where.title = { [Op.iLike]: `%${filters.title}%` };
+    }
+
+    if (filters.status) {
+      where.status = filters.status;
+    }
+
+    if (filters.created_by) {
+      where.created_by = filters.created_by;
+    }
+
+    if (filters.updated_by) {
+      where.updated_by = filters.updated_by;
+    }
+
+    if (filters.created_from) {
+      where.created_at = {
+        ...(where.created_at || {}),
+        [Op.gte]: new Date(filters.created_from),
+      };
+    }
+
+    if (filters.created_to) {
+      where.created_at = {
+        ...(where.created_at || {}),
+        [Op.lte]: new Date(filters.created_to),
+      };
+    }
+
+    if (filters.updated_from) {
+      where.updated_at = {
+        ...(where.updated_at || {}),
+        [Op.gte]: new Date(filters.updated_from),
+      };
+    }
+
+    if (filters.updated_to) {
+      where.updated_at = {
+        ...(where.updated_at || {}),
+        [Op.lte]: new Date(filters.updated_to),
+      };
+    }
+
+    return where;
+  }
+
+  async listWithEditInfo(options: PaginationOptions & { filters?: ContentFilters } = {}) {
+    const { limit = 20, offset = 0, filters = {} } = options;
+
+    const where = this.buildWhereClause(filters);
+
+    const contents = await Content.findAll({
+      where,
+      include: [
+        {
+          model: User,
+          as: 'creator',
+          attributes: ['user_id', 'display_name', 'email'],
+        },
+        {
+          model: User,
+          as: 'updater',
+          attributes: ['user_id', 'display_name', 'email'],
+        },
+      ],
+      limit,
+      offset,
+      order: [['created_at', 'DESC']],
+    });
+
+    const contentsWithEditInfo = await Promise.all(
+      contents.map(async (content) => {
+        const contentData = content.toJSON() as any;
+
+        const lastSectionEdit = await ContentSection.findOne({
+          where: { content_id: content.content_id },
+          order: [['updated_at', 'DESC']],
+          limit: 1,
+          attributes: ['updated_at'],
+        });
+
+        const lastComponentEdit = await PageComponent.findOne({
+          where: { content_id: content.content_id },
+          order: [['updated_at', 'DESC']],
+          limit: 1,
+          attributes: ['updated_at'],
+        });
+
+        const dates = [
+          content.updated_at,
+          lastSectionEdit?.updated_at,
+          lastComponentEdit?.updated_at,
+        ].filter(Boolean);
+
+        const lastEditDate =
+          dates.length > 0
+            ? new Date(Math.max(...dates.map((d) => d!.getTime())))
+            : content.updated_at;
+
+        return {
+          ...contentData,
+          last_edit_date: lastEditDate,
+          has_sections: !!lastSectionEdit,
+          has_components: !!lastComponentEdit,
+        };
+      })
+    );
+
+    const total = await Content.count({ where });
+
+    return {
+      items: contentsWithEditInfo,
+      total,
+      limit,
+      offset,
+    };
   }
 
   async getBySlug(slug: string) {
