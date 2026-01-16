@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
-import { PlusIcon, PencilIcon, TrashBinIcon, EyeIcon } from '../../icons'
-import { X, ListFilter, Calendar } from 'lucide-react'
+import { PlusIcon, PencilIcon, TrashBinIcon } from '../../icons'
+import { X, ListFilter, EyeIcon } from 'lucide-react'
 import PageBreadcrumb from '../../components/common/PageBreadCrumb'
 import PageMeta from '../../components/common/PageMeta'
 import ComponentCard from '../../components/common/ComponentCard'
@@ -273,11 +273,11 @@ export default function ContentsListPage() {
         title="Zarządzanie Treścią"
         description="Lista wszystkich treści w systemie"
       />
-      <PageBreadcrumb pageTitle="Treści" />
+      <PageBreadcrumb pageTitle="Zarządzanie Treścią" />
 
       <div className="space-y-6">
         <ComponentCard
-          title="Wszystkie Treści"
+          title="Treści"
           button={
             <div className="flex gap-2">
               <Button
@@ -334,7 +334,7 @@ export default function ContentsListPage() {
                   >
                     <option value="">Wszystkie</option>
                     <option value="P">Opublikowane</option>
-                    <option value="D">Szkic</option>
+                    <option value="D">Nieopublikowane</option>
                   </select>
                 </div>
 
@@ -474,7 +474,9 @@ export default function ContentsListPage() {
               {appliedFilters.status && (
                 <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded bg-primary-100 text-primary-800 dark:bg-primary-900/30 dark:text-primary-400">
                   Status:{' '}
-                  {appliedFilters.status === 'P' ? 'Opublikowane' : 'Szkic'}
+                  {appliedFilters.status === 'P'
+                    ? 'Opublikowane'
+                    : 'Nieopublikowane'}
                 </span>
               )}
               {appliedFilters.created_by && (
@@ -608,7 +610,9 @@ export default function ContentsListPage() {
                                 : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400'
                             }`}
                           >
-                            {content.status === 'P' ? 'Opublikowane' : 'Szkic'}
+                            {content.status === 'P'
+                              ? 'Opublikowane'
+                              : 'Nieopublikowane'}
                           </span>
                         </td>
                         <td className="py-3 px-4">
@@ -669,15 +673,11 @@ export default function ContentsListPage() {
                         </td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <Access allOf={['content.read_any']}>
+                            <Access allOf={['content.read']}>
                               <Link
                                 to={`/contents/${content.content_id}/preview`}
                               >
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  title="Podgląd"
-                                >
+                                <Button size="sm" variant="outline">
                                   <EyeIcon className="w-4 h-4" />
                                 </Button>
                               </Link>
@@ -685,11 +685,7 @@ export default function ContentsListPage() {
 
                             <Access allOf={['content.update_any']}>
                               <Link to={`/contents/${content.content_id}/edit`}>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  title="Edytuj"
-                                >
+                                <Button size="sm" variant="outline">
                                   <PencilIcon className="w-4 h-4" />
                                 </Button>
                               </Link>

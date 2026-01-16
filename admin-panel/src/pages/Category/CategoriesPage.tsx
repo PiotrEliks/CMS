@@ -1,14 +1,6 @@
 import { useState, useEffect } from 'react'
-import {
-  Plus,
-  Edit,
-  Trash2,
-  Eye,
-  EyeOff,
-  ListFilter,
-  Calendar,
-  X,
-} from 'lucide-react'
+import { Plus, Eye, EyeOff, ListFilter, Calendar, X } from 'lucide-react'
+import { PencilIcon, TrashBinIcon } from '../../icons'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import PageMeta from '../../components/common/PageMeta'
@@ -20,6 +12,7 @@ import CategoryModal from '../../components/ui/categories/CategoryModal'
 import DeleteConfirmModal from '../../components/modal/DeleteConfirmModal'
 import { useUsers } from '../../store/users'
 import type { Category } from '../../store/categories'
+import { Access } from '../../components/permissions/Access'
 
 interface Filters {
   display_name: string
@@ -125,11 +118,6 @@ export default function CategoriesPage() {
   const handleEdit = (category: Category) => {
     setSelectedCategory(category)
     setModalOpen(true)
-  }
-
-  const handleDelete = (category: Category) => {
-    setCategoryToDelete(category)
-    setDeleteModalOpen(true)
   }
 
   const confirmDelete = async () => {
@@ -249,60 +237,68 @@ export default function CategoriesPage() {
     return pages
   }
 
+  const handleOpenFilterPanel = async (showFilters: boolean) => {
+    setShowFilters(showFilters)
+    if (showFilters) {
+      await fetchUsers()
+    }
+  }
+
+  const getActiveFiltersCount = () => {
+    let count = 0
+    if (appliedFilters.display_name) count++
+    if (appliedFilters.status) count++
+    if (appliedFilters.created_by) count++
+    if (appliedFilters.updated_by) count++
+    if (appliedFilters.created_from) count++
+    if (appliedFilters.created_to) count++
+    if (appliedFilters.updated_from) count++
+    if (appliedFilters.updated_to) count++
+    return count
+  }
+
   return (
     <>
       <PageMeta
-        title="Kategorie"
+        title="Zarządzanie kategoriami"
         description="Zarządzaj kategoriami treści w systemie CMS"
       />
       <PageBreadcrumb pageTitle="Kategorie" />
 
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Kategorie
-            </h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              Zarządzaj kategoriami treści
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              variant={showFilters ? 'primary' : 'outline'}
-              startIcon={<ListFilter />}
-              onClick={() => setShowFilters(!showFilters)}
-            >
-              Filtry{' '}
-              {hasActiveFilters &&
-                `(${Object.values(appliedFilters).filter((v) => v !== '' && v !== null).length})`}
-            </Button>
-            <Button
-              variant="primary"
-              startIcon={<Plus />}
-              onClick={handleCreate}
-            >
-              Dodaj kategorię
-            </Button>
-          </div>
-        </div>
-
-        {showFilters && (
-          <ComponentCard>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Filtry
-                </h3>
-                <button
-                  onClick={() => setShowFilters(false)}
-                  className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+        <ComponentCard
+          title="Kategorie"
+          button={
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant={showFilters ? 'primary' : 'outline'}
+                startIcon={showFilters ? <X /> : <ListFilter />}
+                onClick={() => handleOpenFilterPanel(!showFilters)}
+              >
+                {showFilters ? 'Ukryj filtry' : 'Filtry'}
+                {hasActiveFilters && !showFilters && (
+                  <span className="ml-1 px-1.5 py-0.5 text-xs bg-primary-600 text-white rounded-full">
+                    {getActiveFiltersCount()}
+                  </span>
+                )}
+              </Button>
+              <Access allOf={['category.create']}>
+                <Button
+                  size="sm"
+                  variant="primary"
+                  startIcon={<Plus />}
+                  onClick={handleCreate}
                 >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  Dodaj kategorię
+                </Button>
+              </Access>
+            </div>
+          }
+        >
+          {showFilters && (
+            <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Nazwa kategorii
@@ -314,7 +310,7 @@ export default function CategoriesPage() {
                       handleFilterChange('display_name', e.target.value)
                     }
                     placeholder="Szukaj po nazwie..."
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+                    className="w-full rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white"
                   />
                 </div>
 
@@ -327,7 +323,7 @@ export default function CategoriesPage() {
                     onChange={(e) =>
                       handleFilterChange('status', e.target.value)
                     }
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+                    className="w-full rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white"
                   >
                     <option value="">Wszystkie</option>
                     <option value="true">Aktywne</option>
@@ -344,7 +340,7 @@ export default function CategoriesPage() {
                     onChange={(e) =>
                       handleFilterChange('created_by', e.target.value)
                     }
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+                    className="w-full rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white"
                   >
                     <option value="">Wszyscy</option>
                     {users.map((user) => (
@@ -364,7 +360,7 @@ export default function CategoriesPage() {
                     onChange={(e) =>
                       handleFilterChange('updated_by', e.target.value)
                     }
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+                    className="w-full rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white"
                   >
                     <option value="">Wszyscy</option>
                     {users.map((user) => (
@@ -377,7 +373,6 @@ export default function CategoriesPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    <Calendar className="w-4 h-4 inline mr-1" />
                     Utworzone od
                   </label>
                   <DatePicker
@@ -385,31 +380,36 @@ export default function CategoriesPage() {
                     onChange={(date) =>
                       handleFilterChange('created_from', date)
                     }
-                    dateFormat="yyyy-MM-dd"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+                    dateFormat="dd.MM.yyyy"
                     placeholderText="Wybierz datę"
+                    className="w-full rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white"
                     isClearable
+                    showMonthDropdown
+                    showYearDropdown
+                    dropdownMode="select"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    <Calendar className="w-4 h-4 inline mr-1" />
                     Utworzone do
                   </label>
                   <DatePicker
                     selected={filters.created_to}
                     onChange={(date) => handleFilterChange('created_to', date)}
-                    dateFormat="yyyy-MM-dd"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+                    dateFormat="dd.MM.yyyy"
                     placeholderText="Wybierz datę"
+                    className="w-full rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white"
                     isClearable
+                    showMonthDropdown
+                    showYearDropdown
+                    dropdownMode="select"
+                    minDate={filters.created_from || undefined}
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    <Calendar className="w-4 h-4 inline mr-1" />
                     Zaktualizowane od
                   </label>
                   <DatePicker
@@ -417,111 +417,181 @@ export default function CategoriesPage() {
                     onChange={(date) =>
                       handleFilterChange('updated_from', date)
                     }
-                    dateFormat="yyyy-MM-dd"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+                    dateFormat="dd.MM.yyyy"
                     placeholderText="Wybierz datę"
+                    className="w-full rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white"
                     isClearable
+                    showMonthDropdown
+                    showYearDropdown
+                    dropdownMode="select"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    <Calendar className="w-4 h-4 inline mr-1" />
                     Zaktualizowane do
                   </label>
                   <DatePicker
                     selected={filters.updated_to}
                     onChange={(date) => handleFilterChange('updated_to', date)}
-                    dateFormat="yyyy-MM-dd"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+                    dateFormat="dd.MM.yyyy"
                     placeholderText="Wybierz datę"
+                    className="w-full rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white"
                     isClearable
+                    showMonthDropdown
+                    showYearDropdown
+                    dropdownMode="select"
+                    minDate={filters.updated_from || undefined}
                   />
                 </div>
               </div>
 
-              <div className="flex gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
-                <Button variant="primary" onClick={applyFilters}>
+              <div className="flex gap-2 mt-4">
+                <Button size="sm" variant="primary" onClick={applyFilters}>
                   Zastosuj filtry
                 </Button>
-                <Button variant="outline" onClick={clearFilters}>
+                <Button size="sm" variant="outline" onClick={clearFilters}>
                   Wyczyść filtry
                 </Button>
               </div>
             </div>
-          </ComponentCard>
-        )}
+          )}
 
-        <ComponentCard>
+          {hasActiveFilters && !showFilters && (
+            <div className="mb-4 flex flex-wrap gap-2">
+              {appliedFilters.display_name && (
+                <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded bg-primary-100 text-primary-800 dark:bg-primary-900/30 dark:text-primary-400">
+                  Nazwa: {appliedFilters.display_name}
+                </span>
+              )}
+              {appliedFilters.status && (
+                <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded bg-primary-100 text-primary-800 dark:bg-primary-900/30 dark:text-primary-400">
+                  Status:{' '}
+                  {appliedFilters.status === 'true' ? 'Aktywne' : 'Nieaktywne'}
+                </span>
+              )}
+              {appliedFilters.created_by && (
+                <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded bg-primary-100 text-primary-800 dark:bg-primary-900/30 dark:text-primary-400">
+                  Utworzył:{' '}
+                  {users.find((u) => u.user_id === appliedFilters.created_by)
+                    ?.display_name || appliedFilters.created_by}
+                </span>
+              )}
+              {appliedFilters.updated_by && (
+                <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded bg-primary-100 text-primary-800 dark:bg-primary-900/30 dark:text-primary-400">
+                  Zaktualizowane przez:{' '}
+                  {users.find((u) => u.user_id === appliedFilters.updated_by)
+                    ?.display_name || appliedFilters.updated_by}
+                </span>
+              )}
+              {appliedFilters.created_from && (
+                <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded bg-primary-100 text-primary-800 dark:bg-primary-900/30 dark:text-primary-400">
+                  Utworzone od:{' '}
+                  {appliedFilters.created_from.toLocaleDateString('pl-PL')}
+                </span>
+              )}
+              {appliedFilters.created_to && (
+                <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded bg-primary-100 text-primary-800 dark:bg-primary-900/30 dark:text-primary-400">
+                  Utworzone do:{' '}
+                  {appliedFilters.created_to.toLocaleDateString('pl-PL')}
+                </span>
+              )}
+              {appliedFilters.updated_from && (
+                <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded bg-primary-100 text-primary-800 dark:bg-primary-900/30 dark:text-primary-400">
+                  Zaktualizowane od:{' '}
+                  {appliedFilters.updated_from.toLocaleDateString('pl-PL')}
+                </span>
+              )}
+              {appliedFilters.updated_to && (
+                <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded bg-primary-100 text-primary-800 dark:bg-primary-900/30 dark:text-primary-400">
+                  Zaktualizowane do:{' '}
+                  {appliedFilters.updated_to.toLocaleDateString('pl-PL')}
+                </span>
+              )}
+            </div>
+          )}
+
           {loading ? (
-            <div className="p-8 text-center">
-              <div className="inline-block w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-              <p className="text-gray-600 dark:text-gray-400 mt-2">
-                Ładowanie...
-              </p>
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
             </div>
           ) : items.length === 0 ? (
-            <div className="p-8 text-center">
-              <p className="text-gray-600 dark:text-gray-400">
+            <div className="text-center py-12">
+              <p className="text-gray-500 dark:text-gray-400 mb-4">
                 {hasActiveFilters
-                  ? 'Nie znaleziono kategorii'
-                  : 'Brak kategorii'}
+                  ? 'Nie znaleziono kategorii spełniających kryteria wyszukiwania.'
+                  : 'Brak kategorii. Utwórz pierwszą kategorię aby rozpocząć.'}
               </p>
+              {hasActiveFilters ? (
+                <Button variant="outline" onClick={clearFilters}>
+                  Wyczyść filtry
+                </Button>
+              ) : (
+                <Access allOf={['category.create']}>
+                  <Button
+                    variant="primary"
+                    startIcon={<Plus />}
+                    onClick={handleCreate}
+                  >
+                    Dodaj kategorię
+                  </Button>
+                </Access>
+              )}
             </div>
           ) : (
             <>
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <thead>
+                    <tr className="border-b border-gray-200 dark:border-gray-700">
+                      <th className="text-left py-3 px-4 font-semibold text-sm text-gray-700 dark:text-gray-300">
                         Nazwa
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <th className="text-left py-3 px-4 font-semibold text-sm text-gray-700 dark:text-gray-300">
                         Slug
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <th className="text-left py-3 px-4 font-semibold text-sm text-gray-700 dark:text-gray-300">
                         Status
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <th className="text-left py-3 px-4 font-semibold text-sm text-gray-700 dark:text-gray-300">
                         Utworzone przez
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <th className="text-left py-3 px-4 font-semibold text-sm text-gray-700 dark:text-gray-300">
                         Data utworzenia
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <th className="text-left py-3 px-4 font-semibold text-sm text-gray-700 dark:text-gray-300">
                         Zaktualizowane przez
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <th className="text-left py-3 px-4 font-semibold text-sm text-gray-700 dark:text-gray-300">
                         Data aktualizacji
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <th className="text-right py-3 px-4 font-semibold text-sm text-gray-700 dark:text-gray-300">
                         Akcje
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                  <tbody>
                     {items.map((category) => (
                       <tr
                         key={category.category_id}
-                        className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                        className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/50"
                       >
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="py-3 px-4">
                           <div className="font-medium text-gray-900 dark:text-white">
                             {category.display_name}
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="py-3 px-4">
                           <div className="text-sm text-gray-600 dark:text-gray-400 font-mono">
                             /{category.slug}
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="py-3 px-4">
                           <span
-                            className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${
+                            className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${
                               category.status
                                 ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                                : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-400'
+                                : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400'
                             }`}
                           >
                             {category.status ? (
@@ -537,7 +607,7 @@ export default function CategoriesPage() {
                             )}
                           </span>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="py-3 px-4">
                           {category.creator ? (
                             <div className="text-sm">
                               <div className="font-medium text-gray-900 dark:text-white">
@@ -553,7 +623,7 @@ export default function CategoriesPage() {
                             </span>
                           )}
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="py-3 px-4">
                           <div className="text-sm text-gray-600 dark:text-gray-400">
                             {formatDate(category.created_at)}
                           </div>
@@ -561,7 +631,7 @@ export default function CategoriesPage() {
                             {getTimeSince(category.created_at)}
                           </div>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="py-3 px-4">
                           {category.updater ? (
                             <div className="text-sm">
                               <div className="font-medium text-gray-900 dark:text-white">
@@ -577,7 +647,7 @@ export default function CategoriesPage() {
                             </span>
                           )}
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="py-3 px-4">
                           {category.updater === null ? (
                             <span className="text-sm text-gray-400 dark:text-gray-500">
                               -
@@ -593,25 +663,31 @@ export default function CategoriesPage() {
                             </>
                           )}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              startIcon={<Edit />}
-                              onClick={() => handleEdit(category)}
-                            >
-                              Edytuj
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              startIcon={<Trash2 />}
-                              onClick={() => handleDelete(category)}
-                              className="text-red-600 hover:text-red-700 hover:border-red-600"
-                            >
-                              Usuń
-                            </Button>
+                            <Access allOf={['category.update_any']}>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleEdit(category)}
+                              >
+                                <PencilIcon className="w-4 h-4" />
+                              </Button>
+                            </Access>
+
+                            <Access allOf={['category.delete_any']}>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  setCategoryToDelete(category)
+                                  setDeleteModalOpen(true)
+                                }}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                              >
+                                <TrashBinIcon className="w-4 h-4" />
+                              </Button>
+                            </Access>
                           </div>
                         </td>
                       </tr>
@@ -735,7 +811,7 @@ export default function CategoriesPage() {
 
       <DeleteConfirmModal
         open={deleteModalOpen}
-        onClose={() => {
+        onCancel={() => {
           setDeleteModalOpen(false)
           setCategoryToDelete(null)
         }}

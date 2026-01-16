@@ -1,15 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import {
-  Plus,
-  Edit,
-  Trash2,
-  Eye,
-  EyeOff,
-  ListFilter,
-  Calendar,
-  X,
-} from 'lucide-react'
+import { Plus, Eye, EyeOff, ListFilter, Calendar, X } from 'lucide-react'
+import { PencilIcon, TrashBinIcon } from '../../icons'
 import { Menu as MenuIcon } from 'lucide-react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
@@ -21,6 +13,7 @@ import DeleteConfirmModal from '../../components/modal/DeleteConfirmModal'
 import { useMenus } from '../../store/menus'
 import { useUsers } from '../../store/users'
 import type { Menu } from '../../store/menus'
+import { Access } from '../../components/permissions/Access'
 
 interface Filters {
   name: string
@@ -236,197 +229,185 @@ export default function MenusListPage() {
       <PageBreadcrumb pageTitle="Zarządzanie menu" />
 
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Menu
-            </h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              Zarządzaj menu nawigacyjnymi
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              variant={showFilters ? 'primary' : 'outline'}
-              startIcon={<ListFilter />}
-              onClick={() => setShowFilters(!showFilters)}
-            >
-              Filtry{' '}
-              {hasActiveFilters &&
-                `(${Object.values(appliedFilters).filter((v) => v !== '' && v !== null).length})`}
-            </Button>
-            <Link to="/menus/new">
-              <Button variant="primary" startIcon={<Plus />}>
-                Utwórz Menu
-              </Button>
-            </Link>
-          </div>
-        </div>
-
-        {showFilters && (
-          <ComponentCard>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Filtry
-                </h3>
-                <button
-                  onClick={() => setShowFilters(false)}
-                  className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+        <ComponentCard
+          title="Lista Menu"
+          button={
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div className="flex gap-2">
+                <Button
+                  variant={showFilters ? 'primary' : 'outline'}
+                  startIcon={showFilters ? <X /> : <ListFilter />}
+                  onClick={() => setShowFilters(!showFilters)}
                 >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Nazwa menu
-                  </label>
-                  <input
-                    type="text"
-                    value={filters.name}
-                    onChange={(e) => handleFilterChange('name', e.target.value)}
-                    placeholder="Szukaj po nazwie..."
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Status
-                  </label>
-                  <select
-                    value={filters.status}
-                    onChange={(e) =>
-                      handleFilterChange('status', e.target.value)
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
-                  >
-                    <option value="">Wszystkie</option>
-                    <option value="true">Aktywne</option>
-                    <option value="false">Nieaktywne</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Utworzone przez
-                  </label>
-                  <select
-                    value={filters.created_by}
-                    onChange={(e) =>
-                      handleFilterChange('created_by', e.target.value)
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
-                  >
-                    <option value="">Wszyscy</option>
-                    {users.map((user) => (
-                      <option key={user.user_id} value={user.user_id}>
-                        {user.display_name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Zaktualizowane przez
-                  </label>
-                  <select
-                    value={filters.updated_by}
-                    onChange={(e) =>
-                      handleFilterChange('updated_by', e.target.value)
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
-                  >
-                    <option value="">Wszyscy</option>
-                    {users.map((user) => (
-                      <option key={user.user_id} value={user.user_id}>
-                        {user.display_name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    <Calendar className="w-4 h-4 inline mr-1" />
-                    Utworzone od
-                  </label>
-                  <DatePicker
-                    selected={filters.created_from}
-                    onChange={(date) =>
-                      handleFilterChange('created_from', date)
-                    }
-                    dateFormat="yyyy-MM-dd"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
-                    placeholderText="Wybierz datę"
-                    isClearable
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    <Calendar className="w-4 h-4 inline mr-1" />
-                    Utworzone do
-                  </label>
-                  <DatePicker
-                    selected={filters.created_to}
-                    onChange={(date) => handleFilterChange('created_to', date)}
-                    dateFormat="yyyy-MM-dd"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
-                    placeholderText="Wybierz datę"
-                    isClearable
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    <Calendar className="w-4 h-4 inline mr-1" />
-                    Zaktualizowane od
-                  </label>
-                  <DatePicker
-                    selected={filters.updated_from}
-                    onChange={(date) =>
-                      handleFilterChange('updated_from', date)
-                    }
-                    dateFormat="yyyy-MM-dd"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
-                    placeholderText="Wybierz datę"
-                    isClearable
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    <Calendar className="w-4 h-4 inline mr-1" />
-                    Zaktualizowane do
-                  </label>
-                  <DatePicker
-                    selected={filters.updated_to}
-                    onChange={(date) => handleFilterChange('updated_to', date)}
-                    dateFormat="yyyy-MM-dd"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
-                    placeholderText="Wybierz datę"
-                    isClearable
-                  />
-                </div>
-              </div>
-
-              <div className="flex gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
-                <Button variant="primary" onClick={applyFilters}>
-                  Zastosuj filtry
+                  {showFilters ? 'Ukryj filtry' : 'Filtry'}
+                  {hasActiveFilters &&
+                    `(${Object.values(appliedFilters).filter((v) => v !== '' && v !== null).length})`}
                 </Button>
-                <Button variant="outline" onClick={clearFilters}>
-                  Wyczyść filtry
-                </Button>
+                <Link to="/menus/new">
+                  <Button variant="primary" startIcon={<Plus />}>
+                    Utwórz Menu
+                  </Button>
+                </Link>
               </div>
             </div>
-          </ComponentCard>
-        )}
+          }
+        >
+          {showFilters && (
+            <ComponentCard title="">
+              <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Nazwa menu
+                    </label>
+                    <input
+                      type="text"
+                      value={filters.name}
+                      onChange={(e) =>
+                        handleFilterChange('name', e.target.value)
+                      }
+                      placeholder="Szukaj po nazwie..."
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+                    />
+                  </div>
 
-        <ComponentCard>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Status
+                    </label>
+                    <select
+                      value={filters.status}
+                      onChange={(e) =>
+                        handleFilterChange('status', e.target.value)
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+                    >
+                      <option value="">Wszystkie</option>
+                      <option value="true">Aktywne</option>
+                      <option value="false">Nieaktywne</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Utworzone przez
+                    </label>
+                    <select
+                      value={filters.created_by}
+                      onChange={(e) =>
+                        handleFilterChange('created_by', e.target.value)
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+                    >
+                      <option value="">Wszyscy</option>
+                      {users.map((user) => (
+                        <option key={user.user_id} value={user.user_id}>
+                          {user.display_name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Zaktualizowane przez
+                    </label>
+                    <select
+                      value={filters.updated_by}
+                      onChange={(e) =>
+                        handleFilterChange('updated_by', e.target.value)
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+                    >
+                      <option value="">Wszyscy</option>
+                      {users.map((user) => (
+                        <option key={user.user_id} value={user.user_id}>
+                          {user.display_name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      <Calendar className="w-4 h-4 inline mr-1" />
+                      Utworzone od
+                    </label>
+                    <DatePicker
+                      selected={filters.created_from}
+                      onChange={(date) =>
+                        handleFilterChange('created_from', date)
+                      }
+                      dateFormat="yyyy-MM-dd"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+                      placeholderText="Wybierz datę"
+                      isClearable
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      <Calendar className="w-4 h-4 inline mr-1" />
+                      Utworzone do
+                    </label>
+                    <DatePicker
+                      selected={filters.created_to}
+                      onChange={(date) =>
+                        handleFilterChange('created_to', date)
+                      }
+                      dateFormat="yyyy-MM-dd"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+                      placeholderText="Wybierz datę"
+                      isClearable
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      <Calendar className="w-4 h-4 inline mr-1" />
+                      Zaktualizowane od
+                    </label>
+                    <DatePicker
+                      selected={filters.updated_from}
+                      onChange={(date) =>
+                        handleFilterChange('updated_from', date)
+                      }
+                      dateFormat="yyyy-MM-dd"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+                      placeholderText="Wybierz datę"
+                      isClearable
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      <Calendar className="w-4 h-4 inline mr-1" />
+                      Zaktualizowane do
+                    </label>
+                    <DatePicker
+                      selected={filters.updated_to}
+                      onChange={(date) =>
+                        handleFilterChange('updated_to', date)
+                      }
+                      dateFormat="yyyy-MM-dd"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+                      placeholderText="Wybierz datę"
+                      isClearable
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <Button variant="primary" onClick={applyFilters}>
+                    Zastosuj filtry
+                  </Button>
+                  <Button variant="outline" onClick={clearFilters}>
+                    Wyczyść filtry
+                  </Button>
+                </div>
+              </div>
+            </ComponentCard>
+          )}
           {loading ? (
             <div className="p-8 text-center">
               <div className="inline-block w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
@@ -448,41 +429,41 @@ export default function MenusListPage() {
             <>
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <thead>
+                    <tr className="border-b border-gray-200 dark:border-gray-700">
+                      <th className="text-left py-3 px-4 font-semibold text-sm text-gray-700 dark:text-gray-300">
                         Nazwa
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <th className="text-left py-3 px-4 font-semibold text-sm text-gray-700 dark:text-gray-300">
                         Kod
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <th className="text-left py-3 px-4 font-semibold text-sm text-gray-700 dark:text-gray-300">
                         Status
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <th className="text-left py-3 px-4 font-semibold text-sm text-gray-700 dark:text-gray-300">
                         Utworzone przez
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <th className="text-left py-3 px-4 font-semibold text-sm text-gray-700 dark:text-gray-300">
                         Data utworzenia
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <th className="text-left py-3 px-4 font-semibold text-sm text-gray-700 dark:text-gray-300">
                         Zaktualizowane przez
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <th className="text-left py-3 px-4 font-semibold text-sm text-gray-700 dark:text-gray-300">
                         Data aktualizacji
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <th className="text-right py-3 px-4 font-semibold text-sm text-gray-700 dark:text-gray-300">
                         Akcje
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                  <tbody>
                     {items.map((menu) => (
                       <tr
                         key={menu.menu_id}
-                        className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                        className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/50"
                       >
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="py-3 px-4">
                           <div className="flex items-center">
                             <MenuIcon className="w-5 h-5 text-gray-400 mr-3" />
                             <div className="font-medium text-gray-900 dark:text-white">
@@ -490,12 +471,12 @@ export default function MenusListPage() {
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="py-3 px-4">
                           <code className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">
                             {menu.code}
                           </code>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="py-3 px-4">
                           <span
                             className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${
                               menu.status
@@ -516,7 +497,7 @@ export default function MenusListPage() {
                             )}
                           </span>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="py-3 px-4">
                           {menu.creator ? (
                             <div className="text-sm">
                               <div className="font-medium text-gray-900 dark:text-white">
@@ -532,7 +513,7 @@ export default function MenusListPage() {
                             </span>
                           )}
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="py-3 px-4">
                           <div className="text-sm text-gray-600 dark:text-gray-400">
                             {formatDate(menu.created_at)}
                           </div>
@@ -540,7 +521,7 @@ export default function MenusListPage() {
                             {getTimeSince(menu.created_at)}
                           </div>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="py-3 px-4">
                           {menu.updater ? (
                             <div className="text-sm">
                               <div className="font-medium text-gray-900 dark:text-white">
@@ -556,45 +537,37 @@ export default function MenusListPage() {
                             </span>
                           )}
                         </td>
-                        <td className="px-6 py-4">
-                          {menu.updater ? (
-                            <div className="text-sm">
-                              <div className="text-sm text-gray-600 dark:text-gray-400">
-                                {formatDate(menu.updated_at)}
-                              </div>
-                              <div className="text-xs text-gray-400 dark:text-gray-500">
-                                {getTimeSince(menu.updated_at)}
-                              </div>
-                            </div>
-                          ) : (
-                            <span className="text-sm text-gray-400 dark:text-gray-500">
-                              -
-                            </span>
-                          )}
+                        <td className="py-3 px-4">
+                          <div className="text-sm text-gray-600 dark:text-gray-400">
+                            {formatDate(menu.updated_at)}
+                          </div>
+                          <div className="text-xs text-gray-400 dark:text-gray-500">
+                            {getTimeSince(menu.updated_at)}
+                          </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <Link to={`/menus/${menu.menu_id}`}>
+                            <Access allOf={['content.update_any']}>
+                              <Link to={`/menus/${menu.menu_id}`}>
+                                <Button size="sm" variant="outline">
+                                  <PencilIcon className="w-4 h-4" />
+                                </Button>
+                              </Link>
+                            </Access>
+
+                            <Access allOf={['content.delete_any']}>
                               <Button
                                 size="sm"
                                 variant="outline"
-                                startIcon={<Edit />}
+                                onClick={() => {
+                                  setSelectedMenu(menu)
+                                  setDeleteModalOpen(true)
+                                }}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
                               >
-                                Edytuj
+                                <TrashBinIcon className="w-4 h-4" />
                               </Button>
-                            </Link>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              startIcon={<Trash2 />}
-                              onClick={() => {
-                                setSelectedMenu(menu)
-                                setDeleteModalOpen(true)
-                              }}
-                              className="text-red-600 hover:text-red-700 hover:border-red-600"
-                            >
-                              Usuń
-                            </Button>
+                            </Access>
                           </div>
                         </td>
                       </tr>
