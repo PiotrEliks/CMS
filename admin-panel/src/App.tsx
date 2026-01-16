@@ -24,130 +24,127 @@ import SiteSettingsPage from './pages/Settings/SiteSettingsPage'
 import CategoriesPage from './pages/Category/CategoriesPage'
 
 export default function App() {
-    const { checkAuth, user, loading } = useAuth()
-    const location = useLocation()
+  const { checkAuth, user, loading } = useAuth()
+  const location = useLocation()
 
-    useEffect(() => {
-        checkAuth()
-        attach401Interceptor(() => {
-            window.location.href = '/login'
-        })
-    }, [])
+  useEffect(() => {
+    checkAuth()
+    attach401Interceptor(() => {
+      window.location.href = '/login'
+    })
+  }, [])
 
-    const isPublicPath =
-        location.pathname === '/login' ||
-        location.pathname === '/forgot-password' ||
-        location.pathname.startsWith('/reset-password')
+  const isPublicPath =
+    location.pathname === '/login' ||
+    location.pathname === '/forgot-password' ||
+    location.pathname.startsWith('/reset-password')
 
-    if (loading) {
-        return null
-    }
+  if (loading) {
+    return null
+  }
 
-    if (!user && !isPublicPath) {
-        return <Navigate to="/login" replace />
-    }
+  if (!user && !isPublicPath) {
+    return <Navigate to="/login" replace />
+  }
 
-    if (user && location.pathname === '/login') {
-        return <Navigate to="/" replace />
-    }
+  if (user && location.pathname === '/login') {
+    return <Navigate to="/" replace />
+  }
 
-    return (
-        <>
-            <ScrollToTop />
-            <AlertContainer />
-            <Routes>
-                <Route element={<AppLayout loading={loading} />}>
-                    <Route
-                        path="/"
-                        element={
-                            <ProtectedRoute>
-                                <HomePage />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/profile"
-                        element={
-                            <ProtectedRoute>
-                                <UserProfilePage />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/users"
-                        element={
-                            <ProtectedRoute>
-                                <UsersPage />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/roles"
-                        element={
-                            <ProtectedRoute>
-                                <RolesPage />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/media"
-                        element={
-                            <ProtectedRoute>
-                                <MediaPage />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/contents"
-                        element={
-                            <ProtectedRoute>
-                                <ContentsListPage />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/contents/new"
-                        element={
-                            <ProtectedRoute>
-                                <NewContentPage />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/contents/:id/edit"
-                        element={
-                            <ProtectedRoute>
-                                <EditContentPage />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/contents/:id/preview"
-                        element={<ContentPreviewPage />}
-                    />
-                    <Route path="/menus" element={<MenusListPage />} />
-                    <Route path="/menus/:id" element={<EditMenuPage />} />
-                    <Route path="/settings" element={<SiteSettingsPage />} />
-                    <Route
-                        path="/categories"
-                        element={
-                            <ProtectedRoute>
-                                <CategoriesPage />
-                            </ProtectedRoute>
-                        }
-                    />
-                </Route>
-                <Route
-                    path="/forgot-password"
-                    element={<ForgotPasswordFormPage />}
-                />
-                <Route
-                    path="/reset-password/:token"
-                    element={<ResetPasswordFormPage />}
-                />
-                <Route path="/login" element={<SignInPage />} />
-                <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-        </>
-    )
+  return (
+    <>
+      <ScrollToTop />
+      <AlertContainer />
+      <Routes>
+        <Route element={<AppLayout loading={loading} />}>
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <HomePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <UserProfilePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/users"
+            element={
+              <ProtectedRoute>
+                <UsersPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/roles"
+            element={
+              <ProtectedRoute>
+                <RolesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/media"
+            element={
+              <ProtectedRoute>
+                <MediaPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/contents"
+            element={
+              <ProtectedRoute>
+                <ContentsListPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/contents/new"
+            element={
+              <ProtectedRoute>
+                <NewContentPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/contents/:id/edit"
+            element={
+              <ProtectedRoute>
+                <EditContentPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/contents/:id/preview"
+            element={<ContentPreviewPage />}
+          />
+          <Route path="/menus" element={<MenusListPage />} />
+          <Route path="/menus/:id" element={<EditMenuPage />} />
+          <Route path="/settings" element={<SiteSettingsPage />} />
+          <Route
+            path="/categories"
+            element={
+              <ProtectedRoute>
+                <CategoriesPage />
+              </ProtectedRoute>
+            }
+          />
+        </Route>
+        <Route path="/forgot-password" element={<ForgotPasswordFormPage />} />
+        <Route
+          path="/reset-password/:token"
+          element={<ResetPasswordFormPage />}
+        />
+        <Route path="/login" element={<SignInPage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </>
+  )
 }

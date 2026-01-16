@@ -10,87 +10,84 @@ import DeleteConfirmModal from '../../components/modal/DeleteConfirmModal'
 import { Access } from '../../components/permissions/Access'
 
 export default function UsersTable() {
-    const { deleteUser } = useUsers()
+  const { deleteUser } = useUsers()
 
-    const [isModalOpen, setIsModalOpen] = useState(false)
-    const [editingUser, setEditingUser] = useState<User | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingUser, setEditingUser] = useState<User | null>(null)
 
-    const [deleteModalOpen, setDeleteModalOpen] = useState(false)
-    const [userToDelete, setUserToDelete] = useState<User | null>(null)
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [userToDelete, setUserToDelete] = useState<User | null>(null)
 
-    const handleCreateNew = () => {
-        setEditingUser(null)
-        setIsModalOpen(true)
+  const handleCreateNew = () => {
+    setEditingUser(null)
+    setIsModalOpen(true)
+  }
+
+  const handleEditUser = (user: User) => {
+    setEditingUser(user)
+    setIsModalOpen(true)
+  }
+
+  const askDeleteUser = (user: User) => {
+    setUserToDelete(user)
+    setDeleteModalOpen(true)
+  }
+
+  const confirmDelete = async () => {
+    if (!userToDelete) return
+
+    try {
+      await deleteUser(userToDelete.user_id)
+    } finally {
+      setDeleteModalOpen(false)
+      setUserToDelete(null)
     }
+  }
 
-    const handleEditUser = (user: User) => {
-        setEditingUser(user)
-        setIsModalOpen(true)
-    }
+  const cancelDelete = () => {
+    setDeleteModalOpen(false)
+    setUserToDelete(null)
+  }
 
-    const askDeleteUser = (user: User) => {
-        setUserToDelete(user)
-        setDeleteModalOpen(true)
-    }
+  return (
+    <>
+      <div className="space-y-6">
+        <ComponentCard
+          title="Użytkownicy"
+          button={
+            <Access allOf={['users.create']}>
+              <Button
+                size="sm"
+                variant="primary"
+                startIcon={<UserIcon />}
+                onClick={handleCreateNew}
+              >
+                Utwórz nowego
+              </Button>
+            </Access>
+          }
+        >
+          <UserTableOne onEdit={handleEditUser} onDelete={askDeleteUser} />
+        </ComponentCard>
+      </div>
 
-    const confirmDelete = async () => {
-        if (!userToDelete) return
+      <UserFormModal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        userToEdit={editingUser}
+      />
 
-        try {
-            await deleteUser(userToDelete.user_id)
-        } finally {
-            setDeleteModalOpen(false)
-            setUserToDelete(null)
+      <DeleteConfirmModal
+        open={deleteModalOpen}
+        onCancel={cancelDelete}
+        onConfirm={confirmDelete}
+        title="Usuń użytkownika"
+        message={
+          userToDelete
+            ? `Czy na pewno chcesz usunąć użytkownika "${userToDelete.email}"?`
+            : 'Czy na pewno chcesz usunąć ten element?'
         }
-    }
-
-    const cancelDelete = () => {
-        setDeleteModalOpen(false)
-        setUserToDelete(null)
-    }
-
-    return (
-        <>
-            <div className="space-y-6">
-                <ComponentCard
-                    title="Użytkownicy"
-                    button={
-                        <Access allOf={['users.create']}>
-                            <Button
-                                size="sm"
-                                variant="primary"
-                                startIcon={<UserIcon />}
-                                onClick={handleCreateNew}
-                            >
-                                Utwórz nowego
-                            </Button>
-                        </Access>
-                    }
-                >
-                    <UserTableOne
-                        onEdit={handleEditUser}
-                        onDelete={askDeleteUser}
-                    />
-                </ComponentCard>
-            </div>
-
-            <UserFormModal
-                open={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                userToEdit={editingUser}
-            />
-
-            <DeleteConfirmModal
-                open={deleteModalOpen}
-                onCancel={cancelDelete}
-                onConfirm={confirmDelete}
-                title="Usuń użytkownika"
-                message={
-                    userToDelete
-                        ? `Czy na pewno chcesz usunąć użytkownika "${userToDelete.email}"?`
-                        : 'Czy na pewno chcesz usunąć ten element?'
-                }
-            />
-        </>
-    )
+      />
+    </>
+  )
 }

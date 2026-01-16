@@ -24,7 +24,7 @@ router.use('/components', pageComponentRouter)
 router.use('/settings', settingsRouter)
 
 router.get('/', (_req, res) => {
-    res.json({ scope: 'admin' })
+  res.json({ scope: 'admin' })
 })
 
 export default router

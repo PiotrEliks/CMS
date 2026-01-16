@@ -6,10 +6,10 @@ import * as PermissionsController from '../../controllers/site/permissions.contr
 const router = Router()
 
 router.get(
-    '/',
-    requireAuth,
-    authorize('roles.assign_permissions'),
-    PermissionsController.listPermissions
+  '/',
+  requireAuth,
+  authorize('roles.assign_permissions'),
+  PermissionsController.listPermissions
 )
 
 export default router

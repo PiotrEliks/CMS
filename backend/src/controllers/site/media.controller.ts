@@ -8,260 +8,247 @@ import { generatePdfThumbnail } from '../../utils/generatePdfThumbnail.js'
 const FRONTEND_URL = process.env.FRONTEND_URL
 
 export const uploadMultipleMedia = asyncHandler(
-    async (req: Request, res: Response) => {
-        const files = (req as any).files as Express.Multer.File[] | undefined
+  async (req: Request, res: Response) => {
+    const files = (req as any).files as Express.Multer.File[] | undefined
 
-        if (!files || files.length === 0) {
-            return res.status(400).json({ error: 'Brak plików (field: files)' })
-        }
-
-        console.log(`[BULK UPLOAD] Uploading ${files.length} files`)
-
-        const results: any[] = []
-        const errors: any[] = []
-
-        for (const file of files) {
-            try {
-                const folder = path.basename(path.dirname(file.path))
-                const storage_path = `/uploads/${folder}/${file.filename}`
-                const fullPath = file.path
-                const mime_type = file.mimetype
-
-                const url = FRONTEND_URL
-                    ? `${FRONTEND_URL}${storage_path}`
-                    : null
-
-                let thumbnail_path: string | null = null
-                if (mime_type === 'application/pdf') {
-                    try {
-                        const thumbnailsDir = path.resolve(
-                            process.cwd(),
-                            'uploads',
-                            'thumbnails'
-                        )
-                        await fs.mkdir(thumbnailsDir, { recursive: true })
-                        const thumbFilename = await generatePdfThumbnail(
-                            fullPath,
-                            thumbnailsDir
-                        )
-                        thumbnail_path = `/uploads/thumbnails/${thumbFilename}`
-                    } catch (thumbError) {
-                        console.warn(
-                            `Failed to generate thumbnail for ${file.originalname}:`,
-                            thumbError
-                        )
-                    }
-                }
-
-                const media = await mediaService.createFromUpload({
-                    filename: file.originalname,
-                    mime_type: file.mimetype,
-                    file_size: file.size,
-                    storage_path,
-                    url,
-                    thumbnail_path,
-                    alt_text: null,
-                    title: file.originalname,
-                    uploaded_by: (req as any).user?.user_id ?? null,
-                })
-
-                results.push({
-                    success: true,
-                    media,
-                    originalName: file.originalname,
-                })
-
-                console.log(`[BULK UPLOAD] ✓ ${file.originalname}`)
-            } catch (error: any) {
-                console.error(
-                    `[BULK UPLOAD] ✗ ${file.originalname}:`,
-                    error.message
-                )
-
-                errors.push({
-                    success: false,
-                    originalName: file.originalname,
-                    error: error.message || 'Upload failed',
-                })
-            }
-        }
-
-        return res.status(201).json({
-            total: files.length,
-            success: results.length,
-            failed: errors.length,
-            results,
-            errors,
-        })
+    if (!files || files.length === 0) {
+      return res.status(400).json({ error: 'Brak plików (field: files)' })
     }
+
+    console.log(`[BULK UPLOAD] Uploading ${files.length} files`)
+
+    const results: any[] = []
+    const errors: any[] = []
+
+    for (const file of files) {
+      try {
+        const folder = path.basename(path.dirname(file.path))
+        const storage_path = `/uploads/${folder}/${file.filename}`
+        const fullPath = file.path
+        const mime_type = file.mimetype
+
+        const url = FRONTEND_URL ? `${FRONTEND_URL}${storage_path}` : null
+
+        let thumbnail_path: string | null = null
+        if (mime_type === 'application/pdf') {
+          try {
+            const thumbnailsDir = path.resolve(
+              process.cwd(),
+              'uploads',
+              'thumbnails'
+            )
+            await fs.mkdir(thumbnailsDir, { recursive: true })
+            const thumbFilename = await generatePdfThumbnail(
+              fullPath,
+              thumbnailsDir
+            )
+            thumbnail_path = `/uploads/thumbnails/${thumbFilename}`
+          } catch (thumbError) {
+            console.warn(
+              `Failed to generate thumbnail for ${file.originalname}:`,
+              thumbError
+            )
+          }
+        }
+
+        const media = await mediaService.createFromUpload({
+          filename: file.originalname,
+          mime_type: file.mimetype,
+          file_size: file.size,
+          storage_path,
+          url,
+          thumbnail_path,
+          alt_text: null,
+          title: file.originalname,
+          uploaded_by: (req as any).user?.user_id ?? null,
+        })
+
+        results.push({
+          success: true,
+          media,
+          originalName: file.originalname,
+        })
+
+        console.log(`[BULK UPLOAD] ✓ ${file.originalname}`)
+      } catch (error: any) {
+        console.error(`[BULK UPLOAD] ✗ ${file.originalname}:`, error.message)
+
+        errors.push({
+          success: false,
+          originalName: file.originalname,
+          error: error.message || 'Upload failed',
+        })
+      }
+    }
+
+    return res.status(201).json({
+      total: files.length,
+      success: results.length,
+      failed: errors.length,
+      results,
+      errors,
+    })
+  }
 )
 
 export const uploadMedia = asyncHandler(async (req: Request, res: Response) => {
-    const file = (req as any).file as Express.Multer.File | undefined
-    if (!file) {
-        return res.status(400).json({ error: 'Brak pliku (field: file)' })
-    }
+  const file = (req as any).file as Express.Multer.File | undefined
+  if (!file) {
+    return res.status(400).json({ error: 'Brak pliku (field: file)' })
+  }
 
-    const folder = path.basename(path.dirname(file.path))
-    const storage_path = `/uploads/${folder}/${file.filename}`
-    const fullPath = file.path
-    const mime_type = file.mimetype
+  const folder = path.basename(path.dirname(file.path))
+  const storage_path = `/uploads/${folder}/${file.filename}`
+  const fullPath = file.path
+  const mime_type = file.mimetype
 
-    const url = FRONTEND_URL ? `${FRONTEND_URL}${storage_path}` : null
+  const url = FRONTEND_URL ? `${FRONTEND_URL}${storage_path}` : null
 
-    let thumbnail_path: string | null = null
-    if (mime_type === 'application/pdf') {
-        const thumbnailsDir = path.resolve(
-            process.cwd(),
-            'uploads',
-            'thumbnails'
-        )
-        await fs.mkdir(thumbnailsDir, { recursive: true })
-        const thumbFilename = await generatePdfThumbnail(
-            fullPath,
-            thumbnailsDir
-        )
-        thumbnail_path = `/uploads/thumbnails/${thumbFilename}`
-    }
+  let thumbnail_path: string | null = null
+  if (mime_type === 'application/pdf') {
+    const thumbnailsDir = path.resolve(process.cwd(), 'uploads', 'thumbnails')
+    await fs.mkdir(thumbnailsDir, { recursive: true })
+    const thumbFilename = await generatePdfThumbnail(fullPath, thumbnailsDir)
+    thumbnail_path = `/uploads/thumbnails/${thumbFilename}`
+  }
 
-    const media = await mediaService.createFromUpload({
-        filename: file.originalname,
-        mime_type: file.mimetype,
-        file_size: file.size,
-        storage_path,
-        url,
-        thumbnail_path,
-        alt_text: (req.body?.alt_text as string) ?? null,
-        title: (req.body?.title as string) ?? null,
-        uploaded_by: (req as any).user?.user_id ?? null,
-    })
+  const media = await mediaService.createFromUpload({
+    filename: file.originalname,
+    mime_type: file.mimetype,
+    file_size: file.size,
+    storage_path,
+    url,
+    thumbnail_path,
+    alt_text: (req.body?.alt_text as string) ?? null,
+    title: (req.body?.title as string) ?? null,
+    uploaded_by: (req as any).user?.user_id ?? null,
+  })
 
-    return res.status(201).json({ media })
+  return res.status(201).json({ media })
 })
 
 export const getMedia = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params
+  const { id } = req.params
 
-    const result = await mediaService.getWithUsage(id)
+  const result = await mediaService.getWithUsage(id)
 
-    if (!result) {
-        return res.status(404).json({ error: 'Media not found' })
-    }
+  if (!result) {
+    return res.status(404).json({ error: 'Media not found' })
+  }
 
-    return res.json(result)
+  return res.json(result)
 })
 
 export const getPublishedMedia = asyncHandler(
-    async (req: Request, res: Response) => {
-        const { id } = req.params
+  async (req: Request, res: Response) => {
+    const { id } = req.params
 
-        const media = await mediaService.getPublishedById(id)
+    const media = await mediaService.getPublishedById(id)
 
-        if (!media) {
-            return res.status(404).json({ error: 'Media not found' })
-        }
-
-        res.set('Cache-Control', 'public, max-age=300')
-        return res.json(media)
+    if (!media) {
+      return res.status(404).json({ error: 'Media not found' })
     }
+
+    res.set('Cache-Control', 'public, max-age=300')
+    return res.json(media)
+  }
 )
 
 export const listMedia = asyncHandler(async (req: Request, res: Response) => {
-    const limit = Math.min(parseInt(req.query.limit as string) || 20, 200)
-    const offset = parseInt(req.query.offset as string) || 0
+  const limit = Math.min(parseInt(req.query.limit as string) || 20, 200)
+  const offset = parseInt(req.query.offset as string) || 0
 
-    const type =
-        (req.query.type as 'image' | 'document' | undefined) ?? undefined
-    const used = (req.query.used as '1' | '0' | undefined) ?? undefined
-    const search = (req.query.search as string | undefined) ?? undefined
+  const type = (req.query.type as 'image' | 'document' | undefined) ?? undefined
+  const used = (req.query.used as '1' | '0' | undefined) ?? undefined
+  const search = (req.query.search as string | undefined) ?? undefined
 
-    const { items, total } = await mediaService.listMedia({
-        type,
-        used,
-        search,
-        limit,
-        offset,
-    })
+  const { items, total } = await mediaService.listMedia({
+    type,
+    used,
+    search,
+    limit,
+    offset,
+  })
 
-    return res.status(200).json({ items, total, limit, offset })
+  return res.status(200).json({ items, total, limit, offset })
 })
 
 export const getMediaByType = asyncHandler(
-    async (req: Request, res: Response) => {
-        const { mimeType } = req.params
-        const limit = Math.min(parseInt(req.query.limit as string) || 20, 100)
-        const offset = parseInt(req.query.offset as string) || 0
+  async (req: Request, res: Response) => {
+    const { mimeType } = req.params
+    const limit = Math.min(parseInt(req.query.limit as string) || 20, 100)
+    const offset = parseInt(req.query.offset as string) || 0
 
-        const { items, total } = await mediaService.getByType(mimeType, {
-            limit,
-            offset,
-        })
+    const { items, total } = await mediaService.getByType(mimeType, {
+      limit,
+      offset,
+    })
 
-        return res.json({ items, total, limit, offset })
-    }
+    return res.json({ items, total, limit, offset })
+  }
 )
 
 export const getRecentMedia = asyncHandler(
-    async (req: Request, res: Response) => {
-        const limit = Math.min(parseInt(req.query.limit as string) || 20, 100)
+  async (req: Request, res: Response) => {
+    const limit = Math.min(parseInt(req.query.limit as string) || 20, 100)
 
-        const items = await mediaService.getRecent(limit)
+    const items = await mediaService.getRecent(limit)
 
-        return res.json({ items })
-    }
+    return res.json({ items })
+  }
 )
 
 export const updateMedia = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params
-    const { alt_text, title, status } = req.body
+  const { id } = req.params
+  const { alt_text, title, status } = req.body
 
-    const media = await mediaService.updateMetadata(id, {
-        alt_text,
-        title,
-        status,
-    })
+  const media = await mediaService.updateMetadata(id, {
+    alt_text,
+    title,
+    status,
+  })
 
-    if (!media) {
-        return res.status(404).json({ error: 'Media not found' })
-    }
+  if (!media) {
+    return res.status(404).json({ error: 'Media not found' })
+  }
 
-    return res.json({ media })
+  return res.json({ media })
 })
 
 export const deleteMedia = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params
+  const { id } = req.params
 
-    try {
-        await mediaService.deleteMedia(id)
-        return res.json({ ok: true })
-    } catch (error: any) {
-        if (error.code === 'MEDIA_IN_USE') {
-            return res.status(409).json({
-                error: 'Media jest używane i nie może być usunięte',
-                code: 'MEDIA_IN_USE',
-                places: error.places || [],
-            })
-        }
-
-        if (error.message === 'Media not found') {
-            return res.status(404).json({ error: 'Media nie znaleziono' })
-        }
-
-        throw error
+  try {
+    await mediaService.deleteMedia(id)
+    return res.json({ ok: true })
+  } catch (error: any) {
+    if (error.code === 'MEDIA_IN_USE') {
+      return res.status(409).json({
+        error: 'Media jest używane i nie może być usunięte',
+        code: 'MEDIA_IN_USE',
+        places: error.places || [],
+      })
     }
+
+    if (error.message === 'Media not found') {
+      return res.status(404).json({ error: 'Media nie znaleziono' })
+    }
+
+    throw error
+  }
 })
 
 export const getStorageStats = asyncHandler(
-    async (_req: Request, res: Response) => {
-        const totalBytes = await mediaService.getTotalStorageUsed()
+  async (_req: Request, res: Response) => {
+    const totalBytes = await mediaService.getTotalStorageUsed()
 
-        const totalMB = totalBytes / (1024 * 1024)
-        const totalGB = totalMB / 1024
+    const totalMB = totalBytes / (1024 * 1024)
+    const totalGB = totalMB / 1024
 
-        return res.json({
-            total_bytes: totalBytes,
-            total_mb: totalMB.toFixed(2),
-            total_gb: totalGB.toFixed(2),
-        })
-    }
+    return res.json({
+      total_bytes: totalBytes,
+      total_mb: totalMB.toFixed(2),
+      total_gb: totalGB.toFixed(2),
+    })
+  }
 )

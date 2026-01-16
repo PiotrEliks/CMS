@@ -20,7 +20,7 @@ router.use('/category', categoryRouter)
 router.use('/settings', settingsRouter)
 
 router.get('/', (_req, res) => {
-    res.json({ scope: 'site' })
+  res.json({ scope: 'site' })
 })
 
 export default router

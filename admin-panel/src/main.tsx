@@ -7,13 +7,13 @@ import { AppWrapper } from './components/common/PageMeta'
 import { ThemeProvider } from './context/ThemeContext'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-    <React.StrictMode>
-        <BrowserRouter>
-            <ThemeProvider>
-                <AppWrapper>
-                    <App />
-                </AppWrapper>
-            </ThemeProvider>
-        </BrowserRouter>
-    </React.StrictMode>
+  <React.StrictMode>
+    <BrowserRouter>
+      <ThemeProvider>
+        <AppWrapper>
+          <App />
+        </AppWrapper>
+      </ThemeProvider>
+    </BrowserRouter>
+  </React.StrictMode>
 )

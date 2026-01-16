@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import {
-    getPageBySlug,
-    listPages,
+  getPageBySlug,
+  listPages,
 } from '../../controllers/site/pages.controller.js'
 
 const r = Router()

@@ -3,18 +3,18 @@ import PageMeta from '../../components/common/PageMeta'
 import RolesTable from '../../components/tables/RolesTable'
 
 export default function RolesPage() {
-    return (
-        <>
-            <PageMeta
-                title="Zarządzanie rolami"
-                description="Strona zarządzania rolami użytkowników w panelu administracyjnym"
-            />
-            <PageBreadcrumb pageTitle="Zarządzanie rolami" />
-            <div className="rounded-2xl border border-gray-200 dark:border-gray-800 lg:p-6">
-                <div className="space-y-6">
-                    <RolesTable />
-                </div>
-            </div>
-        </>
-    )
+  return (
+    <>
+      <PageMeta
+        title="Zarządzanie rolami"
+        description="Strona zarządzania rolami użytkowników w panelu administracyjnym"
+      />
+      <PageBreadcrumb pageTitle="Zarządzanie rolami" />
+      <div className="rounded-2xl border border-gray-200 dark:border-gray-800 lg:p-6">
+        <div className="space-y-6">
+          <RolesTable />
+        </div>
+      </div>
+    </>
+  )
 }
