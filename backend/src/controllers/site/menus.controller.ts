@@ -43,6 +43,19 @@ export const getMenuByCode = asyncHandler(async (req: Request, res: Response) =>
   return res.json({ code: result.code, items: buildMenuTree(result.items) });
 });
 
+export const getMenuById = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  const result = await menuService.getPublishedById(id);
+
+  if (!result) {
+    return res.status(404).json({ error: 'Menu not found' });
+  }
+
+  res.set('Cache-Control', 'public, max-age=60');
+  return res.json({ menu_id: result.menu_id, code: result.code, name: result.name, items: buildMenuTree(result.items) });
+});
+
 export const getMenuTree = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
 

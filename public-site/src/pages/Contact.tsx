@@ -1,7 +1,12 @@
 import { useState, type FormEvent } from 'react';
 import Hero from '../components/Hero';
+import type { SiteSettings } from '../types';
 
-export default function Contact() {
+interface ContactProps {
+  settings: SiteSettings;
+}
+
+export default function Contact({ settings }: ContactProps) {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -10,6 +15,8 @@ export default function Contact() {
     message: '',
   });
   const [submitted, setSubmitted] = useState(false);
+
+  const contact = settings.contact || {};
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -142,25 +149,30 @@ export default function Contact() {
               <div className="p-4 bg-light">
                 <h3 className="h5 text-black mb-4">Dane kontaktowe</h3>
 
-                <p className="mb-4">
-                  <strong className="d-block text-black">Adres:</strong>
-                  <span>ul. Przykladowa 1, 00-001 Warszawa</span>
-                </p>
+                {contact.contact_address && (
+                  <p className="mb-4">
+                    <strong className="d-block text-black">Adres:</strong>
+                    <span>{contact.contact_address}</span>
+                  </p>
+                )}
 
-                <p className="mb-4">
-                  <strong className="d-block text-black">Telefon:</strong>
-                  <span>+48 123 456 789</span>
-                </p>
+                {contact.contact_phone && (
+                  <p className="mb-4">
+                    <strong className="d-block text-black">Telefon:</strong>
+                    <a href={`tel:${contact.contact_phone}`}>{contact.contact_phone}</a>
+                  </p>
+                )}
 
-                <p className="mb-4">
-                  <strong className="d-block text-black">Email:</strong>
-                  <span>kontakt@example.com</span>
-                </p>
+                {contact.contact_email && (
+                  <p className="mb-4">
+                    <strong className="d-block text-black">Email:</strong>
+                    <a href={`mailto:${contact.contact_email}`}>{contact.contact_email}</a>
+                  </p>
+                )}
 
-                <p className="mb-0">
-                  <strong className="d-block text-black">Godziny pracy:</strong>
-                  <span>Pon - Pt: 9:00 - 17:00</span>
-                </p>
+                {!contact.contact_address && !contact.contact_phone && !contact.contact_email && (
+                  <p className="text-muted">Dane kontaktowe nie zostaly jeszcze skonfigurowane.</p>
+                )}
               </div>
             </div>
           </div>

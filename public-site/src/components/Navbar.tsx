@@ -1,15 +1,29 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import type { Menu, MenuItem } from '../types';
+import type { Menu, MenuItem, SiteSettings, SocialMedia } from '../types';
 
 interface NavbarProps {
   menu?: Menu;
-  siteName?: string;
+  settings: SiteSettings;
 }
 
-export default function Navbar({ menu, siteName = 'CMS Site' }: NavbarProps) {
+const socialIcons: Record<string, string> = {
+  facebook: 'icon-facebook',
+  twitter: 'icon-twitter',
+  instagram: 'icon-instagram',
+  linkedin: 'icon-linkedin',
+  youtube: 'icon-youtube',
+  tiktok: 'icon-tiktok',
+  github: 'icon-github',
+};
+
+export default function Navbar({ menu, settings }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+
+  const siteName = settings.general?.site_name || 'CMS Site';
+  const showSocial = settings.header?.header_show_social !== false;
+  const socialLinks = settings.social_media?.social_media || [];
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -41,19 +55,26 @@ export default function Navbar({ menu, siteName = 'CMS Site' }: NavbarProps) {
     );
   };
 
-  const defaultMenuItems = (
-    <>
-      <li className={isActive('/') ? 'active' : ''}>
-        <Link to="/">Strona Glowna</Link>
-      </li>
-      <li className={isActive('/artykuly') ? 'active' : ''}>
-        <Link to="/artykuly">Artykuly</Link>
-      </li>
-      <li className={isActive('/kontakt') ? 'active' : ''}>
-        <Link to="/kontakt">Kontakt</Link>
-      </li>
-    </>
-  );
+  const renderSocialLinks = () => {
+    if (!showSocial || socialLinks.length === 0) return null;
+
+    return (
+      <ul className="site-menu js-clone-nav ml-auto list-unstyled d-flex text-right mb-0">
+        {socialLinks.map((social: SocialMedia, index: number) => (
+          <li key={`${social.platform}-${index}`}>
+            <a
+              href={social.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={index === 0 ? 'pl-0 pr-3 text-black' : 'pl-3 pr-3 text-black'}
+            >
+              <span className={socialIcons[social.platform] || 'icon-link'}></span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    );
+  };
 
   return (
     <>
@@ -69,7 +90,7 @@ export default function Navbar({ menu, siteName = 'CMS Site' }: NavbarProps) {
         </div>
         <div className="site-mobile-menu-body">
           <ul className="site-nav-wrap">
-            {menu?.items ? menu.items.map(renderMenuItem) : defaultMenuItems}
+            {menu?.items?.map(renderMenuItem)}
           </ul>
         </div>
       </div>
@@ -87,24 +108,14 @@ export default function Navbar({ menu, siteName = 'CMS Site' }: NavbarProps) {
             <div className="col-10 col-md-8 d-none d-xl-block" data-aos="fade-down">
               <nav className="site-navigation position-relative text-right text-lg-center" role="navigation">
                 <ul className="site-menu js-clone-nav mx-auto d-none d-lg-block">
-                  {menu?.items ? menu.items.map(renderMenuItem) : defaultMenuItems}
+                  {menu?.items?.map(renderMenuItem)}
                 </ul>
               </nav>
             </div>
 
             <div className="col-6 col-xl-2 text-right" data-aos="fade-down">
               <div className="d-none d-xl-inline-block">
-                <ul className="site-menu js-clone-nav ml-auto list-unstyled d-flex text-right mb-0">
-                  <li>
-                    <a href="#" className="pl-0 pr-3 text-black"><span className="icon-facebook"></span></a>
-                  </li>
-                  <li>
-                    <a href="#" className="pl-3 pr-3 text-black"><span className="icon-twitter"></span></a>
-                  </li>
-                  <li>
-                    <a href="#" className="pl-3 pr-3 text-black"><span className="icon-instagram"></span></a>
-                  </li>
-                </ul>
+                {renderSocialLinks()}
               </div>
 
               <div

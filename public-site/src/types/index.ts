@@ -48,13 +48,39 @@ export interface MenuItem {
   content?: Content;
 }
 
+export interface SocialMedia {
+  platform: 'facebook' | 'twitter' | 'instagram' | 'linkedin' | 'youtube' | 'tiktok' | 'github';
+  url: string;
+  icon?: string;
+}
+
 export interface SiteSettings {
-  SITE_HEADER_NAME?: string;
-  SITE_DESCRIPTION?: string;
-  SITE_EMAIL?: string;
-  SITE_PHONE?: string;
-  SITE_ADDRESS?: string;
-  SITE_FACEBOOK?: string;
-  SITE_INSTAGRAM?: string;
-  SITE_TWITTER?: string;
+  general: {
+    site_name?: string;
+    site_tagline?: string;
+    site_description?: string;
+  };
+  header: {
+    header_logo_media_id?: string;
+    header_menu_id?: string;
+    header_background_type?: string;
+    header_background_color?: string;
+    header_background_media_id?: string;
+    header_show_social?: boolean;
+  };
+  footer: {
+    footer_logo_media_id?: string;
+    footer_menu_id?: string;
+    footer_background_color?: string;
+    footer_copyright_text?: string;
+    footer_show_social?: boolean;
+  };
+  social_media: {
+    social_media?: SocialMedia[];
+  };
+  contact: {
+    contact_email?: string;
+    contact_phone?: string;
+    contact_address?: string;
+  };
 }

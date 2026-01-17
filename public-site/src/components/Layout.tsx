@@ -1,21 +1,23 @@
 import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
 import Footer from './Footer';
-import type { Menu } from '../types';
+import type { Menu, SiteSettings } from '../types';
 
 interface LayoutProps {
   menu?: Menu;
-  siteName?: string;
+  settings: SiteSettings;
 }
 
-export default function Layout({ menu, siteName }: LayoutProps) {
+export default function Layout({ menu, settings }: LayoutProps) {
+  const siteName = settings.general?.site_name || 'CMS Site';
+
   return (
     <div className="site-wrap">
-      <Navbar menu={menu} siteName={siteName} />
+      <Navbar menu={menu} settings={settings} />
       <main>
         <Outlet />
       </main>
-      <Footer siteName={siteName} />
+      <Footer settings={settings} />
     </div>
   );
 }

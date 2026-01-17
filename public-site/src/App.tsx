@@ -9,55 +9,58 @@ import Contact from './pages/Contact';
 import NotFound from './pages/NotFound';
 import type { Menu, SiteSettings } from './types';
 
-// Default site name fallback
-const DEFAULT_SITE_NAME = 'Hairsal';
+const DEFAULT_SETTINGS: SiteSettings = {
+  general: { site_name: 'CMS Site' },
+  header: {},
+  footer: {},
+  social_media: {},
+  contact: {},
+};
 
 function App() {
   const [menu, setMenu] = useState<Menu | undefined>();
-  const [siteSettings, setSiteSettings] = useState<SiteSettings>({
-    SITE_HEADER_NAME: DEFAULT_SITE_NAME,
-  });
+  const [siteSettings, setSiteSettings] = useState<SiteSettings>(DEFAULT_SETTINGS);
 
   useEffect(() => {
     // Fetch site settings from API
     const fetchSettings = async () => {
       try {
         const res = await api.get('/settings');
-        setSiteSettings(res.data.settings || {});
+        setSiteSettings({ ...DEFAULT_SETTINGS, ...res.data });
       } catch (err) {
         console.error('Failed to fetch site settings:', err);
       }
     };
 
-    // Fetch main menu from API
+    fetchSettings();
+  }, []);
+
+  // Fetch menu when settings are loaded (use header_menu_id from settings)
+  useEffect(() => {
     const fetchMenu = async () => {
       try {
-        const res = await api.get('/menus');
-        const menus = res.data.menus || res.data || [];
-        // Use first menu as main navigation
-        if (menus.length > 0) {
-          const mainMenuRes = await api.get(`/menus/${menus[0].menu_id}/tree`);
-          setMenu(mainMenuRes.data.menu || mainMenuRes.data);
+        const menuId = siteSettings.header?.header_menu_id;
+        if (menuId) {
+          // Fetch menu by ID from the public API
+          const menuRes = await api.get(`/menus/id/${menuId}`);
+          setMenu(menuRes.data);
         }
       } catch (err) {
         console.error('Failed to fetch menu:', err);
       }
     };
 
-    fetchSettings();
     fetchMenu();
-  }, []);
-
-  const siteName = siteSettings.SITE_HEADER_NAME || DEFAULT_SITE_NAME;
+  }, [siteSettings.header?.header_menu_id]);
 
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Layout menu={menu} siteName={siteName} />}>
+        <Route path="/" element={<Layout menu={menu} settings={siteSettings} />}>
           <Route index element={<Home />} />
           <Route path="artykuly" element={<ContentList />} />
           <Route path="artykul/:slug" element={<ContentDetail />} />
-          <Route path="kontakt" element={<Contact />} />
+          <Route path="kontakt" element={<Contact settings={siteSettings} />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

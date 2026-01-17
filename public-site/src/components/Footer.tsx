@@ -1,12 +1,28 @@
 import { Link } from 'react-router-dom';
+import type { SiteSettings, SocialMedia } from '../types';
 
 interface FooterProps {
-  siteName?: string;
-  description?: string;
+  settings: SiteSettings;
 }
 
-export default function Footer({ siteName = 'CMS Site', description }: FooterProps) {
+const socialIcons: Record<string, string> = {
+  facebook: 'icon-facebook',
+  twitter: 'icon-twitter',
+  instagram: 'icon-instagram',
+  linkedin: 'icon-linkedin',
+  youtube: 'icon-youtube',
+  tiktok: 'icon-tiktok',
+  github: 'icon-github',
+};
+
+export default function Footer({ settings }: FooterProps) {
   const currentYear = new Date().getFullYear();
+  const siteName = settings.general?.site_name || 'CMS Site';
+  const description = settings.general?.site_description;
+  const copyrightText = settings.footer?.footer_copyright_text;
+  const showSocial = settings.footer?.footer_show_social !== false;
+  const socialLinks = settings.social_media?.social_media || [];
+  const contact = settings.contact || {};
 
   return (
     <footer className="site-footer">
@@ -16,6 +32,29 @@ export default function Footer({ siteName = 'CMS Site', description }: FooterPro
             <div className="mb-5">
               <h3 className="footer-heading mb-4">O {siteName}</h3>
               <p>{description || 'Witamy na naszej stronie. Znajdziesz tutaj najnowsze artykuly i informacje.'}</p>
+
+              {(contact.contact_address || contact.contact_phone || contact.contact_email) && (
+                <div className="mt-4">
+                  {contact.contact_address && (
+                    <p className="mb-2">
+                      <span className="icon-map-marker mr-2"></span>
+                      {contact.contact_address}
+                    </p>
+                  )}
+                  {contact.contact_phone && (
+                    <p className="mb-2">
+                      <span className="icon-phone mr-2"></span>
+                      <a href={`tel:${contact.contact_phone}`}>{contact.contact_phone}</a>
+                    </p>
+                  )}
+                  {contact.contact_email && (
+                    <p className="mb-2">
+                      <span className="icon-envelope mr-2"></span>
+                      <a href={`mailto:${contact.contact_email}`}>{contact.contact_email}</a>
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -64,15 +103,24 @@ export default function Footer({ siteName = 'CMS Site', description }: FooterPro
 
         <div className="row pt-5 mt-5 text-center">
           <div className="col-md-12">
-            <div className="mb-5">
-              <a href="#" className="pl-0 pr-3"><span className="icon-facebook"></span></a>
-              <a href="#" className="pl-3 pr-3"><span className="icon-twitter"></span></a>
-              <a href="#" className="pl-3 pr-3"><span className="icon-instagram"></span></a>
-              <a href="#" className="pl-3 pr-3"><span className="icon-linkedin"></span></a>
-            </div>
+            {showSocial && socialLinks.length > 0 && (
+              <div className="mb-5">
+                {socialLinks.map((social: SocialMedia, index: number) => (
+                  <a
+                    key={`${social.platform}-${index}`}
+                    href={social.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={index === 0 ? 'pl-0 pr-3' : 'pl-3 pr-3'}
+                  >
+                    <span className={socialIcons[social.platform] || 'icon-link'}></span>
+                  </a>
+                ))}
+              </div>
+            )}
 
             <p>
-              Copyright &copy; {currentYear} {siteName}. Wszelkie prawa zastrzezone.
+              {copyrightText || `Copyright © ${currentYear} ${siteName}. Wszelkie prawa zastrzezone.`}
             </p>
           </div>
         </div>

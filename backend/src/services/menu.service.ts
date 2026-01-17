@@ -312,6 +312,97 @@ export class MenuService {
     await menuItem.update({ status: !menuItem.status });
     return menuItem;
   }
+
+  // Public site methods - only return active menus with active items
+  async getPublishedByCode(code: string) {
+    const menu = await Menu.findOne({
+      where: { code, status: true },
+      include: [
+        {
+          model: MenuItem,
+          as: 'items',
+          where: { status: true, parent_id: null },
+          required: false,
+          include: [
+            {
+              model: Content,
+              as: 'content',
+              attributes: ['content_id', 'title', 'slug'],
+            },
+            {
+              model: MenuItem,
+              as: 'children',
+              where: { status: true },
+              required: false,
+              include: [
+                {
+                  model: Content,
+                  as: 'content',
+                  attributes: ['content_id', 'title', 'slug'],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      order: [
+        [{ model: MenuItem, as: 'items' }, 'order_index', 'ASC'],
+        [
+          { model: MenuItem, as: 'items' },
+          { model: MenuItem, as: 'children' },
+          'order_index',
+          'ASC',
+        ],
+      ],
+    });
+
+    return menu;
+  }
+
+  async getPublishedById(menuId: string) {
+    const menu = await Menu.findOne({
+      where: { menu_id: menuId, status: true },
+      include: [
+        {
+          model: MenuItem,
+          as: 'items',
+          where: { status: true, parent_id: null },
+          required: false,
+          include: [
+            {
+              model: Content,
+              as: 'content',
+              attributes: ['content_id', 'title', 'slug'],
+            },
+            {
+              model: MenuItem,
+              as: 'children',
+              where: { status: true },
+              required: false,
+              include: [
+                {
+                  model: Content,
+                  as: 'content',
+                  attributes: ['content_id', 'title', 'slug'],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      order: [
+        [{ model: MenuItem, as: 'items' }, 'order_index', 'ASC'],
+        [
+          { model: MenuItem, as: 'items' },
+          { model: MenuItem, as: 'children' },
+          'order_index',
+          'ASC',
+        ],
+      ],
+    });
+
+    return menu;
+  }
 }
 
 export const menuService = new MenuService();
