@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { useRoles } from '../../../store/roles';
-import type { Role } from '../../../store/roles';
-import Button from '../../ui/button/Button';
+import React, { useEffect, useState } from 'react'
+import { useRoles } from '../../../store/roles'
+import type { Role } from '../../../store/roles'
+import Button from '../../ui/button/Button'
 
 type Props = {
-  open: boolean;
-  onClose: () => void;
-  roleToEdit?: Role | null;
-};
+  open: boolean
+  onClose: () => void
+  roleToEdit?: Role | null
+}
 
 export default function RoleFormModal({ open, onClose, roleToEdit }: Props) {
-  const isEdit = !!roleToEdit;
+  const isEdit = !!roleToEdit
 
   const {
     addRole,
@@ -23,86 +23,86 @@ export default function RoleFormModal({ open, onClose, roleToEdit }: Props) {
     fetchAllPermissions,
     fetchRolePermissions,
     updateRolePermissions,
-  } = useRoles();
+  } = useRoles()
 
-  const [displayName, setDisplayName] = useState('');
-  const [status, setStatus] = useState(true);
-  const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
-  const [permissionsLoading, setPermissionsLoading] = useState(false);
+  const [displayName, setDisplayName] = useState('')
+  const [status, setStatus] = useState(true)
+  const [selectedPermissions, setSelectedPermissions] = useState<string[]>([])
+  const [permissionsLoading, setPermissionsLoading] = useState(false)
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) return
 
-    clearError();
+    clearError()
 
     if (roleToEdit) {
-      setDisplayName(roleToEdit.display_name ?? '');
-      setStatus(roleToEdit.status ?? true);
+      setDisplayName(roleToEdit.display_name ?? '')
+      setStatus(roleToEdit.status ?? true)
 
       const loadPerms = async () => {
-        setPermissionsLoading(true);
+        setPermissionsLoading(true)
         try {
-          await fetchAllPermissions();
-          await fetchRolePermissions(roleToEdit.role_id);
+          await fetchAllPermissions()
+          await fetchRolePermissions(roleToEdit.role_id)
         } finally {
-          setPermissionsLoading(false);
+          setPermissionsLoading(false)
         }
-      };
+      }
 
-      loadPerms();
+      loadPerms()
     } else {
-      setDisplayName('');
-      setStatus(true);
-      setSelectedPermissions([]);
+      setDisplayName('')
+      setStatus(true)
+      setSelectedPermissions([])
       const loadPerms = async () => {
-        setPermissionsLoading(true);
+        setPermissionsLoading(true)
         try {
-          await fetchAllPermissions();
+          await fetchAllPermissions()
         } finally {
-          setPermissionsLoading(false);
+          setPermissionsLoading(false)
         }
-      };
-      loadPerms();
+      }
+      loadPerms()
     }
-  }, [open, roleToEdit, clearError, fetchAllPermissions, fetchRolePermissions]);
+  }, [open, roleToEdit, clearError, fetchAllPermissions, fetchRolePermissions])
 
   useEffect(() => {
     if (open && roleToEdit) {
-      setSelectedPermissions(rolePermissions);
+      setSelectedPermissions(rolePermissions)
     }
-  }, [rolePermissions, open, roleToEdit]);
+  }, [rolePermissions, open, roleToEdit])
 
-  if (!open) return null;
+  if (!open) return null
 
   const togglePermission = (id: string) => {
     setSelectedPermissions((prev) =>
       prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
-    );
-  };
+    )
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    clearError();
+    e.preventDefault()
+    clearError()
 
     try {
       if (isEdit && roleToEdit) {
         const updated = await updateRole(roleToEdit.role_id, {
           display_name: displayName,
           status,
-        });
+        })
 
-        await updateRolePermissions(updated.role_id, selectedPermissions);
+        await updateRolePermissions(updated.role_id, selectedPermissions)
       } else {
         const created = await addRole({
           display_name: displayName,
           status,
           permissions: selectedPermissions,
-        });
+        })
       }
 
-      onClose();
+      onClose()
     } catch {}
-  };
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
@@ -149,9 +149,12 @@ export default function RoleFormModal({ open, onClose, roleToEdit }: Props) {
 
             <div className="flex items-center justify-between gap-4 rounded-xl border border-gray-100 bg-gray-50 px-4 py-3 dark:border-gray-800 dark:bg-gray-800/40">
               <div>
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-200">Status roli</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                  Status roli
+                </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Nieaktywna rola nie będzie mogła być przypisana nowym użytkownikom.
+                  Nieaktywna rola nie będzie mogła być przypisana nowym
+                  użytkownikom.
                 </p>
               </div>
               <button
@@ -184,7 +187,9 @@ export default function RoleFormModal({ open, onClose, roleToEdit }: Props) {
 
             <div className="max-h-72 space-y-2 overflow-y-auto rounded-xl border border-gray-100 p-3 text-sm dark:border-gray-800">
               {permissionsLoading ? (
-                <p className="text-xs text-gray-500 dark:text-gray-400">Ładowanie uprawnień…</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Ładowanie uprawnień…
+                </p>
               ) : allPermissions.length === 0 ? (
                 <p className="text-xs text-gray-500 dark:text-gray-400">
                   Brak zdefiniowanych uprawnień w systemie.
@@ -226,7 +231,11 @@ export default function RoleFormModal({ open, onClose, roleToEdit }: Props) {
               Anuluj
             </button>
 
-            <Button size="sm" variant="primary" disabled={loading || permissionsLoading}>
+            <Button
+              size="sm"
+              variant="primary"
+              disabled={loading || permissionsLoading}
+            >
               {loading || permissionsLoading
                 ? 'Zapisywanie...'
                 : isEdit
@@ -237,5 +246,5 @@ export default function RoleFormModal({ open, onClose, roleToEdit }: Props) {
         </form>
       </div>
     </div>
-  );
+  )
 }

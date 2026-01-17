@@ -1,12 +1,12 @@
-import { Link } from 'react-router';
+import { Link } from 'react-router'
 
 interface AlertProps {
-  variant: 'success' | 'error' | 'warning' | 'info'; // Alert type
-  title: string; // Title of the alert
-  message: string; // Message of the alert
-  showLink?: boolean; // Whether to show the "Learn More" link
-  linkHref?: string; // Link URL
-  linkText?: string; // Link text
+  variant: 'success' | 'error' | 'warning' | 'info' // Alert type
+  title: string // Title of the alert
+  message: string // Message of the alert
+  showLink?: boolean // Whether to show the "Learn More" link
+  linkHref?: string // Link URL
+  linkText?: string // Link text
 }
 
 const Alert: React.FC<AlertProps> = ({
@@ -25,7 +25,8 @@ const Alert: React.FC<AlertProps> = ({
       icon: 'text-success-500',
     },
     error: {
-      container: 'border-error-500 bg-error-50 dark:border-error-500/30 dark:bg-error-500/15',
+      container:
+        'border-error-500 bg-error-50 dark:border-error-500/30 dark:bg-error-500/15',
       icon: 'text-error-500',
     },
     warning: {
@@ -38,7 +39,7 @@ const Alert: React.FC<AlertProps> = ({
         'border-blue-light-500 bg-blue-light-50 dark:border-blue-light-500/30 dark:bg-blue-light-500/15',
       icon: 'text-blue-light-500',
     },
-  };
+  }
 
   // Icon for each variant
   const icons = {
@@ -108,15 +109,21 @@ const Alert: React.FC<AlertProps> = ({
         />
       </svg>
     ),
-  };
+  }
 
   return (
-    <div className={`rounded-xl border p-4 ${variantClasses[variant].container}`}>
+    <div
+      className={`rounded-xl border p-4 ${variantClasses[variant].container}`}
+    >
       <div className="flex items-start gap-3">
-        <div className={`-mt-0.5 ${variantClasses[variant].icon}`}>{icons[variant]}</div>
+        <div className={`-mt-0.5 ${variantClasses[variant].icon}`}>
+          {icons[variant]}
+        </div>
 
         <div>
-          <h4 className="mb-1 text-sm font-semibold text-gray-800 dark:text-white/90">{title}</h4>
+          <h4 className="mb-1 text-sm font-semibold text-gray-800 dark:text-white/90">
+            {title}
+          </h4>
 
           <p className="text-sm text-gray-500 dark:text-gray-400">{message}</p>
 
@@ -131,7 +138,7 @@ const Alert: React.FC<AlertProps> = ({
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Alert;
+export default Alert

@@ -1,19 +1,19 @@
-import { useEffect, useState } from 'react';
-import { X, Plus, Search, Tag } from 'lucide-react';
-import { api } from '../../../api/axios';
-import Button from '../../ui/button/Button';
+import { useEffect, useState } from 'react'
+import { X, Plus, Search, Tag } from 'lucide-react'
+import { api } from '../../../api/axios'
+import Button from '../../ui/button/Button'
 
 interface Category {
-  category_id: string;
-  display_name: string;
-  slug: string;
-  type?: string;
+  category_id: string
+  display_name: string
+  slug: string
+  type?: string
 }
 
 interface CategorySelectorProps {
-  selectedCategories: string[];
-  onChange: (categoryIds: string[]) => void;
-  type?: string;
+  selectedCategories: string[]
+  onChange: (categoryIds: string[]) => void
+  type?: string
 }
 
 export default function CategorySelector({
@@ -21,45 +21,45 @@ export default function CategorySelector({
   onChange,
   type,
 }: CategorySelectorProps) {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [categories, setCategories] = useState<Category[]>([])
+  const [loading, setLoading] = useState(true)
+  const [showDropdown, setShowDropdown] = useState(false)
+  const [searchTerm, setSearchTerm] = useState('')
 
   useEffect(() => {
-    fetchCategories();
-  }, [type]);
+    fetchCategories()
+  }, [type])
 
   const fetchCategories = async () => {
-    setLoading(true);
+    setLoading(true)
     try {
-      const params = type ? { type } : {};
-      const res = await api.get('/categories', { params });
-      setCategories(res.data.items || []);
+      const params = type ? { type } : {}
+      const res = await api.get('/categories', { params })
+      setCategories(res.data.items || [])
     } catch (error) {
-      console.error('Failed to fetch categories:', error);
+      console.error('Failed to fetch categories:', error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleToggle = (categoryId: string) => {
     if (selectedCategories.includes(categoryId)) {
-      onChange(selectedCategories.filter((id) => id !== categoryId));
+      onChange(selectedCategories.filter((id) => id !== categoryId))
     } else {
-      onChange([...selectedCategories, categoryId]);
+      onChange([...selectedCategories, categoryId])
     }
-  };
+  }
 
   const selectedCategoryObjects = categories.filter((c) =>
     selectedCategories.includes(c.category_id)
-  );
+  )
 
   const availableCategories = categories.filter(
     (c) =>
       !selectedCategories.includes(c.category_id) &&
       c.display_name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  )
 
   return (
     <div className="w-full space-y-4">
@@ -134,7 +134,9 @@ export default function CategorySelector({
             {loading ? (
               <div className="p-8 text-center">
                 <div className="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-primary mb-2"></div>
-                <p className="text-sm text-gray-500 dark:text-white">Pobieranie danych...</p>
+                <p className="text-sm text-gray-500 dark:text-white">
+                  Pobieranie danych...
+                </p>
               </div>
             ) : availableCategories.length === 0 ? (
               <div className="p-8 text-center text-sm text-gray-500 dark:text-white">
@@ -180,5 +182,5 @@ export default function CategorySelector({
         </div>
       )}
     </div>
-  );
+  )
 }

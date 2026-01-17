@@ -1,12 +1,12 @@
-import type React from 'react';
+import type React from 'react'
 
 interface CheckboxProps {
-  label?: string;
-  checked: boolean;
-  className?: string;
-  id?: string;
-  onChange: (checked: boolean) => void;
-  disabled?: boolean;
+  label?: string
+  checked: boolean
+  className?: string
+  id?: string
+  onChange: (checked: boolean) => void
+  disabled?: boolean
 }
 
 const Checkbox: React.FC<CheckboxProps> = ({
@@ -71,10 +71,12 @@ const Checkbox: React.FC<CheckboxProps> = ({
         )}
       </div>
       {label && (
-        <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{label}</span>
+        <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
+          {label}
+        </span>
       )}
     </label>
-  );
-};
+  )
+}
 
-export default Checkbox;
+export default Checkbox

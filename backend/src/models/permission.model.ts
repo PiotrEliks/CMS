@@ -4,18 +4,18 @@ import {
   InferAttributes,
   InferCreationAttributes,
   CreationOptional,
-} from 'sequelize';
-import { sequelize } from '../db/sequelize.js';
+} from 'sequelize'
+import { sequelize } from '../db/sequelize.js'
 
 export class Permission extends Model<
   InferAttributes<Permission>,
   InferCreationAttributes<Permission>
 > {
-  declare permission_id: CreationOptional<string>;
-  declare code: string;
-  declare description: string | null;
-  declare created_at: CreationOptional<Date>;
-  declare updated_at: CreationOptional<Date>;
+  declare permission_id: CreationOptional<string>
+  declare code: string
+  declare description: string | null
+  declare created_at: CreationOptional<Date>
+  declare updated_at: CreationOptional<Date>
 }
 
 Permission.init(
@@ -46,4 +46,4 @@ Permission.init(
     },
   },
   { sequelize, tableName: 'permission', timestamps: true }
-);
+)

@@ -1,13 +1,13 @@
-import React from 'react';
-import Button from '../../ui/button/Button';
+import React from 'react'
+import Button from '../../ui/button/Button'
 
 type Props = {
-  open: boolean;
-  title?: string;
-  message?: string;
-  onCancel: () => void;
-  onConfirm: () => void;
-};
+  open: boolean
+  title?: string
+  message?: string
+  onCancel: () => void
+  onConfirm: () => void
+}
 
 export default function DeleteConfirmModal({
   open,
@@ -16,7 +16,7 @@ export default function DeleteConfirmModal({
   onCancel,
   onConfirm,
 }: Props) {
-  if (!open) return null;
+  if (!open) return null
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
@@ -39,10 +39,14 @@ export default function DeleteConfirmModal({
               />
             </svg>
           </div>
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            {title}
+          </h2>
         </div>
 
-        <p className="mb-6 text-sm text-gray-600 dark:text-gray-300">{message}</p>
+        <p className="mb-6 text-sm text-gray-600 dark:text-gray-300">
+          {message}
+        </p>
 
         <div className="flex items-center justify-end gap-3">
           <button
@@ -58,5 +62,5 @@ export default function DeleteConfirmModal({
         </div>
       </div>
     </div>
-  );
+  )
 }

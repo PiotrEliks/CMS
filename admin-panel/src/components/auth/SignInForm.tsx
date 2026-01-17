@@ -1,28 +1,28 @@
-import { type FormEvent, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { EyeCloseIcon, EyeIcon } from '../../icons';
-import Label from '../form/Label';
-import Input from '../form/input/InputField';
-import Checkbox from '../form/input/Checkbox';
-import Button from '../ui/button/Button';
-import { useAuth } from '../../store/auth';
+import { type FormEvent, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { EyeCloseIcon, EyeIcon } from '../../icons'
+import Label from '../form/Label'
+import Input from '../form/input/InputField'
+import Checkbox from '../form/input/Checkbox'
+import Button from '../ui/button/Button'
+import { useAuth } from '../../store/auth'
 
 export default function SignInForm() {
-  const navigate = useNavigate();
-  const { login, error, clearError, loading } = useAuth();
+  const navigate = useNavigate()
+  const { login, error, clearError, loading } = useAuth()
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [keepSignedIn, setKeepSignedIn] = useState(false);
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [keepSignedIn, setKeepSignedIn] = useState(false)
 
   async function onSubmit(e: FormEvent) {
-    e.preventDefault();
-    clearError();
+    e.preventDefault()
+    clearError()
     try {
-      await login(email, password, keepSignedIn);
-      if (keepSignedIn) localStorage.setItem('keepSignedIn', '1');
-      navigate('/', { replace: true });
+      await login(email, password, keepSignedIn)
+      if (keepSignedIn) localStorage.setItem('keepSignedIn', '1')
+      navigate('/', { replace: true })
     } catch {}
   }
 
@@ -86,7 +86,10 @@ export default function SignInForm() {
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <Checkbox checked={keepSignedIn} onChange={setKeepSignedIn} />
+                    <Checkbox
+                      checked={keepSignedIn}
+                      onChange={setKeepSignedIn}
+                    />
                     <span className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400">
                       Zapamiętaj mnie
                     </span>
@@ -119,5 +122,5 @@ export default function SignInForm() {
         </div>
       </div>
     </div>
-  );
+  )
 }

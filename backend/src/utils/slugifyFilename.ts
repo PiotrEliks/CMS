@@ -1,8 +1,8 @@
-import path from 'path';
+import path from 'path'
 
 export function normalizeFilename(originalName: string): string {
-  const ext = path.extname(originalName);
-  const name = path.basename(originalName, ext);
+  const ext = path.extname(originalName)
+  const name = path.basename(originalName, ext)
 
   const translitMap: Record<string, string> = {
     ą: 'a',
@@ -69,20 +69,20 @@ export function normalizeFilename(originalName: string): string {
     Å: 'A',
     Æ: 'AE',
     Ø: 'O',
-  };
+  }
 
   let base = name
     .split('')
     .map((char) => translitMap[char] || char)
-    .join('');
+    .join('')
 
-  base = base.normalize('NFKD').replace(/[\u0300-\u036f]/g, '');
+  base = base.normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
 
   base = base
     .replace(/[^a-zA-Z0-9]+/g, '-')
     .replace(/-+/g, '-')
     .replace(/^-+|-+$/g, '')
-    .toLowerCase();
+    .toLowerCase()
 
-  return `${base || 'file'}${ext.toLowerCase()}`;
+  return `${base || 'file'}${ext.toLowerCase()}`
 }

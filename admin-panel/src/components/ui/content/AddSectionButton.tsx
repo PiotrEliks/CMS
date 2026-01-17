@@ -1,12 +1,12 @@
-import { useState } from 'react';
-import { PlusIcon } from '../../../icons';
-import Button from '../../ui/button/Button';
-import SectionTypeModal from './SectionTypeModal';
+import { useState } from 'react'
+import { PlusIcon } from '../../../icons'
+import Button from '../../ui/button/Button'
+import SectionTypeModal from './SectionTypeModal'
 
 interface AddSectionButtonProps {
-  contentId: string;
-  variant?: 'primary' | 'outline';
-  size?: 'sm' | 'md';
+  contentId: string
+  variant?: 'primary' | 'outline'
+  size?: 'sm' | 'md'
 }
 
 export default function AddSectionButton({
@@ -14,7 +14,7 @@ export default function AddSectionButton({
   variant = 'outline',
   size = 'md',
 }: AddSectionButtonProps) {
-  const [modalOpen, setModalOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false)
 
   return (
     <>
@@ -33,5 +33,5 @@ export default function AddSectionButton({
         contentId={contentId}
       />
     </>
-  );
+  )
 }

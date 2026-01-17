@@ -1,9 +1,9 @@
-import { DataTypes, Model } from 'sequelize';
-import { sequelize } from '../db/sequelize.js';
+import { DataTypes, Model } from 'sequelize'
+import { sequelize } from '../db/sequelize.js'
 
 export class ContentsMedia extends Model {
-  declare content_id: string;
-  declare media_id: string;
+  declare content_id: string
+  declare media_id: string
 }
 
 ContentsMedia.init(
@@ -12,4 +12,4 @@ ContentsMedia.init(
     media_id: { type: DataTypes.UUID, primaryKey: true },
   },
   { sequelize, tableName: 'contents_media', timestamps: false }
-);
+)

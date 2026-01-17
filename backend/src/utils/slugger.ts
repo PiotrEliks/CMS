@@ -27,14 +27,14 @@ export function stringToSlug(text: string): string {
       .replace(/\-{2,}/g, '-')
       // Remove leading/trailing hyphens
       .replace(/^\-+|\-+$/g, '')
-  );
+  )
 }
 
 /**
  * Check if slug is valid (lowercase, hyphens, alphanumeric only)
  */
 export function isValidSlug(slug: string): boolean {
-  return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug);
+  return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)
 }
 
 /**
@@ -49,13 +49,13 @@ export async function makeSlugUnique(
   checkExists: (slug: string) => Promise<boolean>,
   excludeId?: string | number
 ): Promise<string> {
-  let slug = baseSlug;
-  let counter = 1;
+  let slug = baseSlug
+  let counter = 1
 
   while (await checkExists(slug)) {
-    counter++;
-    slug = `${baseSlug}-${counter}`;
+    counter++
+    slug = `${baseSlug}-${counter}`
   }
 
-  return slug;
+  return slug
 }

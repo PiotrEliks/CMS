@@ -1,16 +1,16 @@
-import Button from '../ui/button/Button';
-import type { MediaUsagePlace } from '../../store/media';
+import Button from '../ui/button/Button'
+import type { MediaUsagePlace } from '../../store/media'
 
 export default function MediaInUseModal({
   open,
   places,
   onClose,
 }: {
-  open: boolean;
-  places: MediaUsagePlace[];
-  onClose: () => void;
+  open: boolean
+  places: MediaUsagePlace[]
+  onClose: () => void
 }) {
-  if (!open) return null;
+  if (!open) return null
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
@@ -46,5 +46,5 @@ export default function MediaInUseModal({
         </div>
       </div>
     </div>
-  );
+  )
 }

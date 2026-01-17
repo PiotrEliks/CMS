@@ -1,14 +1,14 @@
-import { useState, useEffect } from 'react';
-import { Image as ImageIcon, X } from 'lucide-react';
-import Button from '../../ui/button/Button';
-import MediaLibraryModal from './MediaLibraryModal';
-import { api } from '../../../api/axios';
+import { useState, useEffect } from 'react'
+import { Image as ImageIcon, X } from 'lucide-react'
+import Button from '../../ui/button/Button'
+import MediaLibraryModal from './MediaLibraryModal'
+import { api } from '../../../api/axios'
 
 interface MediaSelectorProps {
-  selectedMediaId?: string;
-  onSelect: (mediaId: string) => void;
-  onRemove: () => void;
-  allowedTypes?: ('image' | 'video' | 'audio' | 'document' | 'pdf')[];
+  selectedMediaId?: string
+  onSelect: (mediaId: string) => void
+  onRemove: () => void
+  allowedTypes?: ('image' | 'video' | 'audio' | 'document' | 'pdf')[]
 }
 
 export default function MediaSelector({
@@ -17,31 +17,31 @@ export default function MediaSelector({
   onRemove,
   allowedTypes = ['image'],
 }: MediaSelectorProps) {
-  const [modalOpen, setModalOpen] = useState(false);
-  const [mediaDetails, setMediaDetails] = useState<any>(null);
+  const [modalOpen, setModalOpen] = useState(false)
+  const [mediaDetails, setMediaDetails] = useState<any>(null)
 
   useEffect(() => {
     if (selectedMediaId) {
-      fetchMediaDetails();
+      fetchMediaDetails()
     } else {
-      setMediaDetails(null);
+      setMediaDetails(null)
     }
-  }, [selectedMediaId]);
+  }, [selectedMediaId])
 
   const fetchMediaDetails = async () => {
-    if (!selectedMediaId) return;
+    if (!selectedMediaId) return
     try {
-      const res = await api.get(`/media/${selectedMediaId}`);
-      setMediaDetails(res.data);
+      const res = await api.get(`/media/${selectedMediaId}`)
+      setMediaDetails(res.data)
     } catch (error) {
-      console.error('Failed to fetch media:', error);
+      console.error('Failed to fetch media:', error)
     }
-  };
+  }
 
   const handleSelect = (media: any) => {
-    onSelect(media.media_id);
-    setModalOpen(false);
-  };
+    onSelect(media.media_id)
+    setModalOpen(false)
+  }
 
   return (
     <>
@@ -73,8 +73,12 @@ export default function MediaSelector({
           </p>
         </div>
       ) : (
-        <Button variant="outline" startIcon={<ImageIcon />} onClick={() => setModalOpen(true)}>
-          Select Image
+        <Button
+          variant="outline"
+          startIcon={<ImageIcon />}
+          onClick={() => setModalOpen(true)}
+        >
+          Wybierz zdjęcie
         </Button>
       )}
 
@@ -86,5 +90,5 @@ export default function MediaSelector({
         multiple={false}
       />
     </>
-  );
+  )
 }

@@ -1,27 +1,30 @@
-import { useState } from 'react';
-import { useAuth } from '../../store/auth';
-import Label from '../../form/Label';
-import Input from '../../form/input/InputField';
-import Button from '../../ui/button/Button';
-import PageMeta from '../../components/common/PageMeta';
+import { useState } from 'react'
+import { useAuth } from '../../store/auth'
+import Label from '../../form/Label'
+import Input from '../../form/input/InputField'
+import Button from '../../ui/button/Button'
+import PageMeta from '../../components/common/PageMeta'
 
 export default function ForgotPasswordFormPage() {
-  const { forgotPassword, loading, error, clearError } = useAuth();
-  const [email, setEmail] = useState('');
-  const [sent, setSent] = useState(false);
+  const { forgotPassword, loading, error, clearError } = useAuth()
+  const [email, setEmail] = useState('')
+  const [sent, setSent] = useState(false)
 
   async function submit(e: any) {
-    e.preventDefault();
-    clearError();
+    e.preventDefault()
+    clearError()
     try {
-      await forgotPassword(email);
-      setSent(true);
+      await forgotPassword(email)
+      setSent(true)
     } catch {}
   }
 
   return (
     <>
-      <PageMeta title='Zapomniane hasło' description='Strona resetowania hasła w panelu administracyjnym' />
+      <PageMeta
+        title="Zapomniane hasło"
+        description="Strona resetowania hasła w panelu administracyjnym"
+      />
       <div className="h-screen flex flex-col items-center justify-center flex-1">
         <div className="w-full max-w-md p-6 bg-white rounded-xl dark:bg-gray-900">
           <h1 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
@@ -59,5 +62,5 @@ export default function ForgotPasswordFormPage() {
         </div>
       </div>
     </>
-  );
+  )
 }

@@ -1,15 +1,15 @@
-import { useState } from 'react';
+import { useState } from 'react'
 
 interface CountryCode {
-  code: string;
-  label: string;
+  code: string
+  label: string
 }
 
 interface PhoneInputProps {
-  countries: CountryCode[];
-  placeholder?: string;
-  onChange?: (phoneNumber: string) => void;
-  selectPosition?: 'start' | 'end'; // New prop for dropdown position
+  countries: CountryCode[]
+  placeholder?: string
+  onChange?: (phoneNumber: string) => void
+  selectPosition?: 'start' | 'end' // New prop for dropdown position
 }
 
 const PhoneInput: React.FC<PhoneInputProps> = ({
@@ -18,30 +18,30 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
   onChange,
   selectPosition = 'start', // Default position is 'start'
 }) => {
-  const [selectedCountry, setSelectedCountry] = useState<string>('US');
-  const [phoneNumber, setPhoneNumber] = useState<string>('+1');
+  const [selectedCountry, setSelectedCountry] = useState<string>('US')
+  const [phoneNumber, setPhoneNumber] = useState<string>('+1')
 
   const countryCodes: Record<string, string> = countries.reduce(
     (acc, { code, label }) => ({ ...acc, [code]: label }),
     {}
-  );
+  )
 
   const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newCountry = e.target.value;
-    setSelectedCountry(newCountry);
-    setPhoneNumber(countryCodes[newCountry]);
+    const newCountry = e.target.value
+    setSelectedCountry(newCountry)
+    setPhoneNumber(countryCodes[newCountry])
     if (onChange) {
-      onChange(countryCodes[newCountry]);
+      onChange(countryCodes[newCountry])
     }
-  };
+  }
 
   const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newPhoneNumber = e.target.value;
-    setPhoneNumber(newPhoneNumber);
+    const newPhoneNumber = e.target.value
+    setPhoneNumber(newPhoneNumber)
     if (onChange) {
-      onChange(newPhoneNumber);
+      onChange(newPhoneNumber)
     }
-  };
+  }
 
   return (
     <div className="relative flex">
@@ -134,7 +134,7 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default PhoneInput;
+export default PhoneInput

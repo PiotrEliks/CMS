@@ -1,25 +1,30 @@
-import { useState } from 'react';
-import { Plus, Trash2, Image as ImageIcon } from 'lucide-react';
-import Button from '../../../ui/button/Button';
-import { type ServicesComponentData } from '../../../store/pageComponents';
-import MediaLibraryModal from '../../ui/content/MediaLibraryModal';
+import { useState } from 'react'
+import { Plus, Trash2, Image as ImageIcon } from 'lucide-react'
+import Button from '../../../ui/button/Button'
+import { type ServicesComponentData } from '../../../store/pageComponents'
+import MediaLibraryModal from '../../ui/content/MediaLibraryModal'
 
 interface ServicesEditorProps {
-  data: ServicesComponentData;
-  onChange: (data: ServicesComponentData) => void;
+  data: ServicesComponentData
+  onChange: (data: ServicesComponentData) => void
 }
 
-export default function ServicesEditor({ data, onChange }: ServicesEditorProps) {
-  const [mediaModalOpen, setMediaModalOpen] = useState(false);
-  const [selectedItemIndex, setSelectedItemIndex] = useState<number | null>(null);
+export default function ServicesEditor({
+  data,
+  onChange,
+}: ServicesEditorProps) {
+  const [mediaModalOpen, setMediaModalOpen] = useState(false)
+  const [selectedItemIndex, setSelectedItemIndex] = useState<number | null>(
+    null
+  )
 
-  const items = data.items || [];
+  const items = data.items || []
 
   const handleItemChange = (index: number, field: string, value: any) => {
-    const newItems = [...items];
-    newItems[index] = { ...newItems[index], [field]: value };
-    onChange({ ...data, items: newItems });
-  };
+    const newItems = [...items]
+    newItems[index] = { ...newItems[index], [field]: value }
+    onChange({ ...data, items: newItems })
+  }
 
   const handleAddItem = () => {
     onChange({
@@ -32,21 +37,21 @@ export default function ServicesEditor({ data, onChange }: ServicesEditorProps) 
           price: '',
         },
       ],
-    });
-  };
+    })
+  }
 
   const handleRemoveItem = (index: number) => {
-    const newItems = items.filter((_, i) => i !== index);
-    onChange({ ...data, items: newItems });
-  };
+    const newItems = items.filter((_, i) => i !== index)
+    onChange({ ...data, items: newItems })
+  }
 
   const handleMediaSelect = (media: any) => {
     if (selectedItemIndex !== null) {
-      handleItemChange(selectedItemIndex, 'media_id', media.media_id);
+      handleItemChange(selectedItemIndex, 'media_id', media.media_id)
     }
-    setMediaModalOpen(false);
-    setSelectedItemIndex(null);
-  };
+    setMediaModalOpen(false)
+    setSelectedItemIndex(null)
+  }
 
   return (
     <>
@@ -79,16 +84,29 @@ export default function ServicesEditor({ data, onChange }: ServicesEditorProps) 
 
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h4 className="font-semibold text-gray-900 dark:text-white">Usługi</h4>
-            <Button size="sm" variant="outline" startIcon={<Plus />} onClick={handleAddItem}>
+            <h4 className="font-semibold text-gray-900 dark:text-white">
+              Usługi
+            </h4>
+            <Button
+              size="sm"
+              variant="outline"
+              startIcon={<Plus />}
+              onClick={handleAddItem}
+            >
               Dodaj usługę
             </Button>
           </div>
 
           {items.length === 0 ? (
             <div className="text-center py-8 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg">
-              <p className="text-gray-500 dark:text-gray-400 mb-4">Brak usług</p>
-              <Button variant="primary" startIcon={<Plus />} onClick={handleAddItem}>
+              <p className="text-gray-500 dark:text-gray-400 mb-4">
+                Brak usług
+              </p>
+              <Button
+                variant="primary"
+                startIcon={<Plus />}
+                onClick={handleAddItem}
+              >
                 Dodaj swoją pierwszą usługę
               </Button>
             </div>
@@ -118,7 +136,9 @@ export default function ServicesEditor({ data, onChange }: ServicesEditorProps) 
                     <input
                       type="text"
                       value={item.icon || ''}
-                      onChange={(e) => handleItemChange(index, 'icon', e.target.value)}
+                      onChange={(e) =>
+                        handleItemChange(index, 'icon', e.target.value)
+                      }
                       className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
                       placeholder="flaticon-razor lub ✂️"
                     />
@@ -131,7 +151,9 @@ export default function ServicesEditor({ data, onChange }: ServicesEditorProps) 
                     <input
                       type="text"
                       value={item.name || ''}
-                      onChange={(e) => handleItemChange(index, 'name', e.target.value)}
+                      onChange={(e) =>
+                        handleItemChange(index, 'name', e.target.value)
+                      }
                       className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
                       placeholder="Strzyżenie włosów"
                     />
@@ -144,7 +166,9 @@ export default function ServicesEditor({ data, onChange }: ServicesEditorProps) 
                   </label>
                   <textarea
                     value={item.description || ''}
-                    onChange={(e) => handleItemChange(index, 'description', e.target.value)}
+                    onChange={(e) =>
+                      handleItemChange(index, 'description', e.target.value)
+                    }
                     rows={3}
                     className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
                     placeholder="Profesjonalne strzyżenie włosów z konsultacją"
@@ -159,7 +183,9 @@ export default function ServicesEditor({ data, onChange }: ServicesEditorProps) 
                     <input
                       type="text"
                       value={item.price || ''}
-                      onChange={(e) => handleItemChange(index, 'price', e.target.value)}
+                      onChange={(e) =>
+                        handleItemChange(index, 'price', e.target.value)
+                      }
                       className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
                       placeholder="$29"
                     />
@@ -172,7 +198,9 @@ export default function ServicesEditor({ data, onChange }: ServicesEditorProps) 
                     <input
                       type="text"
                       value={item.link || ''}
-                      onChange={(e) => handleItemChange(index, 'link', e.target.value)}
+                      onChange={(e) =>
+                        handleItemChange(index, 'link', e.target.value)
+                      }
                       className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
                       placeholder="/uslugów/strzyżenie"
                     />
@@ -192,8 +220,8 @@ export default function ServicesEditor({ data, onChange }: ServicesEditorProps) 
                         size="sm"
                         variant="outline"
                         onClick={() => {
-                          setSelectedItemIndex(index);
-                          setMediaModalOpen(true);
+                          setSelectedItemIndex(index)
+                          setMediaModalOpen(true)
                         }}
                       >
                         Zmień
@@ -201,7 +229,9 @@ export default function ServicesEditor({ data, onChange }: ServicesEditorProps) 
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => handleItemChange(index, 'media_id', undefined)}
+                        onClick={() =>
+                          handleItemChange(index, 'media_id', undefined)
+                        }
                       >
                         Usuń
                       </Button>
@@ -211,8 +241,8 @@ export default function ServicesEditor({ data, onChange }: ServicesEditorProps) 
                       variant="outline"
                       startIcon={<ImageIcon />}
                       onClick={() => {
-                        setSelectedItemIndex(index);
-                        setMediaModalOpen(true);
+                        setSelectedItemIndex(index)
+                        setMediaModalOpen(true)
                       }}
                     >
                       Wybierz obraz
@@ -225,7 +255,9 @@ export default function ServicesEditor({ data, onChange }: ServicesEditorProps) 
         </div>
 
         <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-          <h4 className="font-semibold text-gray-900 dark:text-white">Ustawienia układu</h4>
+          <h4 className="font-semibold text-gray-900 dark:text-white">
+            Ustawienia układu
+          </h4>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -233,7 +265,12 @@ export default function ServicesEditor({ data, onChange }: ServicesEditorProps) 
             </label>
             <select
               value={data.layout || 'grid'}
-              onChange={(e) => onChange({ ...data, layout: e.target.value as any })}
+              onChange={(e) =>
+                onChange({
+                  ...data,
+                  layout: e.target.value as any,
+                })
+              }
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
             >
               <option value="grid">Siatka</option>
@@ -249,7 +286,12 @@ export default function ServicesEditor({ data, onChange }: ServicesEditorProps) 
             <input
               type="number"
               value={data.columns || 3}
-              onChange={(e) => onChange({ ...data, columns: parseInt(e.target.value) })}
+              onChange={(e) =>
+                onChange({
+                  ...data,
+                  columns: parseInt(e.target.value),
+                })
+              }
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
               min="1"
               max="6"
@@ -261,13 +303,13 @@ export default function ServicesEditor({ data, onChange }: ServicesEditorProps) 
       <MediaLibraryModal
         open={mediaModalOpen}
         onClose={() => {
-          setMediaModalOpen(false);
-          setSelectedItemIndex(null);
+          setMediaModalOpen(false)
+          setSelectedItemIndex(null)
         }}
         onSelect={handleMediaSelect}
         allowedTypes={['image']}
         multiple={false}
       />
     </>
-  );
+  )
 }

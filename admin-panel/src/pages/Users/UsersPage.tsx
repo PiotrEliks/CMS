@@ -1,6 +1,6 @@
-import PageBreadcrumb from '../../components/common/PageBreadCrumb';
-import PageMeta from '../../components/common/PageMeta';
-import UsersTable from '../../components/tables/UsersTable';
+import PageBreadcrumb from '../../components/common/PageBreadCrumb'
+import PageMeta from '../../components/common/PageMeta'
+import UsersTable from '../../components/tables/UsersTable'
 
 export default function UsersPage() {
   return (
@@ -16,5 +16,5 @@ export default function UsersPage() {
         </div>
       </div>
     </>
-  );
+  )
 }

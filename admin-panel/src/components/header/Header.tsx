@@ -1,20 +1,20 @@
-import { useState } from 'react';
-import { ThemeToggleButton } from '../common/ThemeToggleButton';
-import NotificationDropdown from './NotificationDropdown';
-import UserDropdown from './UserDropdown';
-import { Link } from 'react-router';
+import { useState } from 'react'
+import { ThemeToggleButton } from '../common/ThemeToggleButton'
+import NotificationDropdown from './NotificationDropdown'
+import UserDropdown from './UserDropdown'
+import { Link } from 'react-router'
 
 // Define the interface for the props
 interface HeaderProps {
-  onClick?: () => void; // Optional function that takes no arguments and returns void
-  onToggle: () => void;
+  onClick?: () => void // Optional function that takes no arguments and returns void
+  onToggle: () => void
 }
 const Header: React.FC<HeaderProps> = ({ onClick, onToggle }) => {
-  const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
+  const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false)
 
   const toggleApplicationMenu = () => {
-    setApplicationMenuOpen(!isApplicationMenuOpen);
-  };
+    setApplicationMenuOpen(!isApplicationMenuOpen)
+  }
 
   return (
     <header className="sticky top-0 flex w-full bg-white border-gray-200 z-99999 dark:border-gray-800 dark:bg-gray-900 lg:border-b">
@@ -79,8 +79,16 @@ const Header: React.FC<HeaderProps> = ({ onClick, onToggle }) => {
           </button>
 
           <Link to="/" className="lg:hidden">
-            <img className="dark:hidden" src="./images/logo/logo.svg" alt="Logo" />
-            <img className="hidden dark:block" src="./images/logo/logo-dark.svg" alt="Logo" />
+            <img
+              className="dark:hidden"
+              src="./images/logo/logo.svg"
+              alt="Logo"
+            />
+            <img
+              className="hidden dark:block"
+              src="./images/logo/logo-dark.svg"
+              alt="Logo"
+            />
           </Link>
 
           <button
@@ -154,7 +162,7 @@ const Header: React.FC<HeaderProps> = ({ onClick, onToggle }) => {
         </div>
       </div>
     </header>
-  );
-};
+  )
+}
 
-export default Header;
+export default Header

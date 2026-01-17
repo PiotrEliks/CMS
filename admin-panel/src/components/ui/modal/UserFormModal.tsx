@@ -1,68 +1,68 @@
-import React, { useEffect, useState } from 'react';
-import { useUsers } from '../../../store/users';
-import type { User, Role } from '../../../store/users';
-import Button from '../../ui/button/Button';
-import { api } from '../../../api/axios';
+import React, { useEffect, useState } from 'react'
+import { useUsers } from '../../../store/users'
+import type { User, Role } from '../../../store/users'
+import Button from '../../ui/button/Button'
+import { api } from '../../../api/axios'
 
 type Props = {
-  open: boolean;
-  onClose: () => void;
-  userToEdit?: User | null;
-};
+  open: boolean
+  onClose: () => void
+  userToEdit?: User | null
+}
 
 export default function UserFormModal({ open, onClose, userToEdit }: Props) {
-  const isEdit = !!userToEdit;
+  const isEdit = !!userToEdit
 
-  const { addUser, updateUser, loading, error, clearError } = useUsers();
+  const { addUser, updateUser, loading, error, clearError } = useUsers()
 
-  const [email, setEmail] = useState('');
-  const [displayName, setDisplayName] = useState('');
-  const [roleId, setRoleId] = useState('');
-  const [status, setStatus] = useState(true);
+  const [email, setEmail] = useState('')
+  const [displayName, setDisplayName] = useState('')
+  const [roleId, setRoleId] = useState('')
+  const [status, setStatus] = useState(true)
 
-  const [roles, setRoles] = useState<Role[]>([]);
-  const [rolesLoading, setRolesLoading] = useState(false);
-  const [rolesError, setRolesError] = useState<string | null>(null);
+  const [roles, setRoles] = useState<Role[]>([])
+  const [rolesLoading, setRolesLoading] = useState(false)
+  const [rolesError, setRolesError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) return
 
     const fetchRoles = async () => {
-      setRolesLoading(true);
-      setRolesError(null);
+      setRolesLoading(true)
+      setRolesError(null)
       try {
-        const res = await api.get('/roles');
-        setRoles(res.data.roles ?? []);
+        const res = await api.get('/roles')
+        setRoles(res.data.roles ?? [])
       } catch (e: any) {
-        const msg = e?.response?.data?.error ?? 'Nie udało się pobrać ról';
-        setRolesError(msg);
+        const msg = e?.response?.data?.error ?? 'Nie udało się pobrać ról'
+        setRolesError(msg)
       } finally {
-        setRolesLoading(false);
+        setRolesLoading(false)
       }
-    };
+    }
 
-    fetchRoles();
-  }, [open]);
+    fetchRoles()
+  }, [open])
 
   useEffect(() => {
     if (userToEdit) {
-      setEmail(userToEdit.email ?? '');
-      setDisplayName(userToEdit.display_name ?? '');
-      setRoleId(userToEdit.role_id ?? '');
-      setStatus(userToEdit.status ?? true);
+      setEmail(userToEdit.email ?? '')
+      setDisplayName(userToEdit.display_name ?? '')
+      setRoleId(userToEdit.role_id ?? '')
+      setStatus(userToEdit.status ?? true)
     } else {
-      setEmail('');
-      setDisplayName('');
-      setRoleId('');
-      setStatus(true);
+      setEmail('')
+      setDisplayName('')
+      setRoleId('')
+      setStatus(true)
     }
-    clearError();
-  }, [userToEdit, clearError]);
+    clearError()
+  }, [userToEdit, clearError])
 
-  if (!open) return null;
+  if (!open) return null
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
     try {
       if (isEdit && userToEdit) {
@@ -71,18 +71,18 @@ export default function UserFormModal({ open, onClose, userToEdit }: Props) {
           display_name: displayName,
           role_id: roleId || undefined,
           status,
-        });
+        })
       } else {
         await addUser({
           email,
           display_name: displayName || undefined,
           role_id: roleId || undefined,
           status,
-        });
+        })
       }
-      onClose();
+      onClose()
     } catch {}
-  };
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
@@ -150,7 +150,9 @@ export default function UserFormModal({ open, onClose, userToEdit }: Props) {
               onChange={(e) => setRoleId(e.target.value)}
               disabled={rolesLoading}
             >
-              <option value="">{rolesLoading ? 'Ładowanie ról…' : 'Wybierz rolę'}</option>
+              <option value="">
+                {rolesLoading ? 'Ładowanie ról…' : 'Wybierz rolę'}
+              </option>
               {roles.map((role) => (
                 <option key={role.role_id} value={role.role_id}>
                   {role.display_name}
@@ -161,7 +163,9 @@ export default function UserFormModal({ open, onClose, userToEdit }: Props) {
 
           <div className="flex items-center justify-between gap-4 pt-2">
             <div>
-              <p className="text-sm font-medium text-gray-700 dark:text-gray-200">Status</p>
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                Status
+              </p>
               <p className="text-xs text-gray-500 dark:text-gray-400">
                 Określ, czy użytkownik jest aktywny.
               </p>
@@ -191,11 +195,15 @@ export default function UserFormModal({ open, onClose, userToEdit }: Props) {
             </button>
 
             <Button size="sm" variant="primary" disabled={loading}>
-              {loading ? 'Zapisywanie...' : isEdit ? 'Zapisz zmiany' : 'Utwórz użytkownika'}
+              {loading
+                ? 'Zapisywanie...'
+                : isEdit
+                  ? 'Zapisz zmiany'
+                  : 'Utwórz użytkownika'}
             </Button>
           </div>
         </form>
       </div>
     </div>
-  );
+  )
 }

@@ -1,7 +1,7 @@
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import { User } from '../models/user.model.js';
-import { Permission, Role } from '../models/index.js';
+import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
+import { User } from '../models/user.model.js'
+import { Permission, Role } from '../models/index.js'
 
 export async function loginWithEmail(email: string, password: string) {
   const user = await User.findOne({
@@ -19,26 +19,27 @@ export async function loginWithEmail(email: string, password: string) {
         ],
       },
     ],
-  });
-  if (!user) throw new Error('Invalid credentials');
+  })
+  if (!user) throw new Error('Invalid credentials')
 
-  const ok = await bcrypt.compare(password, user.password_hash);
-  if (!ok) throw new Error('Invalid credentials');
+  const ok = await bcrypt.compare(password, user.password_hash)
+  if (!ok) throw new Error('Invalid credentials')
 
-  const secret = process.env.JWT_SECRET;
-  if (!secret) throw new Error('JWT_SECRET is not set');
+  const secret = process.env.JWT_SECRET
+  if (!secret) throw new Error('JWT_SECRET is not set')
 
-  user.last_access = new Date();
-  await user.save();
+  user.last_access = new Date()
+  await user.save()
 
   const accessToken = jwt.sign(
     { sub: user.user_id, email: user.email, role: user.role_id },
     secret,
     { expiresIn: '1h' }
-  );
+  )
 
-  const plain = user.toJSON() as any;
-  const permissions: string[] = plain.role?.permissions?.map((p: any) => p.code) ?? [];
+  const plain = user.toJSON() as any
+  const permissions: string[] =
+    plain.role?.permissions?.map((p: any) => p.code) ?? []
 
   return {
     accessToken,
@@ -52,5 +53,5 @@ export async function loginWithEmail(email: string, password: string) {
       avatar_url: user.avatar_url,
       permissions,
     },
-  };
+  }
 }

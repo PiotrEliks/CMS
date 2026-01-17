@@ -1,14 +1,14 @@
-import { useEffect, useState } from 'react';
-import ComponentCard from '../../components/common/ComponentCard';
-import Button from '../../components/ui/button/Button';
-import { useMedia } from '../../store/media';
-import MediaGrid from '../../components/media/MediaGrid';
-import MediaUploadModal from '../../components/media/MediaUploadModal';
-import MediaDetailsDrawer from '../../components/media/MediaDetailsDrawer';
-import MediaInUseModal from '../../components/media/MediaInUseModal';
-import { usePermission } from '../../utils/permissions';
-import PageMeta from '../../components/common/PageMeta';
-import PageBreadcrumb from '../../components/common/PageBreadCrumb';
+import { useEffect, useState } from 'react'
+import ComponentCard from '../../components/common/ComponentCard'
+import Button from '../../components/ui/button/Button'
+import { useMedia } from '../../store/media'
+import MediaGrid from '../../components/media/MediaGrid'
+import MediaUploadModal from '../../components/media/MediaUploadModal'
+import MediaDetailsDrawer from '../../components/media/MediaDetailsDrawer'
+import MediaInUseModal from '../../components/media/MediaInUseModal'
+import { usePermission } from '../../utils/permissions'
+import PageMeta from '../../components/common/PageMeta'
+import PageBreadcrumb from '../../components/common/PageBreadCrumb'
 
 export default function MediaPage() {
   const {
@@ -21,35 +21,38 @@ export default function MediaPage() {
     selectedUsage,
     clearSelected,
     deleteOne,
-  } = useMedia();
+  } = useMedia()
 
-  const [filters, setFilters] = useState<{ type?: 'image' | 'document' | 'all'; search?: string }>({
+  const [filters, setFilters] = useState<{
+    type?: 'image' | 'document' | 'all'
+    search?: string
+  }>({
     type: 'all',
     search: '',
-  });
+  })
 
-  const [uploadOpen, setUploadOpen] = useState(false);
-  const [inUseOpen, setInUseOpen] = useState(false);
-  const [inUsePlaces, setInUsePlaces] = useState<any[]>([]);
+  const [uploadOpen, setUploadOpen] = useState(false)
+  const [inUseOpen, setInUseOpen] = useState(false)
+  const [inUsePlaces, setInUsePlaces] = useState<any[]>([])
 
-  const canUpload = usePermission('media.upload');
-  const canDelete = usePermission('media.delete');
-  const canUpdate = usePermission('media.update');
+  const canUpload = usePermission('media.upload')
+  const canDelete = usePermission('media.delete')
+  const canUpdate = usePermission('media.update')
   useEffect(() => {
-    fetchMedia({ type: filters.type, search: filters.search });
-  }, [filters.type, filters.search, fetchMedia]);
+    fetchMedia({ type: filters.type, search: filters.search })
+  }, [filters.type, filters.search, fetchMedia])
 
   const openDetails = async (id: string) => {
-    await fetchMediaDetails(id);
-  };
+    await fetchMediaDetails(id)
+  }
 
   const handleDelete = async (id: string) => {
-    const res = await deleteOne(id);
+    const res = await deleteOne(id)
     if (res.ok === false && res.code === 'MEDIA_IN_USE') {
-      setInUsePlaces(res.places);
-      setInUseOpen(true);
+      setInUsePlaces(res.places)
+      setInUseOpen(true)
     }
-  };
+  }
 
   return (
     <>
@@ -62,7 +65,11 @@ export default function MediaPage() {
         title={`Media (${total})`}
         button={
           canUpload ? (
-            <Button size="sm" variant="primary" onClick={() => setUploadOpen(true)}>
+            <Button
+              size="sm"
+              variant="primary"
+              onClick={() => setUploadOpen(true)}
+            >
               Dodaj plik
             </Button>
           ) : null
@@ -104,7 +111,12 @@ export default function MediaPage() {
 
           <input
             value={filters.search ?? ''}
-            onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
+            onChange={(e) =>
+              setFilters((f) => ({
+                ...f,
+                search: e.target.value,
+              }))
+            }
             placeholder="Szukaj (nazwa, tytuł, alt)..."
             className="w-full md:w-[360px] rounded-lg border border-gray-200 bg-transparent px-4 py-2 text-sm outline-none dark:border-gray-700"
           />
@@ -118,7 +130,10 @@ export default function MediaPage() {
         />
       </ComponentCard>
 
-      <MediaUploadModal open={uploadOpen} onClose={() => setUploadOpen(false)} />
+      <MediaUploadModal
+        open={uploadOpen}
+        onClose={() => setUploadOpen(false)}
+      />
 
       <MediaDetailsDrawer
         open={!!selected}
@@ -128,7 +143,11 @@ export default function MediaPage() {
         canUpdate={canUpdate}
       />
 
-      <MediaInUseModal open={inUseOpen} places={inUsePlaces} onClose={() => setInUseOpen(false)} />
+      <MediaInUseModal
+        open={inUseOpen}
+        places={inUsePlaces}
+        onClose={() => setInUseOpen(false)}
+      />
     </>
-  );
+  )
 }

@@ -1,7 +1,10 @@
-import { useState } from 'react';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { type ContentSection, useContentSections } from '../../../store/contentSections';
+import { useState } from 'react'
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import {
+  type ContentSection,
+  useContentSections,
+} from '../../../store/contentSections'
 import {
   GripVerticalIcon,
   EditIcon,
@@ -11,15 +14,15 @@ import {
   FileTextIcon,
   VideoIcon,
   CodeIcon,
-} from 'lucide-react';
-import Button from '../../ui/button/Button';
-import DeleteConfirmModal from '../../modal/DeleteConfirmModal';
-import SectionEditModal from './SectionEditModal';
-import { Access } from '../../permissions/Access';
+} from 'lucide-react'
+import Button from '../../ui/button/Button'
+import DeleteConfirmModal from '../../modal/DeleteConfirmModal'
+import SectionEditModal from './SectionEditModal'
+import { Access } from '../../permissions/Access'
 
 interface SectionItemProps {
-  section: ContentSection;
-  contentId: string;
+  section: ContentSection
+  contentId: string
 }
 
 const sectionTypeIcons: Record<string, React.ReactNode> = {
@@ -30,7 +33,7 @@ const sectionTypeIcons: Record<string, React.ReactNode> = {
   video: <VideoIcon className="w-4 h-4" />,
   html: <CodeIcon className="w-4 h-4" />,
   embed: <CodeIcon className="w-4 h-4" />,
-};
+}
 
 const sectionTypeLabels: Record<string, string> = {
   text: 'Tekst',
@@ -40,35 +43,42 @@ const sectionTypeLabels: Record<string, string> = {
   video: 'Wideo',
   html: 'HTML',
   embed: 'Embed',
-};
+}
 
 export default function SectionItem({ section, contentId }: SectionItemProps) {
-  const { deleteSection, duplicateSection } = useContentSections();
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const { deleteSection, duplicateSection } = useContentSections()
+  const [editModalOpen, setEditModalOpen] = useState(false)
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
 
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
     id: section.section_id,
-  });
+  })
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-  };
+  }
 
   const handleDelete = async () => {
     try {
-      await deleteSection(contentId, section.section_id);
-      setDeleteModalOpen(false);
+      await deleteSection(contentId, section.section_id)
+      setDeleteModalOpen(false)
     } catch (error) {}
-  };
+  }
 
   const handleDuplicate = async () => {
     try {
-      await duplicateSection(contentId, section.section_id);
+      await duplicateSection(contentId, section.section_id)
     } catch (error) {}
-  };
+  }
 
   return (
     <>
@@ -86,7 +96,9 @@ export default function SectionItem({ section, contentId }: SectionItemProps) {
             <GripVerticalIcon className="w-5 h-5" />
           </button>
 
-          <div className="mt-1 text-primary">{sectionTypeIcons[section.section_type]}</div>
+          <div className="mt-1 text-primary">
+            {sectionTypeIcons[section.section_type]}
+          </div>
 
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">
@@ -116,7 +128,8 @@ export default function SectionItem({ section, contentId }: SectionItemProps) {
 
                 {section.body && (
                   <p className="text-xs text-gray-500 dark:text-gray-500 mt-1 line-clamp-2">
-                    {section.body.replace(/<[^>]*>/g, '').substring(0, 150)}...
+                    {section.body.replace(/<[^>]*>/g, '').substring(0, 150)}
+                    ...
                   </p>
                 )}
 
@@ -124,7 +137,8 @@ export default function SectionItem({ section, contentId }: SectionItemProps) {
                   <div className="flex items-center gap-1 mt-2">
                     <ImageIcon className="w-3 h-3 text-gray-400" />
                     <span className="text-xs text-gray-500">
-                      {section.media.length} {section.media.length === 1 ? 'plik' : 'plików'}
+                      {section.media.length}{' '}
+                      {section.media.length === 1 ? 'plik' : 'plików'}
                     </span>
                   </div>
                 )}
@@ -138,7 +152,11 @@ export default function SectionItem({ section, contentId }: SectionItemProps) {
                 </Access>
 
                 <Access allOf={['content.update_any']}>
-                  <Button size="sm" variant="outline" onClick={() => setEditModalOpen(true)}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setEditModalOpen(true)}
+                  >
                     <EditIcon className="w-4 h-4" />
                   </Button>
                 </Access>
@@ -175,5 +193,5 @@ export default function SectionItem({ section, contentId }: SectionItemProps) {
         message={`Czy na pewno chcesz usunąć tę sekcję${section.heading ? ` "${section.heading}"` : ''}?`}
       />
     </>
-  );
+  )
 }

@@ -1,44 +1,57 @@
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Save, Eye } from 'lucide-react';
-import PageMeta from '../../components/common/PageMeta';
-import PageBreadcrumb from '../../components/common/PageBreadCrumb';
-import ComponentCard from '../../components/common/ComponentCard';
-import Button from '../../ui/button/Button';
-import { api } from '../../api/axios';
-import RichTextEditor from '../../components/ui/content/RichTextEditor';
-import MediaSelector from '../../components/ui/content/MediaSelector';
-import CategorySelector from '../../components/ui/content/CategorySelector';
-import PageBuilder from '../../components/ui/content/PageBuilder';
-import ContentSections from '../../components/ui/content/ContentSections';
+import { useEffect, useState } from 'react'
+import { useParams, useNavigate, Link } from 'react-router-dom'
+import { ArrowLeft, Save, Eye } from 'lucide-react'
+import PageMeta from '../../components/common/PageMeta'
+import PageBreadcrumb from '../../components/common/PageBreadCrumb'
+import ComponentCard from '../../components/common/ComponentCard'
+import Button from '../../ui/button/Button'
+import { api } from '../../api/axios'
+import RichTextEditor from '../../components/ui/content/RichTextEditor'
+import MediaSelector from '../../components/ui/content/MediaSelector'
+import CategorySelector from '../../components/ui/content/CategorySelector'
+import PageBuilder from '../../components/ui/content/PageBuilder'
+import ContentSections from '../../components/ui/content/ContentSections'
+import ContentDisplayOrder from '../../components/ui/content/ContentDisplayOrder'
+import type { ContentSection } from '../../store/contentSections'
+import type { PageComponent } from '../../store/pageComponents'
 
 interface Content {
-  content_id: string;
-  title: string;
-  slug: string;
-  type?: string;
-  status: string;
-  lead?: string;
-  body?: string;
-  cover_media_id?: string;
-  author?: string;
-  published_at?: string;
-  meta_title?: string;
-  meta_description?: string;
-  og_title?: string;
-  og_description?: string;
-  created_at: string;
-  updated_at: string;
+  content_id: string
+  title: string
+  slug: string
+  type?: string
+  status: string
+  lead?: string
+  body?: string
+  cover_media_id?: string
+  author?: string
+  published_at?: string
+  meta_title?: string
+  meta_description?: string
+  og_title?: string
+  og_description?: string
+  created_at: string
+  updated_at: string
 }
 
 export default function EditContentPage() {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const isNew = id === 'new';
+  const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
+  const isNew = id === 'new'
 
-  const [loading, setLoading] = useState(!isNew);
-  const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<'basic' | 'sections' | 'components' | 'seo'>('basic');
+  const [loading, setLoading] = useState(!isNew)
+  const [saving, setSaving] = useState(false)
+
+  const [activeTab, setActiveTab] = useState<
+    'basic' | 'sections' | 'components' | 'order' | 'seo'
+  >('basic')
+  const [editSectionModalOpen, setEditSectionModalOpen] = useState(false)
+  const [editComponentModalOpen, setEditComponentModalOpen] = useState(false)
+  const [selectedSection, setSelectedSection] = useState<ContentSection | null>(
+    null
+  )
+  const [selectedComponent, setSelectedComponent] =
+    useState<PageComponent | null>(null)
 
   const [formData, setFormData] = useState<Partial<Content>>({
     title: '',
@@ -53,112 +66,113 @@ export default function EditContentPage() {
     meta_description: '',
     og_title: '',
     og_description: '',
-  });
+  })
 
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
 
   useEffect(() => {
     if (!isNew && id) {
-      fetchContent();
-      fetchCategories();
+      fetchContent()
+      fetchCategories()
     }
-  }, [id, isNew]);
+  }, [id, isNew])
 
   const fetchContent = async () => {
-    setLoading(true);
+    setLoading(true)
     try {
-      const res = await api.get(`/contents/${id}`);
-      setFormData(res.data);
+      const res = await api.get(`/contents/${id}`)
+      setFormData(res.data)
     } catch (error) {
-      console.error('Failed to fetch content:', error);
+      console.error('Failed to fetch content:', error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const fetchCategories = async () => {
     try {
-      const res = await api.get(`/categories/contents/${id}/categories`);
-      setSelectedCategories(res.data.map((c: any) => c.category_id));
+      const res = await api.get(`/categories/contents/${id}/categories`)
+      setSelectedCategories(res.data.map((c: any) => c.category_id))
     } catch (error) {
-      console.error('Failed to fetch categories:', error);
+      console.error('Failed to fetch categories:', error)
     }
-  };
+  }
 
   const handleChange = (field: keyof Content, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
+    setFormData((prev) => ({ ...prev, [field]: value }))
+  }
 
   const handleSave = async () => {
-    setSaving(true);
+    setSaving(true)
     try {
-      let contentId = id;
+      let contentId = id
 
       if (isNew) {
-        const res = await api.post('/contents', formData);
-        contentId = res.data.content_id;
+        const res = await api.post('/contents', formData)
+        contentId = res.data.content_id
 
         if (selectedCategories.length > 0) {
           await api.post(`/contents/${contentId}/categories`, {
             category_ids: selectedCategories,
-          });
+          })
         }
 
-        navigate(`/contents/${contentId}/edit`);
+        navigate(`/contents/${contentId}/edit`)
       } else {
-        await api.put(`/contents/${id}`, formData);
+        await api.put(`/contents/${id}`, formData)
 
         await api.post(`/categories/contents/${id}/categories`, {
           category_ids: selectedCategories,
-        });
+        })
       }
     } catch (error) {
-      console.error('Failed to save content:', error);
+      console.error('Failed to save content:', error)
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
-  };
+  }
 
   const handlePublish = async () => {
-    setSaving(true);
+    setSaving(true)
     try {
-      await api.post(`/contents/${id}/publish`);
-      setFormData((prev) => ({ ...prev, status: 'P' }));
+      await api.post(`/contents/${id}/publish`)
+      setFormData((prev) => ({ ...prev, status: 'P' }))
     } catch (error) {
-      console.error('Failed to publish:', error);
+      console.error('Failed to publish:', error)
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
-  };
+  }
 
   const handleUnpublish = async () => {
-    setSaving(true);
+    setSaving(true)
     try {
-      await api.post(`/contents/${id}/unpublish`);
-      setFormData((prev) => ({ ...prev, status: 'D' }));
+      await api.post(`/contents/${id}/unpublish`)
+      setFormData((prev) => ({ ...prev, status: 'D' }))
     } catch (error) {
-      console.error('Failed to unpublish:', error);
+      console.error('Failed to unpublish:', error)
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
-  };
+  }
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
-    );
+    )
   }
 
   return (
     <>
-      <PageMeta title={isNew ? 'Utwórz treść' : `Edytuj: ${formData.title}`} description="To jest strona edycji treści w panelu administracyjnym" />
-      <PageBreadcrumb 
-        pageTitle={isNew ? 'Utwórz treść' : 'Edytuj treść'} 
-        items={[
-          { label: 'Treści', path: '/contents' }
-        ]}
+      <PageMeta
+        title={isNew ? 'Utwórz treść' : `Edytuj: ${formData.title}`}
+        description="To jest strona edycji treści w panelu administracyjnym"
+      />
+      <PageBreadcrumb
+        pageTitle={isNew ? 'Utwórz treść' : 'Edytuj treść'}
+        items={[{ label: 'Treści', path: '/contents' }]}
       />
 
       <div className="space-y-6">
@@ -178,17 +192,30 @@ export default function EditContentPage() {
                   </Button>
                 </Link>
                 {formData.status === 'P' ? (
-                  <Button variant="outline" onClick={handleUnpublish} disabled={saving}>
+                  <Button
+                    variant="outline"
+                    onClick={handleUnpublish}
+                    disabled={saving}
+                  >
                     Cofnij publikację
                   </Button>
                 ) : (
-                  <Button variant="primary" onClick={handlePublish} disabled={saving}>
+                  <Button
+                    variant="primary"
+                    onClick={handlePublish}
+                    disabled={saving}
+                  >
                     Opublikuj
                   </Button>
                 )}
               </>
             )}
-            <Button variant="primary" startIcon={<Save />} onClick={handleSave} disabled={saving}>
+            <Button
+              variant="primary"
+              startIcon={<Save />}
+              onClick={handleSave}
+              disabled={saving}
+            >
               {saving ? 'Zapisywanie...' : 'Zapisz'}
             </Button>
           </div>
@@ -200,6 +227,7 @@ export default function EditContentPage() {
               { key: 'basic', label: 'Informacje podstawowe' },
               { key: 'sections', label: 'Proste sekcje' },
               { key: 'components', label: 'Konstruktor stron' },
+              { key: 'order', label: 'Kolejność wyświetlania' },
               { key: 'seo', label: 'SEO i metadane' },
             ].map((tab) => (
               <button
@@ -281,7 +309,7 @@ export default function EditContentPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Wstęp / Streszczenie
+                  Opis
                 </label>
                 <textarea
                   value={formData.lead || ''}
@@ -309,7 +337,9 @@ export default function EditContentPage() {
                 </label>
                 <MediaSelector
                   selectedMediaId={formData.cover_media_id}
-                  onSelect={(mediaId) => handleChange('cover_media_id', mediaId)}
+                  onSelect={(mediaId) =>
+                    handleChange('cover_media_id', mediaId)
+                  }
                   onRemove={() => handleChange('cover_media_id', undefined)}
                   allowedTypes={['image']}
                 />
@@ -340,6 +370,22 @@ export default function EditContentPage() {
           </ComponentCard>
         )}
 
+        {activeTab === 'order' && !isNew && (
+          <ComponentCard title="Kolejność wyświetlania">
+            <ContentDisplayOrder
+              contentId={id!}
+              onEditSection={(section) => {
+                setSelectedSection(section)
+                setEditSectionModalOpen(true)
+              }}
+              onEditComponent={(component) => {
+                setSelectedComponent(component)
+                setEditComponentModalOpen(true)
+              }}
+            />
+          </ComponentCard>
+        )}
+
         {activeTab === 'seo' && (
           <ComponentCard title="SEO i metadane">
             <div className="space-y-6">
@@ -362,7 +408,9 @@ export default function EditContentPage() {
                 </label>
                 <textarea
                   value={formData.meta_description || ''}
-                  onChange={(e) => handleChange('meta_description', e.target.value)}
+                  onChange={(e) =>
+                    handleChange('meta_description', e.target.value)
+                  }
                   rows={3}
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
                   placeholder="Opis SEO"
@@ -388,7 +436,9 @@ export default function EditContentPage() {
                 </label>
                 <textarea
                   value={formData.og_description || ''}
-                  onChange={(e) => handleChange('og_description', e.target.value)}
+                  onChange={(e) =>
+                    handleChange('og_description', e.target.value)
+                  }
                   rows={3}
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
                   placeholder="Opis dla mediów społecznościowych"
@@ -399,5 +449,5 @@ export default function EditContentPage() {
         )}
       </div>
     </>
-  );
+  )
 }

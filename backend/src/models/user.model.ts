@@ -4,24 +4,27 @@ import {
   InferAttributes,
   InferCreationAttributes,
   CreationOptional,
-} from 'sequelize';
-import { sequelize } from '../db/sequelize.js';
-import { Role } from './role.model.js';
+} from 'sequelize'
+import { sequelize } from '../db/sequelize.js'
+import { Role } from './role.model.js'
 
-export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
-  declare user_id: CreationOptional<string>;
-  declare email: string;
-  declare password_hash: string;
-  declare display_name: string | null;
-  declare role_id: string | null;
-  declare last_access: Date | null;
-  declare status: boolean;
-  declare created_at: CreationOptional<Date>;
-  declare updated_at: CreationOptional<Date>;
-  declare role?: Role;
-  declare avatar_url: string | null;
-  declare reset_token: string | null;
-  declare reset_token_expires: Date | null;
+export class User extends Model<
+  InferAttributes<User>,
+  InferCreationAttributes<User>
+> {
+  declare user_id: CreationOptional<string>
+  declare email: string
+  declare password_hash: string
+  declare display_name: string | null
+  declare role_id: string | null
+  declare last_access: Date | null
+  declare status: boolean
+  declare created_at: CreationOptional<Date>
+  declare updated_at: CreationOptional<Date>
+  declare role?: Role
+  declare avatar_url: string | null
+  declare reset_token: string | null
+  declare reset_token_expires: Date | null
 }
 
 User.init(
@@ -36,12 +39,24 @@ User.init(
     display_name: { type: DataTypes.STRING(255) },
     role_id: { type: DataTypes.UUID },
     last_access: { type: DataTypes.DATE },
-    status: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
-    created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
-    updated_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+    status: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true,
+    },
+    created_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
+    updated_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
     avatar_url: { type: DataTypes.STRING(500), allowNull: true },
     reset_token: { type: DataTypes.STRING, allowNull: true },
     reset_token_expires: { type: DataTypes.DATE, allowNull: true },
   },
   { sequelize, tableName: 'user', timestamps: true }
-);
+)

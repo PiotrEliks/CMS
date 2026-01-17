@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import { useState } from 'react'
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import {
   GripVertical,
   ChevronRight,
@@ -12,30 +12,30 @@ import {
   Trash2,
   Plus,
   FileText,
-} from 'lucide-react';
+} from 'lucide-react'
 
 interface MenuItem {
-  menu_item_id: string;
-  label: string;
-  content_id?: string;
-  parent_id?: string;
-  status: boolean;
+  menu_item_id: string
+  label: string
+  content_id?: string
+  parent_id?: string
+  status: boolean
   content?: {
-    title: string;
-    slug: string;
-  };
-  children?: MenuItem[];
+    title: string
+    slug: string
+  }
+  children?: MenuItem[]
 }
 
 interface MenuItemComponentProps {
-  item: MenuItem;
-  menuId: string;
-  level: number;
-  onEdit: (item: MenuItem) => void;
-  onDelete: (itemId: string) => void;
-  onToggle: (itemId: string) => void;
-  onDuplicate: (itemId: string) => void;
-  onAddChild: (parentId: string) => void;
+  item: MenuItem
+  menuId: string
+  level: number
+  onEdit: (item: MenuItem) => void
+  onDelete: (itemId: string) => void
+  onToggle: (itemId: string) => void
+  onDuplicate: (itemId: string) => void
+  onAddChild: (parentId: string) => void
 }
 
 export default function MenuItemComponent({
@@ -48,20 +48,27 @@ export default function MenuItemComponent({
   onDuplicate,
   onAddChild,
 }: MenuItemComponentProps) {
-  const [expanded, setExpanded] = useState(true);
-  const hasChildren = item.children && item.children.length > 0;
+  const [expanded, setExpanded] = useState(true)
+  const hasChildren = item.children && item.children.length > 0
 
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
     id: item.menu_item_id,
-  });
+  })
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-  };
+  }
 
-  const indentClass = level === 0 ? '' : `ml-${Math.min(level * 8, 16)}`;
+  const indentClass = level === 0 ? '' : `ml-${Math.min(level * 8, 16)}`
 
   return (
     <>
@@ -116,7 +123,8 @@ export default function MenuItemComponent({
             </div>
             {hasChildren && (
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                {item.children!.length} child item{item.children!.length !== 1 ? 's' : ''}
+                {item.children!.length} child item
+                {item.children!.length !== 1 ? 's' : ''}
               </p>
             )}
           </div>
@@ -189,5 +197,5 @@ export default function MenuItemComponent({
         </div>
       )}
     </>
-  );
+  )
 }

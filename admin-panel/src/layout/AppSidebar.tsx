@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Link, useLocation } from 'react-router';
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { Link, useLocation } from 'react-router'
 
 // Assume these icons are imported from an icon library
 import {
@@ -11,23 +11,24 @@ import {
   DocsIcon,
   FolderIcon,
   BoltIcon,
-} from '../icons';
-import { useSidebar } from '../context/SidebarContext';
-import { useAccess } from '../hooks/useAccess';
+  GridIcon,
+} from '../icons'
+import { useSidebar } from '../context/SidebarContext'
+import { useAccess } from '../hooks/useAccess'
 
 type NavItem = {
-  name: string;
-  icon: React.ReactNode;
-  path?: string;
-  permission?: string;
+  name: string
+  icon: React.ReactNode
+  path?: string
+  permission?: string
   subItems?: {
-    name: string;
-    path: string;
-    permission?: string;
-    pro?: boolean;
-    new?: boolean;
-  }[];
-};
+    name: string
+    path: string
+    permission?: string
+    pro?: boolean
+    new?: boolean
+  }[]
+}
 
 const navItems: NavItem[] = [
   {
@@ -47,6 +48,11 @@ const navItems: NavItem[] = [
     path: '/menus',
   },
   {
+    icon: <GridIcon />,
+    name: 'Kategorie',
+    path: '/categories',
+  },
+  {
     icon: <FolderIcon />,
     name: 'Media',
     path: '/media',
@@ -64,48 +70,55 @@ const navItems: NavItem[] = [
     path: '/roles',
     permission: 'roles.read',
   },
-];
+]
 
 const AppSidebar: React.FC = () => {
-  const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
-  const location = useLocation();
+  const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar()
+  const location = useLocation()
 
   const [openSubmenu, setOpenSubmenu] = useState<{
-    type: 'main' | 'others';
-    index: number;
-  } | null>(null);
-  const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>({});
-  const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
+    type: 'main' | 'others'
+    index: number
+  } | null>(null)
+  const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>({})
+  const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({})
 
   // const isActive = (path: string) => location.pathname === path;
-  const isActive = useCallback((path: string) => location.pathname === path, [location.pathname]);
+  const isActive = useCallback(
+    (path: string) => location.pathname === path,
+    [location.pathname]
+  )
 
   useEffect(() => {
     if (openSubmenu !== null) {
-      const key = `${openSubmenu.type}-${openSubmenu.index}`;
+      const key = `${openSubmenu.type}-${openSubmenu.index}`
       if (subMenuRefs.current[key]) {
         setSubMenuHeight((prevHeights) => ({
           ...prevHeights,
           [key]: subMenuRefs.current[key]?.scrollHeight || 0,
-        }));
+        }))
       }
     }
-  }, [openSubmenu]);
+  }, [openSubmenu])
 
   const handleSubmenuToggle = (index: number, menuType: 'main' | 'others') => {
     setOpenSubmenu((prevOpenSubmenu) => {
-      if (prevOpenSubmenu && prevOpenSubmenu.type === menuType && prevOpenSubmenu.index === index) {
-        return null;
+      if (
+        prevOpenSubmenu &&
+        prevOpenSubmenu.type === menuType &&
+        prevOpenSubmenu.index === index
+      ) {
+        return null
       }
-      return { type: menuType, index };
-    });
-  };
+      return { type: menuType, index }
+    })
+  }
 
   const renderMenuItems = (items: NavItem[], menuType: 'main' | 'others') => (
     <ul className="flex flex-col gap-4">
       {items.map((nav, index) => {
-        const can = !nav.permission || useAccess(nav.permission);
-        if (!can) return null;
+        const can = !nav.permission || useAccess(nav.permission)
+        if (!can) return null
         return (
           <li key={nav.name}>
             {nav.subItems ? (
@@ -116,12 +129,15 @@ const AppSidebar: React.FC = () => {
                     ? 'menu-item-active'
                     : 'menu-item-inactive'
                 } cursor-pointer ${
-                  !isExpanded && !isHovered ? 'lg:justify-center' : 'lg:justify-start'
+                  !isExpanded && !isHovered
+                    ? 'lg:justify-center'
+                    : 'lg:justify-start'
                 }`}
               >
                 <span
                   className={`menu-item-icon-size  ${
-                    openSubmenu?.type === menuType && openSubmenu?.index === index
+                    openSubmenu?.type === menuType &&
+                    openSubmenu?.index === index
                       ? 'menu-item-icon-active'
                       : 'menu-item-icon-inactive'
                   }`}
@@ -134,7 +150,8 @@ const AppSidebar: React.FC = () => {
                 {(isExpanded || isHovered || isMobileOpen) && (
                   <ChevronDownIcon
                     className={`ml-auto w-5 h-5 transition-transform duration-200 ${
-                      openSubmenu?.type === menuType && openSubmenu?.index === index
+                      openSubmenu?.type === menuType &&
+                      openSubmenu?.index === index
                         ? 'rotate-180 text-brand-500'
                         : ''
                     }`}
@@ -146,12 +163,16 @@ const AppSidebar: React.FC = () => {
                 <Link
                   to={nav.path}
                   className={`menu-item group ${
-                    isActive(nav.path) ? 'menu-item-active' : 'menu-item-inactive'
+                    isActive(nav.path)
+                      ? 'menu-item-active'
+                      : 'menu-item-inactive'
                   }`}
                 >
                   <span
                     className={`menu-item-icon-size ${
-                      isActive(nav.path) ? 'menu-item-icon-active' : 'menu-item-icon-inactive'
+                      isActive(nav.path)
+                        ? 'menu-item-icon-active'
+                        : 'menu-item-icon-inactive'
                     }`}
                   >
                     {nav.icon}
@@ -165,12 +186,13 @@ const AppSidebar: React.FC = () => {
             {nav.subItems && (isExpanded || isHovered || isMobileOpen) && (
               <div
                 ref={(el) => {
-                  subMenuRefs.current[`${menuType}-${index}`] = el;
+                  subMenuRefs.current[`${menuType}-${index}`] = el
                 }}
                 className="overflow-hidden transition-all duration-300"
                 style={{
                   height:
-                    openSubmenu?.type === menuType && openSubmenu?.index === index
+                    openSubmenu?.type === menuType &&
+                    openSubmenu?.index === index
                       ? `${subMenuHeight[`${menuType}-${index}`]}px`
                       : '0px',
                 }}
@@ -218,10 +240,10 @@ const AppSidebar: React.FC = () => {
               </div>
             )}
           </li>
-        );
+        )
       })}
     </ul>
-  );
+  )
 
   return (
     <aside
@@ -254,7 +276,12 @@ const AppSidebar: React.FC = () => {
               />
             </>
           ) : (
-            <img src="/images/logo/logo-icon.svg" alt="Logo" width={32} height={32} />
+            <img
+              src="/images/logo/logo-icon.svg"
+              alt="Logo"
+              width={32}
+              height={32}
+            />
           )}
         </Link>
       </div>
@@ -264,7 +291,9 @@ const AppSidebar: React.FC = () => {
             <div>
               <h2
                 className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                  !isExpanded && !isHovered ? 'lg:justify-center' : 'justify-start'
+                  !isExpanded && !isHovered
+                    ? 'lg:justify-center'
+                    : 'justify-start'
                 }`}
               >
                 {isExpanded || isHovered || isMobileOpen ? (
@@ -279,7 +308,7 @@ const AppSidebar: React.FC = () => {
         </nav>
       </div>
     </aside>
-  );
-};
+  )
+}
 
-export default AppSidebar;
+export default AppSidebar

@@ -4,16 +4,19 @@ import {
   InferAttributes,
   InferCreationAttributes,
   CreationOptional,
-} from 'sequelize';
-import { sequelize } from '../db/sequelize.js';
+} from 'sequelize'
+import { sequelize } from '../db/sequelize.js'
 
-export class KeyValue extends Model<InferAttributes<KeyValue>, InferCreationAttributes<KeyValue>> {
-  declare key: string;
-  declare value: string | null;
-  declare description: string | null;
-  declare user_id: string | null;
-  declare created_at: CreationOptional<Date>;
-  declare updated_at: CreationOptional<Date>;
+export class KeyValue extends Model<
+  InferAttributes<KeyValue>,
+  InferCreationAttributes<KeyValue>
+> {
+  declare key: string
+  declare value: string | null
+  declare description: string | null
+  declare user_id: string | null
+  declare created_at: CreationOptional<Date>
+  declare updated_at: CreationOptional<Date>
 }
 
 KeyValue.init(
@@ -22,8 +25,16 @@ KeyValue.init(
     value: { type: DataTypes.TEXT },
     description: { type: DataTypes.STRING(500) },
     user_id: { type: DataTypes.UUID },
-    created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
-    updated_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+    created_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
+    updated_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
   },
   { sequelize, tableName: 'key_value', timestamps: true }
-);
+)

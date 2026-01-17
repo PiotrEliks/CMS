@@ -1,19 +1,25 @@
-import { Link } from 'react-router';
+import { Link } from 'react-router'
 
 interface BreadcrumbItem {
-  label: string;
-  path?: string;
+  label: string
+  path?: string
 }
 
 interface BreadcrumbProps {
-  pageTitle: string;
-  items?: BreadcrumbItem[];
+  pageTitle: string
+  items?: BreadcrumbItem[]
 }
 
-const PageBreadcrumb: React.FC<BreadcrumbProps> = ({ pageTitle, items = [] }) => {
+const PageBreadcrumb: React.FC<BreadcrumbProps> = ({
+  pageTitle,
+  items = [],
+}) => {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-      <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90" x-text="pageName">
+      <h2
+        className="text-xl font-semibold text-gray-800 dark:text-white/90"
+        x-text="pageName"
+      >
         {pageTitle}
       </h2>
       <nav>
@@ -45,7 +51,10 @@ const PageBreadcrumb: React.FC<BreadcrumbProps> = ({ pageTitle, items = [] }) =>
           {items.map((item, index) => (
             <li key={index}>
               {item.path ? (
-                <Link className="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400" to={item.path}>
+                <Link
+                  className="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400"
+                  to={item.path}
+                >
                   {item.label}
                   <svg
                     className="stroke-current"
@@ -87,11 +96,13 @@ const PageBreadcrumb: React.FC<BreadcrumbProps> = ({ pageTitle, items = [] }) =>
               )}
             </li>
           ))}
-          <li className="text-sm text-gray-800 dark:text-white/90">{pageTitle}</li>
+          <li className="text-sm text-gray-800 dark:text-white/90">
+            {pageTitle}
+          </li>
         </ol>
       </nav>
     </div>
-  );
-};
+  )
+}
 
-export default PageBreadcrumb;
+export default PageBreadcrumb

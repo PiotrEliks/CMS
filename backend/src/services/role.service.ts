@@ -1,6 +1,6 @@
-import { Role, User, Permission, RolePermission } from '../models/index.js';
-import { BaseService } from './types/BaseService.js';
-import { FindOptions, PaginationOptions } from './types/IRepository.js';
+import { Role, User, Permission, RolePermission } from '../models/index.js'
+import { BaseService } from './types/BaseService.js'
+import { FindOptions, PaginationOptions } from './types/IRepository.js'
 
 function normalizeRoleType(displayName: string): string {
   return displayName
@@ -9,12 +9,12 @@ function normalizeRoleType(displayName: string): string {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '_')
     .replace(/^_+|_+$/g, '')
-    .substring(0, 50);
+    .substring(0, 50)
 }
 
 export class RoleService extends BaseService<Role> {
   constructor() {
-    super(Role);
+    super(Role)
   }
 
   async createRole(data: { display_name: string; status: boolean }) {
@@ -22,7 +22,7 @@ export class RoleService extends BaseService<Role> {
       display_name: data.display_name,
       type: normalizeRoleType(data.display_name),
       status: data.status,
-    } as any);
+    } as any)
   }
 
   async getRoleWithUsers(roleId: string) {
@@ -35,74 +35,78 @@ export class RoleService extends BaseService<Role> {
           attributes: ['user_id', 'email', 'display_name'],
         },
       ],
-    });
+    })
   }
 
   async updateRole(
     roleId: string,
     data: { display_name?: string; type?: string; status: boolean }
   ) {
-    return await this.update(roleId, data as any);
+    return await this.update(roleId, data as any)
   }
 
   async listRoles(options: PaginationOptions & FindOptions) {
     return await this.list({
       ...options,
       order: [['display_name', 'ASC']],
-    });
+    })
   }
 
   async deleteRole(roleId: string): Promise<void> {
-    await User.update({ role_id: null }, { where: { role_id: roleId } });
-    await this.delete(roleId);
+    await User.update({ role_id: null }, { where: { role_id: roleId } })
+    await this.delete(roleId)
   }
 
   async getRoleByType(type: string) {
-    return await this.findOne({ where: { type } as any });
+    return await this.findOne({ where: { type } as any })
   }
 
   async setPermissions(roleId: string, permissionCodes: string[]) {
-    const role = await Role.findByPk(roleId);
-    if (!role) throw new Error('Rola nie istnieje');
+    const role = await Role.findByPk(roleId)
+    if (!role) throw new Error('Rola nie istnieje')
 
     const perms = await Permission.findAll({
       where: { code: permissionCodes },
-    });
+    })
 
-    await (role as any).setPermissions(perms);
-    return role.reload({ include: ['permissions'] });
+    await (role as any).setPermissions(perms)
+    return role.reload({ include: ['permissions'] })
   }
 
   async addPermission(roleId: string, permissionCode: string) {
-    const role = await Role.findByPk(roleId);
-    if (!role) throw new Error('Rola nie istnieje');
+    const role = await Role.findByPk(roleId)
+    if (!role) throw new Error('Rola nie istnieje')
 
-    const perm = await Permission.findOne({ where: { code: permissionCode } });
-    if (!perm) throw new Error('Uprawnienie nie istnieje');
+    const perm = await Permission.findOne({
+      where: { code: permissionCode },
+    })
+    if (!perm) throw new Error('Uprawnienie nie istnieje')
 
-    await (role as any).addPermission(perm);
-    return role.reload({ include: ['permissions'] });
+    await (role as any).addPermission(perm)
+    return role.reload({ include: ['permissions'] })
   }
 
   async removePermission(roleId: string, permissionCode: string) {
-    const role = await Role.findByPk(roleId);
-    if (!role) throw new Error('Rola nie istnieje');
+    const role = await Role.findByPk(roleId)
+    if (!role) throw new Error('Rola nie istnieje')
 
-    const perm = await Permission.findOne({ where: { code: permissionCode } });
-    if (!perm) return role;
+    const perm = await Permission.findOne({
+      where: { code: permissionCode },
+    })
+    if (!perm) return role
 
-    await (role as any).removePermission(perm);
-    return role.reload({ include: ['permissions'] });
+    await (role as any).removePermission(perm)
+    return role.reload({ include: ['permissions'] })
   }
 
   async getPermissions(roleId: string) {
     const role = await this.findOne({
       where: { role_id: roleId },
       include: [{ model: Permission, as: 'permissions' }],
-    });
+    })
 
-    return role?.permissions ?? [];
+    return role?.permissions ?? []
   }
 }
 
-export const roleService = new RoleService();
+export const roleService = new RoleService()

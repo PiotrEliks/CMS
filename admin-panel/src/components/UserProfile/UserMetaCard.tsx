@@ -1,47 +1,47 @@
-import { useRef, useState } from 'react';
-import { useAuth } from '../../store/auth';
-import Button from '../ui/button/Button';
+import { useRef, useState } from 'react'
+import { useAuth } from '../../store/auth'
+import Button from '../ui/button/Button'
 
 export default function UserMetaCard() {
-  const { user, avatarLoading, uploadAvatar, deleteAvatar } = useAuth();
+  const { user, avatarLoading, uploadAvatar, deleteAvatar } = useAuth()
 
-  const [avatarError, setAvatarError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [avatarError, setAvatarError] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const file = e.target.files?.[0]
+    if (!file) return
 
     if (!file.type.startsWith('image/')) {
-      setAvatarError('Dozwolone są tylko pliki graficzne.');
-      return;
+      setAvatarError('Dozwolone są tylko pliki graficzne.')
+      return
     }
 
     if (file.size > 2 * 1024 * 1024) {
-      setAvatarError('Plik jest za duży (maks. 2 MB).');
-      return;
+      setAvatarError('Plik jest za duży (maks. 2 MB).')
+      return
     }
 
     try {
-      setAvatarError(null);
-      await uploadAvatar(file);
+      setAvatarError(null)
+      await uploadAvatar(file)
     } catch {
-      setAvatarError('Nie udało się zaktualizować zdjęcia profilowego.');
+      setAvatarError('Nie udało się zaktualizować zdjęcia profilowego.')
     } finally {
-      e.target.value = '';
+      e.target.value = ''
     }
-  };
+  }
 
   const handleAvatarDelete = async () => {
     try {
-      setAvatarError(null);
-      await deleteAvatar();
+      setAvatarError(null)
+      await deleteAvatar()
     } catch {
-      setAvatarError('Nie udało się usunąć zdjęcia profilowego.');
+      setAvatarError('Nie udało się usunąć zdjęcia profilowego.')
     }
-  };
+  }
 
-  const avatarSrc = user?.avatar_url ?? '/uploads/avatars/default-avatar.jpg';
+  const avatarSrc = user?.avatar_url ?? '/uploads/avatars/default-avatar.jpg'
 
   return (
     <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
@@ -98,7 +98,9 @@ export default function UserMetaCard() {
             </Button>
 
             {avatarError && (
-              <p className="text-xs text-red-500 text-center max-w-[180px]">{avatarError}</p>
+              <p className="text-xs text-red-500 text-center max-w-[180px]">
+                {avatarError}
+              </p>
             )}
             {avatarLoading && !avatarError && (
               <p className="text-xs text-gray-500">Przetwarzanie zdjęcia…</p>
@@ -110,11 +112,13 @@ export default function UserMetaCard() {
               {user?.display_name}
             </h4>
             <div className="flex flex-col items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-left">
-              <p className="text-sm text-gray-500 dark:text-gray-400">{user?.role?.display_name}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {user?.role?.display_name}
+              </p>
             </div>
           </div>
         </div>
       </div>
     </div>
-  );
+  )
 }

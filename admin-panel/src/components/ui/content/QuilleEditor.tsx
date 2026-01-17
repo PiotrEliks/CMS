@@ -1,21 +1,21 @@
-import { useRef, useMemo, useState } from 'react';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
-import MediaLibraryModal from './MediaLibraryModal';
+import { useRef, useMemo, useState } from 'react'
+import ReactQuill from 'react-quill'
+import 'react-quill/dist/quill.snow.css'
+import MediaLibraryModal from './MediaLibraryModal'
 
 interface QuillEditorProps {
-  value: string;
-  onChange: (value: string) => void;
-  height?: number;
-  placeholder?: string;
+  value: string
+  onChange: (value: string) => void
+  height?: number
+  placeholder?: string
 }
 
 interface Media {
-  media_id: string;
-  file_name: string;
-  file_path: string;
-  mime_type: string;
-  thumbnail_path?: string;
+  media_id: string
+  file_name: string
+  file_path: string
+  mime_type: string
+  thumbnail_path?: string
 }
 
 export default function QuillEditor({
@@ -24,26 +24,27 @@ export default function QuillEditor({
   height = 400,
   placeholder = 'Zacznij pisać...',
 }: QuillEditorProps) {
-  const quillRef = useRef<any>(null);
-  const [mediaModalOpen, setMediaModalOpen] = useState(false);
+  const quillRef = useRef<any>(null)
+  const [mediaModalOpen, setMediaModalOpen] = useState(false)
 
   const handleMediaSelect = (media: Media | Media[]) => {
-    const selectedMedia = Array.isArray(media) ? media[0] : media;
-    const imageUrl = selectedMedia.file_path || `/api/uploads/${selectedMedia.file_name}`;
+    const selectedMedia = Array.isArray(media) ? media[0] : media
+    const imageUrl =
+      selectedMedia.file_path || `/api/uploads/${selectedMedia.file_name}`
 
-    const editor = quillRef.current?.getEditor();
+    const editor = quillRef.current?.getEditor()
     if (editor) {
-      const range = editor.getSelection(true);
-      editor.insertEmbed(range.index, 'image', imageUrl);
-      editor.setSelection(range.index + 1);
+      const range = editor.getSelection(true)
+      editor.insertEmbed(range.index, 'image', imageUrl)
+      editor.setSelection(range.index + 1)
     }
 
-    setMediaModalOpen(false);
-  };
+    setMediaModalOpen(false)
+  }
 
   const imageHandler = () => {
-    setMediaModalOpen(true);
-  };
+    setMediaModalOpen(true)
+  }
 
   const modules = useMemo(
     () => ({
@@ -64,7 +65,7 @@ export default function QuillEditor({
       },
     }),
     []
-  );
+  )
 
   const formats = [
     'header',
@@ -80,7 +81,7 @@ export default function QuillEditor({
     'color',
     'background',
     'code-block',
-  ];
+  ]
 
   return (
     <>
@@ -105,5 +106,5 @@ export default function QuillEditor({
         allowedTypes={['image']}
       />
     </>
-  );
+  )
 }

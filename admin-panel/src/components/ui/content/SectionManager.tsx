@@ -1,69 +1,75 @@
-import { useState, useEffect } from 'react';
-import { DndContext, closestCenter, type DragEndEvent } from '@dnd-kit/core';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { useContentSections, type ContentSection } from '../../../store/contentSections';
-import SectionItem from './SectionItem';
-import AddSectionButton from './AddSectionButton';
-import { Access } from '../../permissions/Access';
+import { useState, useEffect } from 'react'
+import { DndContext, closestCenter, type DragEndEvent } from '@dnd-kit/core'
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import {
+  useContentSections,
+  type ContentSection,
+} from '../../../store/contentSections'
+import SectionItem from './SectionItem'
+import AddSectionButton from './AddSectionButton'
+import { Access } from '../../permissions/Access'
 
 interface SectionManagerProps {
-  contentId: string;
+  contentId: string
 }
 
 export default function SectionManager({ contentId }: SectionManagerProps) {
-  const { sections, fetchSections, reorderSections, loading } = useContentSections();
-  const [localSections, setLocalSections] = useState<ContentSection[]>([]);
+  const { sections, fetchSections, reorderSections, loading } =
+    useContentSections()
+  const [localSections, setLocalSections] = useState<ContentSection[]>([])
 
   useEffect(() => {
     if (contentId) {
-      fetchSections(contentId);
+      fetchSections(contentId)
     }
-  }, [contentId]);
+  }, [contentId])
 
   useEffect(() => {
-    setLocalSections(sections);
-  }, [sections]);
+    setLocalSections(sections)
+  }, [sections])
 
   const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
+    const { active, over } = event
 
-    if (!over || active.id === over.id) return;
+    if (!over || active.id === over.id) return
 
-    const oldIndex = localSections.findIndex((s) => s.section_id === active.id);
-    const newIndex = localSections.findIndex((s) => s.section_id === over.id);
+    const oldIndex = localSections.findIndex((s) => s.section_id === active.id)
+    const newIndex = localSections.findIndex((s) => s.section_id === over.id)
 
-    if (oldIndex === -1 || newIndex === -1) return;
+    if (oldIndex === -1 || newIndex === -1) return
 
-    const reordered = [...localSections];
-    const [moved] = reordered.splice(oldIndex, 1);
-    reordered.splice(newIndex, 0, moved);
+    const reordered = [...localSections]
+    const [moved] = reordered.splice(oldIndex, 1)
+    reordered.splice(newIndex, 0, moved)
 
-    setLocalSections(reordered);
+    setLocalSections(reordered)
 
     const items = reordered.map((section, index) => ({
       section_id: section.section_id,
       order_index: index,
-    }));
+    }))
 
     try {
-      await reorderSections(contentId, items);
+      await reorderSections(contentId, items)
     } catch (error) {
-      setLocalSections(sections);
+      setLocalSections(sections)
     }
-  };
+  }
 
   if (loading && sections.length === 0) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
-    );
+    )
   }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Sekcje treści</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+          Sekcje treści
+        </h3>
         <Access allOf={['content.create']}>
           <AddSectionButton contentId={contentId} />
         </Access>
@@ -79,14 +85,21 @@ export default function SectionManager({ contentId }: SectionManagerProps) {
           </Access>
         </div>
       ) : (
-        <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <DndContext
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
           <SortableContext
             items={localSections.map((s) => s.section_id)}
             strategy={verticalListSortingStrategy}
           >
             <div className="space-y-3">
               {localSections.map((section) => (
-                <SectionItem key={section.section_id} section={section} contentId={contentId} />
+                <SectionItem
+                  key={section.section_id}
+                  section={section}
+                  contentId={contentId}
+                />
               ))}
             </div>
           </SortableContext>
@@ -101,5 +114,5 @@ export default function SectionManager({ contentId }: SectionManagerProps) {
         </Access>
       )}
     </div>
-  );
+  )
 }

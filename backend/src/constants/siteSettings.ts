@@ -17,9 +17,9 @@ export const SITE_SETTINGS = {
   SITE_FACEBOOK: 'SITE_FACEBOOK',
   SITE_INSTAGRAM: 'SITE_INSTAGRAM',
   SITE_TWITTER: 'SITE_TWITTER',
-} as const;
+} as const
 
-export type SiteSettingKey = (typeof SITE_SETTINGS)[keyof typeof SITE_SETTINGS];
+export type SiteSettingKey = (typeof SITE_SETTINGS)[keyof typeof SITE_SETTINGS]
 
 // Default values for site settings
 export const SITE_SETTINGS_DEFAULTS: Record<
@@ -58,4 +58,4 @@ export const SITE_SETTINGS_DEFAULTS: Record<
     value: '',
     description: 'Twitter/X profile URL',
   },
-};
+}

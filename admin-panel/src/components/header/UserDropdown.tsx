@@ -1,31 +1,31 @@
-import { useState } from 'react';
-import { DropdownItem } from '../ui/dropdown/DropdownItem';
-import { Dropdown } from '../ui/dropdown/Dropdown';
-import { useAuth } from '../../store/auth';
+import { useState } from 'react'
+import { DropdownItem } from '../ui/dropdown/DropdownItem'
+import { Dropdown } from '../ui/dropdown/Dropdown'
+import { useAuth } from '../../store/auth'
 
 export default function UserDropdown() {
-  const { user, logout } = useAuth();
+  const { user, logout } = useAuth()
 
   async function handleLogout() {
-    closeDropdown();
+    closeDropdown()
     try {
-      await logout();
+      await logout()
     } finally {
-      window.location.href = '/login';
+      window.location.href = '/login'
     }
   }
 
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false)
 
   function toggleDropdown() {
-    setIsOpen(!isOpen);
+    setIsOpen(!isOpen)
   }
 
   function closeDropdown() {
-    setIsOpen(false);
+    setIsOpen(false)
   }
 
-  const avatarSrc = user?.avatar_url ?? '/uploads/avatars/default-avatar.jpg';
+  const avatarSrc = user?.avatar_url ?? '/uploads/avatars/default-avatar.jpg'
 
   return (
     <div className="relative">
@@ -40,7 +40,9 @@ export default function UserDropdown() {
           />
         </span>
 
-        <span className="block mr-1 font-medium text-theme-sm">{user?.display_name}</span>
+        <span className="block mr-1 font-medium text-theme-sm">
+          {user?.display_name}
+        </span>
         <svg
           className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${
             isOpen ? 'rotate-180' : ''
@@ -125,5 +127,5 @@ export default function UserDropdown() {
         </button>
       </Dropdown>
     </div>
-  );
+  )
 }

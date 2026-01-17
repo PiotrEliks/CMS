@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+import nodemailer from 'nodemailer'
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -8,9 +8,12 @@ const transporter = nodemailer.createTransport({
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
-});
+})
 
-export async function sendNewUserCredentialsMail(options: { to: string; password: string }) {
+export async function sendNewUserCredentialsMail(options: {
+  to: string
+  password: string
+}) {
   await transporter.sendMail({
     from: process.env.MAIL_FROM ?? '"CMS" <no-reply@twoja-domena.pl>',
     to: options.to,
@@ -33,10 +36,13 @@ Zalecamy zmianę hasła po pierwszym zalogowaniu.
       </p>
       <p>Zalecamy zmianę hasła po pierwszym zalogowaniu.</p>
     `,
-  });
+  })
 }
 
-export async function sendPasswordResetMail(options: { to: string; link: string }) {
+export async function sendPasswordResetMail(options: {
+  to: string
+  link: string
+}) {
   await transporter.sendMail({
     from: process.env.MAIL_FROM,
     to: options.to,
@@ -47,5 +53,5 @@ export async function sendPasswordResetMail(options: { to: string; link: string 
       <p><a href="${options.link}">${options.link}</a></p>
       <p>Jeśli to nie Ty – zignoruj tę wiadomość.</p>
     `,
-  });
+  })
 }

@@ -1,53 +1,54 @@
-import { useEffect } from 'react';
-import { Route, Routes, useLocation, Navigate } from 'react-router-dom';
-import { useAuth } from './store/auth';
-import { attach401Interceptor } from './api/axios';
-import { ScrollToTop } from './components/common/ScrollToTop';
-import ProtectedRoute from './components/auth/ProtectedRoute';
-import AppLayout from './layout/AppLayout';
-import HomePage from './pages/HomePage';
-import SignInPage from './pages/AuthPages/SignInPage';
-import UserProfilePage from './pages/Users/UserProfilePage';
-import UsersPage from './pages/Users/UsersPage';
-import ForgotPasswordFormPage from './pages/AuthPages/ForgotPasswordFormPage';
-import ResetPasswordFormPage from './pages/AuthPages/ResetPasswordFormPage';
-import AlertContainer from './components/common/AlertContainer';
-import RolesPage from './pages/Roles/RolesPage';
-import MediaPage from './pages/Media/MediaPage';
-import ContentsListPage from './pages/Content/ContentsListPage';
-import NewContentPage from './pages/Content/NewContentPage';
-import EditContentPage from './pages/Content/EditContentPage';
-import ContentPreviewPage from './pages/Content/ContentPreviewPage';
-import EditMenuPage from './pages/Menus/EditMenuPage';
-import MenusListPage from './pages/Menus/MenusListPage';
-import SiteSettingsPage from './pages/Settings/SiteSettingsPage';
+import { useEffect } from 'react'
+import { Route, Routes, useLocation, Navigate } from 'react-router-dom'
+import { useAuth } from './store/auth'
+import { attach401Interceptor } from './api/axios'
+import { ScrollToTop } from './components/common/ScrollToTop'
+import ProtectedRoute from './components/auth/ProtectedRoute'
+import AppLayout from './layout/AppLayout'
+import HomePage from './pages/HomePage'
+import SignInPage from './pages/AuthPages/SignInPage'
+import UserProfilePage from './pages/Users/UserProfilePage'
+import UsersPage from './pages/Users/UsersPage'
+import ForgotPasswordFormPage from './pages/AuthPages/ForgotPasswordFormPage'
+import ResetPasswordFormPage from './pages/AuthPages/ResetPasswordFormPage'
+import AlertContainer from './components/common/AlertContainer'
+import RolesPage from './pages/Roles/RolesPage'
+import MediaPage from './pages/Media/MediaPage'
+import ContentsListPage from './pages/Content/ContentsListPage'
+import NewContentPage from './pages/Content/NewContentPage'
+import EditContentPage from './pages/Content/EditContentPage'
+import ContentPreviewPage from './pages/Content/ContentPreviewPage'
+import EditMenuPage from './pages/Menus/EditMenuPage'
+import MenusListPage from './pages/Menus/MenusListPage'
+import SiteSettingsPage from './pages/Settings/SiteSettingsPage'
+import CategoriesPage from './pages/Category/CategoriesPage'
 
 export default function App() {
-  const { checkAuth, user, loading } = useAuth();
-  const location = useLocation();
+  const { checkAuth, user, loading } = useAuth()
+  const location = useLocation()
 
   useEffect(() => {
-    checkAuth();
+    checkAuth()
     attach401Interceptor(() => {
-      window.location.href = '/login';
-    });
-  }, []);
+      window.location.href = '/login'
+    })
+  }, [])
 
   const isPublicPath =
     location.pathname === '/login' ||
     location.pathname === '/forgot-password' ||
-    location.pathname.startsWith('/reset-password');
+    location.pathname.startsWith('/reset-password')
 
   if (loading) {
-    return null;
+    return null
   }
 
   if (!user && !isPublicPath) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" replace />
   }
 
   if (user && location.pathname === '/login') {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/" replace />
   }
 
   return (
@@ -120,16 +121,30 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/contents/:id/preview" element={<ContentPreviewPage />} />
+          <Route
+            path="/contents/:id/preview"
+            element={<ContentPreviewPage />}
+          />
           <Route path="/menus" element={<MenusListPage />} />
           <Route path="/menus/:id" element={<EditMenuPage />} />
           <Route path="/settings" element={<SiteSettingsPage />} />
+          <Route
+            path="/categories"
+            element={
+              <ProtectedRoute>
+                <CategoriesPage />
+              </ProtectedRoute>
+            }
+          />
         </Route>
         <Route path="/forgot-password" element={<ForgotPasswordFormPage />} />
-        <Route path="/reset-password/:token" element={<ResetPasswordFormPage />} />
+        <Route
+          path="/reset-password/:token"
+          element={<ResetPasswordFormPage />}
+        />
         <Route path="/login" element={<SignInPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
-  );
+  )
 }

@@ -1,11 +1,11 @@
-import { Content } from '../models/content.model.js';
-import { ContentSection } from '../models/contentSection.model.js';
-import { PageComponent } from '../models/pageComponent.model.js';
-import { Category } from '../models/category.model.js';
-import { Media } from '../models/media.model.js';
-import { Menu } from '../models/menu.model.js';
-import { MenuItem } from '../models/menuItem.model.js';
-import { Op } from 'sequelize';
+import { Content } from '../models/content.model.js'
+import { ContentSection } from '../models/contentSection.model.js'
+import { PageComponent } from '../models/pageComponent.model.js'
+import { Category } from '../models/category.model.js'
+import { Media } from '../models/media.model.js'
+import { Menu } from '../models/menu.model.js'
+import { MenuItem } from '../models/menuItem.model.js'
+import { Op } from 'sequelize'
 
 export class PublicApiService {
   async getContentBySlug(slug: string) {
@@ -28,17 +28,17 @@ export class PublicApiService {
           required: false,
         },
       ],
-    });
+    })
 
     if (!content) {
-      throw new Error('Content not found');
+      throw new Error('Content not found')
     }
 
-    return content;
+    return content
   }
 
   async getContentWithSections(slug: string) {
-    const content = await this.getContentBySlug(slug);
+    const content = await this.getContentBySlug(slug)
 
     const sections = await ContentSection.findAll({
       where: {
@@ -46,16 +46,16 @@ export class PublicApiService {
         status: true,
       },
       order: [['order_index', 'ASC']],
-    });
+    })
 
     return {
       ...content.toJSON(),
       sections,
-    };
+    }
   }
 
   async getContentWithComponents(slug: string) {
-    const content = await this.getContentBySlug(slug);
+    const content = await this.getContentBySlug(slug)
 
     const components = await PageComponent.findAll({
       where: {
@@ -63,16 +63,16 @@ export class PublicApiService {
         status: true,
       },
       order: [['order_index', 'ASC']],
-    });
+    })
 
     return {
       ...content.toJSON(),
       components,
-    };
+    }
   }
 
   async getContentFull(slug: string) {
-    const content = await this.getContentBySlug(slug);
+    const content = await this.getContentBySlug(slug)
 
     const [sections, components] = await Promise.all([
       ContentSection.findAll({
@@ -83,26 +83,26 @@ export class PublicApiService {
         where: { content_id: content.content_id, status: true },
         order: [['order_index', 'ASC']],
       }),
-    ]);
+    ])
 
     return {
       ...content.toJSON(),
       sections,
       components,
-    };
+    }
   }
 
   async getPublishedContents(filters?: {
-    type?: string;
-    category_slug?: string;
-    search?: string;
-    limit?: number;
-    offset?: number;
+    type?: string
+    category_slug?: string
+    search?: string
+    limit?: number
+    offset?: number
   }) {
-    const where: any = { status: 'P' };
+    const where: any = { status: 'P' }
 
     if (filters?.type) {
-      where.type = filters.type;
+      where.type = filters.type
     }
 
     if (filters?.search) {
@@ -110,7 +110,7 @@ export class PublicApiService {
         { title: { [Op.iLike]: `%${filters.search}%` } },
         { lead: { [Op.iLike]: `%${filters.search}%` } },
         { body: { [Op.iLike]: `%${filters.search}%` } },
-      ];
+      ]
     }
 
     const include: any[] = [
@@ -126,11 +126,11 @@ export class PublicApiService {
         where: { status: true },
         required: false,
       },
-    ];
+    ]
 
     if (filters?.category_slug) {
-      include[1].where = { slug: filters.category_slug, status: true };
-      include[1].required = true;
+      include[1].where = { slug: filters.category_slug, status: true }
+      include[1].required = true
     }
 
     const { count, rows } = await Content.findAndCountAll({
@@ -140,14 +140,14 @@ export class PublicApiService {
       offset: filters?.offset || 0,
       order: [['published_at', 'DESC']],
       distinct: true,
-    });
+    })
 
     return {
       items: rows,
       total: count,
       limit: filters?.limit || 10,
       offset: filters?.offset || 0,
-    };
+    }
   }
 
   async getMenuByCode(code: string) {
@@ -216,13 +216,13 @@ export class PublicApiService {
           'ASC',
         ],
       ],
-    });
+    })
 
     if (!menu) {
-      throw new Error('Menu not found');
+      throw new Error('Menu not found')
     }
 
-    return menu;
+    return menu
   }
 
   async getCategoryContents(slug: string, limit = 10, offset = 0) {
@@ -245,25 +245,25 @@ export class PublicApiService {
           offset,
         },
       ],
-    });
+    })
 
     if (!category) {
-      throw new Error('Category not found');
+      throw new Error('Category not found')
     }
 
-    return category;
+    return category
   }
 
   async getActiveCategories(type?: string) {
-    const where: any = { status: true };
+    const where: any = { status: true }
     if (type) {
-      where.type = type;
+      where.type = type
     }
 
     return await Category.findAll({
       where,
       order: [['display_name', 'ASC']],
-    });
+    })
   }
 
   async searchContents(query: string, limit = 10, offset = 0) {
@@ -271,7 +271,7 @@ export class PublicApiService {
       search: query,
       limit,
       offset,
-    });
+    })
   }
 
   async getRelatedContents(contentId: string, limit = 5) {
@@ -283,13 +283,13 @@ export class PublicApiService {
           through: { attributes: [] },
         },
       ],
-    });
+    })
 
     if (!content || !content.categories || content.categories.length === 0) {
-      return [];
+      return []
     }
 
-    const categoryIds = content.categories.map((c) => c.category_id);
+    const categoryIds = content.categories.map((c) => c.category_id)
 
     const related = await Content.findAll({
       where: {
@@ -314,9 +314,9 @@ export class PublicApiService {
       limit,
       distinct: true,
       order: [['published_at', 'DESC']],
-    });
+    })
 
-    return related;
+    return related
   }
 
   async getHomepage() {
@@ -331,10 +331,10 @@ export class PublicApiService {
           as: 'cover',
         },
       ],
-    });
+    })
 
     if (!homepage) {
-      throw new Error('Homepage not found');
+      throw new Error('Homepage not found')
     }
 
     const [sections, components] = await Promise.all([
@@ -346,14 +346,14 @@ export class PublicApiService {
         where: { content_id: homepage.content_id, status: true },
         order: [['order_index', 'ASC']],
       }),
-    ]);
+    ])
 
     return {
       ...homepage.toJSON(),
       sections,
       components,
-    };
+    }
   }
 }
 
-export const publicApiService = new PublicApiService();
+export const publicApiService = new PublicApiService()

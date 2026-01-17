@@ -1,20 +1,29 @@
-import { useState } from 'react';
-import { FileTextIcon, ImageIcon, VideoIcon, CodeIcon, XIcon } from 'lucide-react';
-import { useContentSections, type SectionType } from '../../../store/contentSections';
-import Button from '../../ui/button/Button';
+import { useState } from 'react'
+import {
+  FileTextIcon,
+  ImageIcon,
+  VideoIcon,
+  CodeIcon,
+  XIcon,
+} from 'lucide-react'
+import {
+  useContentSections,
+  type SectionType,
+} from '../../../store/contentSections'
+import Button from '../../ui/button/Button'
 
 interface SectionTypeModalProps {
-  open: boolean;
-  onClose: () => void;
-  contentId: string;
+  open: boolean
+  onClose: () => void
+  contentId: string
 }
 
 interface SectionTypeOption {
-  type: SectionType;
-  label: string;
-  description: string;
-  icon: React.ReactNode;
-  color: string;
+  type: SectionType
+  label: string
+  description: string
+  icon: React.ReactNode
+  color: string
 }
 
 const sectionTypes: SectionTypeOption[] = [
@@ -67,33 +76,40 @@ const sectionTypes: SectionTypeOption[] = [
     icon: <CodeIcon className="w-6 h-6" />,
     color: 'yellow',
   },
-];
+]
 
-export default function SectionTypeModal({ open, onClose, contentId }: SectionTypeModalProps) {
-  const { createSection } = useContentSections();
-  const [creating, setCreating] = useState(false);
+export default function SectionTypeModal({
+  open,
+  onClose,
+  contentId,
+}: SectionTypeModalProps) {
+  const { createSection } = useContentSections()
+  const [creating, setCreating] = useState(false)
 
-  if (!open) return null;
+  if (!open) return null
 
   const handleSelectType = async (type: SectionType) => {
-    setCreating(true);
+    setCreating(true)
     try {
       await createSection(contentId, {
         section_type: type,
         heading: '',
         body: '',
-      });
-      onClose();
+      })
+      onClose()
     } catch (error) {
     } finally {
-      setCreating(false);
+      setCreating(false)
     }
-  };
+  }
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex min-h-screen items-center justify-center p-4">
-        <div className="fixed inset-0 bg-black/50 transition-opacity" onClick={onClose} />
+        <div
+          className="fixed inset-0 bg-black/50 transition-opacity"
+          onClick={onClose}
+        />
 
         <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-3xl w-full">
           <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
@@ -124,7 +140,9 @@ export default function SectionTypeModal({ open, onClose, contentId }: SectionTy
                     focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
                   `}
                 >
-                  <div className={`text-${option.color}-600 dark:text-${option.color}-400 mb-2`}>
+                  <div
+                    className={`text-${option.color}-600 dark:text-${option.color}-400 mb-2`}
+                  >
                     {option.icon}
                   </div>
                   <div className="font-medium text-gray-900 dark:text-white mb-1">
@@ -146,5 +164,5 @@ export default function SectionTypeModal({ open, onClose, contentId }: SectionTy
         </div>
       </div>
     </div>
-  );
+  )
 }

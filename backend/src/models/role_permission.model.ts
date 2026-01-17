@@ -1,14 +1,19 @@
-import { DataTypes, Model, InferAttributes, InferCreationAttributes } from 'sequelize';
-import { sequelize } from '../db/sequelize.js';
-import { Role } from './role.model.js';
-import { Permission } from './permission.model.js';
+import {
+  DataTypes,
+  Model,
+  InferAttributes,
+  InferCreationAttributes,
+} from 'sequelize'
+import { sequelize } from '../db/sequelize.js'
+import { Role } from './role.model.js'
+import { Permission } from './permission.model.js'
 
 export class RolePermission extends Model<
   InferAttributes<RolePermission>,
   InferCreationAttributes<RolePermission>
 > {
-  declare role_id: string;
-  declare permission_id: string;
+  declare role_id: string
+  declare permission_id: string
 }
 
 RolePermission.init(
@@ -33,4 +38,4 @@ RolePermission.init(
     tableName: 'role_permission',
     timestamps: false,
   }
-);
+)

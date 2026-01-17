@@ -1,6 +1,6 @@
-import PageBreadcrumb from '../../components/common/PageBreadCrumb';
-import PageMeta from '../../components/common/PageMeta';
-import RolesTable from '../../components/tables/RolesTable';
+import PageBreadcrumb from '../../components/common/PageBreadCrumb'
+import PageMeta from '../../components/common/PageMeta'
+import RolesTable from '../../components/tables/RolesTable'
 
 export default function RolesPage() {
   return (
@@ -16,5 +16,5 @@ export default function RolesPage() {
         </div>
       </div>
     </>
-  );
+  )
 }

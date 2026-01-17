@@ -1,32 +1,32 @@
-import { useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
-import { X, GridIcon, CheckCircleIcon } from 'lucide-react';
-import Button from '../../ui/button/Button';
-import { api } from '../../../api/axios';
+import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
+import { X, GridIcon, CheckCircleIcon } from 'lucide-react'
+import Button from '../../ui/button/Button'
+import { api } from '../../../api/axios'
 
 interface Media {
-  media_id: string;
-  alt_text: string;
-  height: number;
-  width: number;
-  status: string;
-  storage_path: string;
-  title: string;
-  file_name?: string;
-  file_path?: string;
-  mime_type: string;
-  thumbnail_path: string;
-  created_at: string;
-  uploaded_at: string;
+  media_id: string
+  alt_text: string
+  height: number
+  width: number
+  status: string
+  storage_path: string
+  title: string
+  file_name?: string
+  file_path?: string
+  mime_type: string
+  thumbnail_path: string
+  created_at: string
+  uploaded_at: string
 }
 
 interface MediaLibraryModalProps {
-  open: boolean;
-  onClose: () => void;
-  onSelect: (media: Media | Media[]) => void;
-  multiple?: boolean;
-  allowedTypes?: ('image' | 'video' | 'audio' | 'document' | 'pdf')[];
-  maxSelection?: number;
+  open: boolean
+  onClose: () => void
+  onSelect: (media: Media | Media[]) => void
+  multiple?: boolean
+  allowedTypes?: ('image' | 'video' | 'audio' | 'document' | 'pdf')[]
+  maxSelection?: number
 }
 
 export default function MediaLibraryModal({
@@ -37,73 +37,79 @@ export default function MediaLibraryModal({
   allowedTypes,
   maxSelection = 10,
 }: MediaLibraryModalProps) {
-  const [media, setMedia] = useState<Media[]>([]);
-  const [filteredMedia, setFilteredMedia] = useState<Media[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState<string>('all');
+  const [media, setMedia] = useState<Media[]>([])
+  const [filteredMedia, setFilteredMedia] = useState<Media[]>([])
+  const [loading, setLoading] = useState(false)
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filterType, setFilterType] = useState<string>('all')
 
   useEffect(() => {
     if (open) {
-      fetchMedia();
-      setSelectedIds([]);
+      fetchMedia()
+      setSelectedIds([])
     }
-  }, [open]);
+  }, [open])
 
   useEffect(() => {
-    filterMedia();
-  }, [media, searchTerm, filterType, allowedTypes]);
+    filterMedia()
+  }, [media, searchTerm, filterType, allowedTypes])
 
   const fetchMedia = async () => {
-    setLoading(true);
+    setLoading(true)
     try {
       const res = await api.get('/media', {
         params: { limit: 100, offset: 0 },
-      });
-      setMedia(res.data.items || []);
+      })
+      setMedia(res.data.items || [])
     } catch (error) {
-      console.error('Failed to fetch media:', error);
+      console.error('Failed to fetch media:', error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const filterMedia = () => {
-    let filtered = [...media];
+    let filtered = [...media]
 
     if (allowedTypes && allowedTypes.length > 0) {
       filtered = filtered.filter((m) => {
-        const mime = m.mime_type.toLowerCase();
+        const mime = m.mime_type.toLowerCase()
         return allowedTypes.some((type) => {
-          if (type === 'image') return mime.startsWith('image/');
-          if (type === 'video') return mime.startsWith('video/');
-          if (type === 'audio') return mime.startsWith('audio/');
-          if (type === 'pdf') return mime === 'application/pdf';
+          if (type === 'image') return mime.startsWith('image/')
+          if (type === 'video') return mime.startsWith('video/')
+          if (type === 'audio') return mime.startsWith('audio/')
+          if (type === 'pdf') return mime === 'application/pdf'
           if (type === 'document')
-            return mime.includes('document') || mime.includes('text') || mime.includes('word');
-          return false;
-        });
-      });
+            return (
+              mime.includes('document') ||
+              mime.includes('text') ||
+              mime.includes('word')
+            )
+          return false
+        })
+      })
     }
 
     if (searchTerm) {
-      filtered = filtered.filter((m) => m.title.toLowerCase().includes(searchTerm.toLowerCase()));
+      filtered = filtered.filter((m) =>
+        m.title.toLowerCase().includes(searchTerm.toLowerCase())
+      )
     }
 
     if (filterType !== 'all') {
       filtered = filtered.filter((m) => {
-        const mime = m.mime_type.toLowerCase();
-        if (filterType === 'image') return mime.startsWith('image/');
-        if (filterType === 'video') return mime.startsWith('video/');
-        if (filterType === 'audio') return mime.startsWith('audio/');
-        if (filterType === 'pdf') return mime === 'application/pdf';
-        return true;
-      });
+        const mime = m.mime_type.toLowerCase()
+        if (filterType === 'image') return mime.startsWith('image/')
+        if (filterType === 'video') return mime.startsWith('video/')
+        if (filterType === 'audio') return mime.startsWith('audio/')
+        if (filterType === 'pdf') return mime === 'application/pdf'
+        return true
+      })
     }
 
-    setFilteredMedia(filtered);
-  };
+    setFilteredMedia(filtered)
+  }
 
   const handleToggleSelect = (mediaId: string) => {
     if (multiple) {
@@ -113,29 +119,30 @@ export default function MediaLibraryModal({
           : prev.length < maxSelection
             ? [...prev, mediaId]
             : prev
-      );
+      )
     } else {
-      setSelectedIds([mediaId]);
+      setSelectedIds([mediaId])
     }
-  };
+  }
 
   const handleConfirm = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const selectedMedia = media.filter((m) => selectedIds.includes(m.media_id));
+    e.preventDefault()
+    e.stopPropagation()
+    const selectedMedia = media.filter((m) => selectedIds.includes(m.media_id))
     if (selectedMedia.length > 0) {
       const mediaWithFileName = selectedMedia.map((m) => ({
         ...m,
         file_name: m.title,
         file_path: m.storage_path,
-      }));
-      onSelect(multiple ? mediaWithFileName : mediaWithFileName[0]);
+      }))
+      onSelect(multiple ? mediaWithFileName : mediaWithFileName[0])
     }
-  };
+  }
 
-  const getMediaUrl = (path: string) => `${import.meta.env.VITE_API_UPLOADS}${path}`;
+  const getMediaUrl = (path: string) =>
+    `${import.meta.env.VITE_API_UPLOADS}${path}`
 
-  if (!open) return null;
+  if (!open) return null
 
   return createPortal(
     <div className="fixed inset-0 z-[999999] overflow-y-auto">
@@ -143,25 +150,27 @@ export default function MediaLibraryModal({
         <div
           className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
           onClick={(e) => {
-            e.stopPropagation();
-            onClose();
+            e.stopPropagation()
+            onClose()
           }}
         />
 
         <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden flex flex-col border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between p-5 border-b border-gray-200 dark:border-gray-700">
             <div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white">Biblioteka Mediów</h3>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                Biblioteka Mediów
+              </h3>
               {allowedTypes && allowedTypes.length > 0 && (
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   Filtr:{' '}
                   {allowedTypes
                     .map((t) => {
-                      if (t === 'image') return 'Zdjęcia';
-                      if (t === 'pdf') return 'PDF';
-                      if (t === 'video') return 'Wideo';
-                      if (t === 'audio') return 'Audio';
-                      return t;
+                      if (t === 'image') return 'Zdjęcia'
+                      if (t === 'pdf') return 'PDF'
+                      if (t === 'video') return 'Wideo'
+                      if (t === 'audio') return 'Audio'
+                      return t
                     })
                     .join(', ')}
                 </p>
@@ -212,15 +221,17 @@ export default function MediaLibraryModal({
                     : 'Brak plików w bibliotece'}
                 </p>
                 {searchTerm && (
-                  <p className="text-gray-400 text-sm mt-2">Spróbuj zmienić wyszukiwaną frazę</p>
+                  <p className="text-gray-400 text-sm mt-2">
+                    Spróbuj zmienić wyszukiwaną frazę
+                  </p>
                 )}
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 {filteredMedia.map((m) => {
-                  const isSelected = selectedIds.includes(m.media_id);
-                  const isImage = m.mime_type.startsWith('image/');
-                  const isPDF = m.mime_type === 'application/pdf';
+                  const isSelected = selectedIds.includes(m.media_id)
+                  const isImage = m.mime_type.startsWith('image/')
+                  const isPDF = m.mime_type === 'application/pdf'
 
                   return (
                     <button
@@ -273,7 +284,7 @@ export default function MediaLibraryModal({
                         {m.title}
                       </div>
                     </button>
-                  );
+                  )
                 })}
               </div>
             )}
@@ -281,7 +292,8 @@ export default function MediaLibraryModal({
 
           <div className="p-5 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center gap-3 bg-gray-50 dark:bg-gray-900">
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              {filteredMedia.length} {filteredMedia.length === 1 ? 'plik' : 'plików'}
+              {filteredMedia.length}{' '}
+              {filteredMedia.length === 1 ? 'plik' : 'plików'}
               {selectedIds.length > 0 && ` • ${selectedIds.length} wybranych`}
             </p>
             <div className="flex gap-3">
@@ -302,5 +314,5 @@ export default function MediaLibraryModal({
       </div>
     </div>,
     document.body
-  );
+  )
 }

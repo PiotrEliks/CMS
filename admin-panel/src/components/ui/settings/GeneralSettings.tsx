@@ -1,31 +1,36 @@
-import { useState, useEffect } from 'react';
-import { Save } from 'lucide-react';
-import ComponentCard from '../../common/ComponentCard';
-import Button from '../../ui/button/Button';
-import { useSiteSettings } from '../../../store/siteSettings';
+import { useState, useEffect } from 'react'
+import { Save } from 'lucide-react'
+import ComponentCard from '../../common/ComponentCard'
+import Button from '../../ui/button/Button'
+import { useSiteSettings } from '../../../store/siteSettings'
 
 interface GeneralSettingsProps {
-  settings: any;
+  settings: any
 }
 
-export default function GeneralSettings({ settings: initialSettings }: GeneralSettingsProps) {
-  const { updateSettings, saving } = useSiteSettings();
-  const [settings, setSettings] = useState(initialSettings || {});
+export default function GeneralSettings({
+  settings: initialSettings,
+}: GeneralSettingsProps) {
+  const { updateSettings, saving } = useSiteSettings()
+  const [settings, setSettings] = useState(initialSettings || {})
 
   useEffect(() => {
-    setSettings(initialSettings || {});
-  }, [initialSettings]);
+    setSettings(initialSettings || {})
+  }, [initialSettings])
 
   const handleChange = (field: string, value: any) => {
-    setSettings((prev: any) => ({ ...prev, [field]: value }));
-  };
+    setSettings((prev: any) => ({ ...prev, [field]: value }))
+  }
 
   const handleSave = async () => {
-    await updateSettings('general', settings);
-  };
+    await updateSettings('general', settings)
+  }
 
   return (
-    <ComponentCard title="Ustawienia Ogólne" desc="Podstawowe informacje o stronie">
+    <ComponentCard
+      title="Ustawienia Ogólne"
+      desc="Podstawowe informacje o stronie"
+    >
       <div className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -76,11 +81,16 @@ export default function GeneralSettings({ settings: initialSettings }: GeneralSe
         </div>
 
         <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
-          <Button variant="primary" startIcon={<Save />} onClick={handleSave} disabled={saving}>
+          <Button
+            variant="primary"
+            startIcon={<Save />}
+            onClick={handleSave}
+            disabled={saving}
+          >
             {saving ? 'Zapisywanie...' : 'Zapisz Ustawienia'}
           </Button>
         </div>
       </div>
     </ComponentCard>
-  );
+  )
 }

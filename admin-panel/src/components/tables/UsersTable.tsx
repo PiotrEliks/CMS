@@ -1,53 +1,53 @@
-import { useState } from 'react';
-import type { User } from '../../store/users';
-import ComponentCard from '../../components/common/ComponentCard';
-import UserTableOne from '../../components/tables/UserTableOne';
-import Button from '../../ui/button/Button';
-import { UserIcon } from '../../icons';
-import UserFormModal from '../../components/ui/modal/UserFormModal';
-import { useUsers } from '../../store/users';
-import DeleteConfirmModal from '../../components/modal/DeleteConfirmModal';
-import { Access } from '../../components/permissions/Access';
+import { useState } from 'react'
+import type { User } from '../../store/users'
+import ComponentCard from '../../components/common/ComponentCard'
+import UserTableOne from '../../components/tables/UserTableOne'
+import Button from '../../ui/button/Button'
+import { UserIcon } from '../../icons'
+import UserFormModal from '../../components/ui/modal/UserFormModal'
+import { useUsers } from '../../store/users'
+import DeleteConfirmModal from '../../components/modal/DeleteConfirmModal'
+import { Access } from '../../components/permissions/Access'
 
 export default function UsersTable() {
-  const { deleteUser } = useUsers();
+  const { deleteUser } = useUsers()
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingUser, setEditingUser] = useState<User | null>(null)
 
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [userToDelete, setUserToDelete] = useState<User | null>(null)
 
   const handleCreateNew = () => {
-    setEditingUser(null);
-    setIsModalOpen(true);
-  };
+    setEditingUser(null)
+    setIsModalOpen(true)
+  }
 
   const handleEditUser = (user: User) => {
-    setEditingUser(user);
-    setIsModalOpen(true);
-  };
+    setEditingUser(user)
+    setIsModalOpen(true)
+  }
 
   const askDeleteUser = (user: User) => {
-    setUserToDelete(user);
-    setDeleteModalOpen(true);
-  };
+    setUserToDelete(user)
+    setDeleteModalOpen(true)
+  }
 
   const confirmDelete = async () => {
-    if (!userToDelete) return;
+    if (!userToDelete) return
 
     try {
-      await deleteUser(userToDelete.user_id);
+      await deleteUser(userToDelete.user_id)
     } finally {
-      setDeleteModalOpen(false);
-      setUserToDelete(null);
+      setDeleteModalOpen(false)
+      setUserToDelete(null)
     }
-  };
+  }
 
   const cancelDelete = () => {
-    setDeleteModalOpen(false);
-    setUserToDelete(null);
-  };
+    setDeleteModalOpen(false)
+    setUserToDelete(null)
+  }
 
   return (
     <>
@@ -89,5 +89,5 @@ export default function UsersTable() {
         }
       />
     </>
-  );
+  )
 }

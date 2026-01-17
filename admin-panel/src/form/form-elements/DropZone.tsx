@@ -1,12 +1,12 @@
-import ComponentCard from '../../common/ComponentCard';
-import { useDropzone } from 'react-dropzone';
+import ComponentCard from '../../common/ComponentCard'
+import { useDropzone } from 'react-dropzone'
 // import Dropzone from "react-dropzone";
 
 const DropzoneComponent: React.FC = () => {
   const onDrop = (acceptedFiles: File[]) => {
-    console.log('Files dropped:', acceptedFiles);
+    console.log('Files dropped:', acceptedFiles)
     // Handle file uploads here
-  };
+  }
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -16,7 +16,7 @@ const DropzoneComponent: React.FC = () => {
       'image/webp': [],
       'image/svg+xml': [],
     },
-  });
+  })
   return (
     <ComponentCard title="Dropzone">
       <div className="transition border border-gray-300 border-dashed cursor-pointer dark:hover:border-brand-500 dark:border-gray-700 rounded-xl hover:border-brand-500">
@@ -63,12 +63,14 @@ const DropzoneComponent: React.FC = () => {
               Drag and drop your PNG, JPG, WebP, SVG images here or browse
             </span>
 
-            <span className="font-medium underline text-theme-sm text-brand-500">Browse File</span>
+            <span className="font-medium underline text-theme-sm text-brand-500">
+              Browse File
+            </span>
           </div>
         </form>
       </div>
     </ComponentCard>
-  );
-};
+  )
+}
 
-export default DropzoneComponent;
+export default DropzoneComponent

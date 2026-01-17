@@ -1,30 +1,30 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'
 import {
   useContentSections,
   type ContentSection,
   type SectionType,
-} from '../../../store/contentSections';
-import { X, GridIcon, Trash2 } from 'lucide-react';
-import Button from '../../ui/button/Button';
-import MediaLibraryModal from './MediaLibraryModal';
-import RichTextEditor from './RichTextEditor';
-import { api } from '../../../api/axios';
+} from '../../../store/contentSections'
+import { X, GridIcon, Trash2 } from 'lucide-react'
+import Button from '../../ui/button/Button'
+import MediaLibraryModal from './MediaLibraryModal'
+import RichTextEditor from './RichTextEditor'
+import { api } from '../../../api/axios'
 
 interface SectionEditModalProps {
-  open: boolean;
-  onClose: () => void;
-  section: ContentSection;
-  contentId: string;
+  open: boolean
+  onClose: () => void
+  section: ContentSection
+  contentId: string
 }
 
 interface Media {
-  media_id: string;
-  file_name: string;
-  file_path: string;
-  storage_path: string;
-  mime_type: string;
-  thumbnail_path?: string;
-  title?: string;
+  media_id: string
+  file_name: string
+  file_path: string
+  storage_path: string
+  mime_type: string
+  thumbnail_path?: string
+  title?: string
 }
 
 export default function SectionEditModal({
@@ -33,16 +33,18 @@ export default function SectionEditModal({
   section,
   contentId,
 }: SectionEditModalProps) {
-  const { updateSection, createSection } = useContentSections();
-  const [loading, setLoading] = useState(false);
-  const [mediaModalOpen, setMediaModalOpen] = useState(false);
-  const [mediaModalMode, setMediaModalMode] = useState<'single' | 'multiple'>('single');
+  const { updateSection, createSection } = useContentSections()
+  const [loading, setLoading] = useState(false)
+  const [mediaModalOpen, setMediaModalOpen] = useState(false)
+  const [mediaModalMode, setMediaModalMode] = useState<'single' | 'multiple'>(
+    'single'
+  )
   const [allowedMediaTypes, setAllowedMediaTypes] = useState<
     ('image' | 'video' | 'audio' | 'document' | 'pdf')[]
-  >([]);
+  >([])
 
-  const [mediaObjects, setMediaObjects] = useState<Media[]>([]);
-  const [loadingMedia, setLoadingMedia] = useState(false);
+  const [mediaObjects, setMediaObjects] = useState<Media[]>([])
+  const [loadingMedia, setLoadingMedia] = useState(false)
 
   const [formData, setFormData] = useState({
     heading: section.heading || '',
@@ -51,7 +53,7 @@ export default function SectionEditModal({
     status: section.status,
     media_ids: section.media_ids || [],
     settings: section.settings || {},
-  });
+  })
 
   useEffect(() => {
     if (open && section) {
@@ -62,17 +64,17 @@ export default function SectionEditModal({
         status: section.status,
         media_ids: section.media_ids || [],
         settings: section.settings || {},
-      });
+      })
 
-      setMediaObjects([]);
+      setMediaObjects([])
       if (section.media_ids && section.media_ids.length > 0) {
-        fetchMediaDetails(section.media_ids);
+        fetchMediaDetails(section.media_ids)
       }
     }
-  }, [open, section.section_id]);
+  }, [open, section.section_id])
 
   const normalizeMedia = (apiMedia: any): Media => {
-    const data = apiMedia.media ? apiMedia.media : apiMedia;
+    const data = apiMedia.media ? apiMedia.media : apiMedia
 
     return {
       media_id: data.media_id,
@@ -82,118 +84,118 @@ export default function SectionEditModal({
       mime_type: data.mime_type,
       thumbnail_path: data.thumbnail_path,
       title: data.title,
-    };
-  };
+    }
+  }
 
   const fetchMediaDetails = async (mediaIds: string[]) => {
     if (!mediaIds || mediaIds.length === 0) {
-      setMediaObjects([]);
-      return;
+      setMediaObjects([])
+      return
     }
 
-    setLoadingMedia(true);
+    setLoadingMedia(true)
     try {
       const mediaPromises = mediaIds.map((id) =>
         api.get(`/media/${id}`).catch((err) => {
-          console.warn(`Failed to fetch media ${id}:`, err);
-          return null;
+          console.warn(`Failed to fetch media ${id}:`, err)
+          return null
         })
-      );
-      const responses = await Promise.all(mediaPromises);
+      )
+      const responses = await Promise.all(mediaPromises)
       const validMedia = responses
         .filter((res) => res !== null)
-        .map((res) => normalizeMedia(res!.data));
+        .map((res) => normalizeMedia(res!.data))
 
-      setMediaObjects(validMedia);
+      setMediaObjects(validMedia)
     } catch (error) {
-      console.error('Failed to fetch media details:', error);
-      setMediaObjects([]);
+      console.error('Failed to fetch media details:', error)
+      setMediaObjects([])
     } finally {
-      setLoadingMedia(false);
+      setLoadingMedia(false)
     }
-  };
+  }
 
   useEffect(() => {
     if (!open) {
-      setMediaModalOpen(false);
+      setMediaModalOpen(false)
     }
-  }, [open, section]);
+  }, [open, section])
 
-  if (!open) return null;
+  if (!open) return null
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (!contentId || contentId === 'undefined') {
-      console.error('Missing contentId!');
-      return;
+      console.error('Missing contentId!')
+      return
     }
 
-    setLoading(true);
+    setLoading(true)
 
     try {
       if (section.section_id) {
-        await updateSection(contentId, section.section_id, formData);
+        await updateSection(contentId, section.section_id, formData)
       } else {
         await createSection(contentId, {
           ...formData,
           section_type: section.section_type,
-        });
+        })
       }
-      onClose();
+      onClose()
     } catch (error) {
-      console.error('Failed to save section:', error);
+      console.error('Failed to save section:', error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleChange = (field: string, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
+    setFormData((prev) => ({ ...prev, [field]: value }))
+  }
 
   const handleSettingsChange = (key: string, value: any) => {
     setFormData((prev) => ({
       ...prev,
       settings: { ...prev.settings, [key]: value },
-    }));
-  };
+    }))
+  }
 
   const handleMediaSelect = (media: Media | Media[]) => {
-    const incomingMedia = Array.isArray(media) ? media : [media];
-    const normalizedIncoming = incomingMedia.map((m) => normalizeMedia(m));
+    const incomingMedia = Array.isArray(media) ? media : [media]
+    const normalizedIncoming = incomingMedia.map((m) => normalizeMedia(m))
 
     if (mediaModalMode === 'multiple') {
       setFormData((prev) => {
-        const existingIds = prev.media_ids || [];
-        const newIds = normalizedIncoming.map((m) => m.media_id);
-        const combinedIds = Array.from(new Set([...existingIds, ...newIds]));
-        return { ...prev, media_ids: combinedIds };
-      });
+        const existingIds = prev.media_ids || []
+        const newIds = normalizedIncoming.map((m) => m.media_id)
+        const combinedIds = Array.from(new Set([...existingIds, ...newIds]))
+        return { ...prev, media_ids: combinedIds }
+      })
 
       setMediaObjects((prev) => {
-        const combinedMedia = [...prev];
+        const combinedMedia = [...prev]
         normalizedIncoming.forEach((newM) => {
           if (!combinedMedia.find((m) => m.media_id === newM.media_id)) {
-            combinedMedia.push(newM);
+            combinedMedia.push(newM)
           }
-        });
-        return combinedMedia;
-      });
+        })
+        return combinedMedia
+      })
     } else {
-      const singleMedia = normalizedIncoming[0];
-      handleChange('media_ids', [singleMedia.media_id]);
-      setMediaObjects([singleMedia]);
+      const singleMedia = normalizedIncoming[0]
+      handleChange('media_ids', [singleMedia.media_id])
+      setMediaObjects([singleMedia])
     }
 
-    setMediaModalOpen(false);
-  };
+    setMediaModalOpen(false)
+  }
 
   const handleRemoveMedia = (mediaId: string) => {
-    const newMediaIds = formData.media_ids.filter((id) => id !== mediaId);
-    handleChange('media_ids', newMediaIds);
-    setMediaObjects((prev) => prev.filter((m) => m.media_id !== mediaId));
-  };
+    const newMediaIds = formData.media_ids.filter((id) => id !== mediaId)
+    handleChange('media_ids', newMediaIds)
+    setMediaObjects((prev) => prev.filter((m) => m.media_id !== mediaId))
+  }
 
   const openMediaModal = (
     mode: 'single' | 'multiple',
@@ -201,16 +203,16 @@ export default function SectionEditModal({
     e?: React.MouseEvent
   ) => {
     if (e) {
-      e.preventDefault();
-      e.stopPropagation();
+      e.preventDefault()
+      e.stopPropagation()
     }
-    setMediaModalMode(mode);
-    setAllowedMediaTypes(allowedTypes);
-    setMediaModalOpen(true);
-  };
+    setMediaModalMode(mode)
+    setAllowedMediaTypes(allowedTypes)
+    setMediaModalOpen(true)
+  }
 
   const getMediaById = (mediaId: string): Media | undefined => {
-    const found = mediaObjects.find((m) => m.media_id === mediaId);
+    const found = mediaObjects.find((m) => m.media_id === mediaId)
     if (!found) {
       console.warn(
         'Media not found:',
@@ -221,26 +223,29 @@ export default function SectionEditModal({
           file_name: m.file_name,
           storage_path: m.storage_path,
         }))
-      );
+      )
     }
-    return found;
-  };
+    return found
+  }
 
   const getMediaUrl = (media: Media): string => {
-    const path = media.storage_path;
-    return `${import.meta.env.VITE_API_UPLOADS}${path}`;
-  };
+    const path = media.storage_path
+    return `${import.meta.env.VITE_API_UPLOADS}${path}`
+  }
 
   const getThumbnailUrl = (media: Media): string => {
-    const path = media.thumbnail_path || media.storage_path;
-    return `${import.meta.env.VITE_API_UPLOADS}${path}`;
-  };
+    const path = media.thumbnail_path || media.storage_path
+    return `${import.meta.env.VITE_API_UPLOADS}${path}`
+  }
 
   return (
     <>
       <div className="fixed inset-0 z-50 overflow-y-auto">
         <div className="flex min-h-screen items-center justify-center p-4">
-          <div className="fixed inset-0 bg-black/50 transition-opacity" onClick={onClose} />
+          <div
+            className="fixed inset-0 bg-black/50 transition-opacity"
+            onClick={onClose}
+          />
 
           <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
             <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
@@ -249,7 +254,8 @@ export default function SectionEditModal({
                   Edytuj sekcję
                 </h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  Typ: <span className="font-medium">{section.section_type}</span>
+                  Typ:{' '}
+                  <span className="font-medium">{section.section_type}</span>
                 </p>
               </div>
               <button
@@ -278,7 +284,8 @@ export default function SectionEditModal({
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Podtytuł <span className="text-gray-400">(opcjonalnie)</span>
+                    Podtytuł{' '}
+                    <span className="text-gray-400">(opcjonalnie)</span>
                   </label>
                   <input
                     type="text"
@@ -341,7 +348,7 @@ export default function SectionEditModal({
         allowedTypes={allowedMediaTypes}
       />
     </>
-  );
+  )
 }
 
 function renderTypeEditor(
@@ -374,7 +381,7 @@ function renderTypeEditor(
             placeholder="Wprowadź treść..."
           />
         </div>
-      );
+      )
 
     case 'image':
       return (
@@ -390,7 +397,7 @@ function renderTypeEditor(
             <div className="space-y-2 flex flex-col items-start">
               <div className="relative inline-block">
                 {(() => {
-                  const media = getMediaById(formData.media_ids[0]);
+                  const media = getMediaById(formData.media_ids[0])
                   return media ? (
                     <div className="w-48 h-48 border-2 border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
                       <img
@@ -401,15 +408,17 @@ function renderTypeEditor(
                     </div>
                   ) : (
                     <div className="w-48 h-48 border-2 border-gray-300 dark:border-gray-600 rounded-lg flex items-center justify-center">
-                      <p className="text-sm text-gray-500">Nie znaleziono obrazu</p>
+                      <p className="text-sm text-gray-500">
+                        Nie znaleziono obrazu
+                      </p>
                     </div>
-                  );
+                  )
                 })()}
                 <button
                   type="button"
                   onClick={(e) => {
-                    e.preventDefault();
-                    handleRemoveMedia(formData.media_ids[0]);
+                    e.preventDefault()
+                    handleRemoveMedia(formData.media_ids[0])
                   }}
                   className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
                 >
@@ -431,11 +440,13 @@ function renderTypeEditor(
               className="w-full border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center hover:border-primary transition-colors"
             >
               <GridIcon className="w-12 h-12 mx-auto text-gray-400 mb-2" />
-              <p className="text-gray-600 dark:text-gray-400">Kliknij aby wybrać zdjęcie</p>
+              <p className="text-gray-600 dark:text-gray-400">
+                Kliknij aby wybrać zdjęcie
+              </p>
             </button>
           )}
         </div>
-      );
+      )
 
     case 'gallery':
       return (
@@ -452,7 +463,7 @@ function renderTypeEditor(
               <div className="space-y-3">
                 <div className="grid grid-cols-4 gap-3">
                   {formData.media_ids.map((mediaId: string) => {
-                    const media = getMediaById(mediaId);
+                    const media = getMediaById(mediaId)
                     return (
                       <div key={mediaId} className="relative group">
                         <div className="aspect-square border-2 border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
@@ -471,15 +482,15 @@ function renderTypeEditor(
                         <button
                           type="button"
                           onClick={(e) => {
-                            e.preventDefault();
-                            handleRemoveMedia(mediaId);
+                            e.preventDefault()
+                            handleRemoveMedia(mediaId)
                           }}
                           className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           <Trash2 className="w-3 h-3" />
                         </button>
                       </div>
-                    );
+                    )
                   })}
                 </div>
                 <Button
@@ -497,7 +508,9 @@ function renderTypeEditor(
                 className="w-full border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center hover:border-primary transition-colors"
               >
                 <GridIcon className="w-12 h-12 mx-auto text-gray-400 mb-2" />
-                <p className="text-gray-600 dark:text-gray-400">Kliknij aby wybrać zdjęcia</p>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Kliknij aby wybrać zdjęcia
+                </p>
               </button>
             )}
           </div>
@@ -527,13 +540,15 @@ function renderTypeEditor(
                 min="1"
                 max="6"
                 value={formData.settings?.columns || 3}
-                onChange={(e) => handleSettingsChange('columns', parseInt(e.target.value))}
+                onChange={(e) =>
+                  handleSettingsChange('columns', parseInt(e.target.value))
+                }
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
               />
             </div>
           </div>
         </div>
-      );
+      )
 
     case 'pdf':
       return (
@@ -549,7 +564,7 @@ function renderTypeEditor(
             <div className="space-y-2 flex flex-col items-start">
               <div className="relative inline-block">
                 {(() => {
-                  const media = getMediaById(formData.media_ids[0]);
+                  const media = getMediaById(formData.media_ids[0])
                   return media ? (
                     <div className="w-48 h-48 border-2 border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
                       <img
@@ -562,13 +577,13 @@ function renderTypeEditor(
                     <div className="w-48 h-48 border-2 border-gray-300 dark:border-gray-600 rounded-lg flex items-center justify-center">
                       <span className="text-4xl">📄</span>
                     </div>
-                  );
+                  )
                 })()}
                 <button
                   type="button"
                   onClick={(e) => {
-                    e.preventDefault();
-                    handleRemoveMedia(formData.media_ids[0]);
+                    e.preventDefault()
+                    handleRemoveMedia(formData.media_ids[0])
                   }}
                   className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
                 >
@@ -590,11 +605,13 @@ function renderTypeEditor(
               className="w-full border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center hover:border-primary transition-colors"
             >
               <span className="text-4xl block mb-2">📄</span>
-              <p className="text-gray-600 dark:text-gray-400">Kliknij aby wybrać PDF</p>
+              <p className="text-gray-600 dark:text-gray-400">
+                Kliknij aby wybrać PDF
+              </p>
             </button>
           )}
         </div>
-      );
+      )
 
     case 'video':
       return (
@@ -606,7 +623,9 @@ function renderTypeEditor(
             <input
               type="url"
               value={formData.settings?.video_url || ''}
-              onChange={(e) => handleSettingsChange('video_url', e.target.value)}
+              onChange={(e) =>
+                handleSettingsChange('video_url', e.target.value)
+              }
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
               placeholder="https://www.youtube.com/watch?v=..."
             />
@@ -618,7 +637,9 @@ function renderTypeEditor(
             </label>
             <select
               value={formData.settings?.video_provider || 'youtube'}
-              onChange={(e) => handleSettingsChange('video_provider', e.target.value)}
+              onChange={(e) =>
+                handleSettingsChange('video_provider', e.target.value)
+              }
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
             >
               <option value="youtube">YouTube</option>
@@ -632,15 +653,20 @@ function renderTypeEditor(
               type="checkbox"
               id="autoplay"
               checked={formData.settings?.autoplay || false}
-              onChange={(e) => handleSettingsChange('autoplay', e.target.checked)}
+              onChange={(e) =>
+                handleSettingsChange('autoplay', e.target.checked)
+              }
               className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
             />
-            <label htmlFor="autoplay" className="text-sm text-gray-700 dark:text-gray-300">
+            <label
+              htmlFor="autoplay"
+              className="text-sm text-gray-700 dark:text-gray-300"
+            >
               Autoplay
             </label>
           </div>
         </div>
-      );
+      )
 
     case 'html':
       return (
@@ -656,7 +682,7 @@ function renderTypeEditor(
             placeholder="<div>...</div>"
           />
         </div>
-      );
+      )
 
     case 'embed':
       return (
@@ -675,9 +701,9 @@ function renderTypeEditor(
             Wklej kod iframe lub script z zewnętrznych serwisów
           </p>
         </div>
-      );
+      )
 
     default:
-      return null;
+      return null
   }
 }

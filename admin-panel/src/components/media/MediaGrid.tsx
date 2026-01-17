@@ -1,4 +1,4 @@
-import type { MediaItem } from '../../store/media';
+import type { MediaItem } from '../../store/media'
 
 export default function MediaGrid({
   items,
@@ -6,20 +6,21 @@ export default function MediaGrid({
   onOpen,
   onDelete,
 }: {
-  items: MediaItem[];
-  loading: boolean;
-  onOpen: (m: MediaItem) => void;
-  onDelete?: (m: MediaItem) => void;
+  items: MediaItem[]
+  loading: boolean
+  onOpen: (m: MediaItem) => void
+  onDelete?: (m: MediaItem) => void
 }) {
-  if (loading) return <p className="text-sm text-gray-500">Ładowanie…</p>;
-  if (!items.length) return <p className="text-sm text-gray-500">Brak zasobów.</p>;
+  if (loading) return <p className="text-sm text-gray-500">Ładowanie…</p>
+  if (!items.length)
+    return <p className="text-sm text-gray-500">Brak zasobów.</p>
 
   return (
     <div className="grid grid-cols-2 gap-4 md:grid-cols-4 xl:grid-cols-6">
       {items.map((m) => {
-        const isImage = (m.mime_type ?? '').startsWith('image/');
-        const previewUrl = m.storage_path;
-        const isPdf = m.mime_type === 'application/pdf';
+        const isImage = (m.mime_type ?? '').startsWith('image/')
+        const previewUrl = m.storage_path
+        const isPdf = m.mime_type === 'application/pdf'
         return (
           <div
             key={m.media_id}
@@ -45,7 +46,9 @@ export default function MediaGrid({
                   />
                 )}
 
-                {isPdf && !m.thumbnail_path && <div className="text-xs text-gray-500">PDF</div>}
+                {isPdf && !m.thumbnail_path && (
+                  <div className="text-xs text-gray-500">PDF</div>
+                )}
               </div>
             </button>
 
@@ -54,7 +57,9 @@ export default function MediaGrid({
                 <p className="truncate text-xs font-medium text-gray-800 dark:text-gray-200">
                   {m.title ?? m.storage_path}
                 </p>
-                <p className="truncate text-[11px] text-gray-500">{m.mime_type}</p>
+                <p className="truncate text-[11px] text-gray-500">
+                  {m.mime_type}
+                </p>
               </div>
 
               {onDelete && (
@@ -69,8 +74,8 @@ export default function MediaGrid({
               )}
             </div>
           </div>
-        );
+        )
       })}
     </div>
-  );
+  )
 }

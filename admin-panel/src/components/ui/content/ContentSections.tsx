@@ -1,68 +1,88 @@
-import { useEffect, useState } from 'react';
-import { PlusIcon, GripVertical, Edit, Trash2, Eye, EyeOff, Copy } from 'lucide-react';
-import { DndContext, type DragEndEvent, closestCenter } from '@dnd-kit/core';
-import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import Button from '../../ui/button/Button';
-import SectionTypeModal from './SectionTypeModal';
-import SectionEditModal from './SectionEditModal';
-import DeleteConfirmModal from '../../modal/DeleteConfirmModal';
+import { useEffect, useState } from 'react'
+import {
+  PlusIcon,
+  GripVertical,
+  Edit,
+  Trash2,
+  Eye,
+  EyeOff,
+  Copy,
+} from 'lucide-react'
+import { DndContext, type DragEndEvent, closestCenter } from '@dnd-kit/core'
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import Button from '../../ui/button/Button'
+import SectionTypeModal from './SectionTypeModal'
+import SectionEditModal from './SectionEditModal'
+import DeleteConfirmModal from '../../modal/DeleteConfirmModal'
 import {
   useContentSections,
   type ContentSection,
   type SectionType,
-} from '../../../store/contentSections';
+} from '../../../store/contentSections'
 
 interface ContentSectionsProps {
-  contentId: string;
+  contentId: string
 }
 
 export default function ContentSections({ contentId }: ContentSectionsProps) {
-  const { sections, loading, fetchSections, reorderSections, deleteSection, toggleSectionStatus } =
-    useContentSections();
-  const [typeModalOpen, setTypeModalOpen] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [selectedSection, setSelectedSection] = useState<ContentSection | null>(null);
-  const [selectedType, setSelectedType] = useState<SectionType | null>(null);
+  const {
+    sections,
+    loading,
+    fetchSections,
+    reorderSections,
+    deleteSection,
+    toggleSectionStatus,
+  } = useContentSections()
+  const [typeModalOpen, setTypeModalOpen] = useState(false)
+  const [editModalOpen, setEditModalOpen] = useState(false)
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [selectedSection, setSelectedSection] = useState<ContentSection | null>(
+    null
+  )
+  const [selectedType, setSelectedType] = useState<SectionType | null>(null)
 
   useEffect(() => {
     if (contentId) {
-      fetchSections(contentId);
+      fetchSections(contentId)
     }
-  }, [contentId, fetchSections]);
+  }, [contentId, fetchSections])
 
   const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
+    const { active, over } = event
+    if (!over || active.id === over.id) return
 
-    const oldIndex = sections.findIndex((s) => s.section_id === active.id);
-    const newIndex = sections.findIndex((s) => s.section_id === over.id);
+    const oldIndex = sections.findIndex((s) => s.section_id === active.id)
+    const newIndex = sections.findIndex((s) => s.section_id === over.id)
 
-    if (oldIndex === -1 || newIndex === -1) return;
+    if (oldIndex === -1 || newIndex === -1) return
 
-    const reordered = [...sections];
-    const [moved] = reordered.splice(oldIndex, 1);
-    reordered.splice(newIndex, 0, moved);
+    const reordered = [...sections]
+    const [moved] = reordered.splice(oldIndex, 1)
+    reordered.splice(newIndex, 0, moved)
 
-    const sectionIds = reordered.map((s) => s.section_id);
+    const sectionIds = reordered.map((s) => s.section_id)
 
     try {
-      await reorderSections(contentId, sectionIds);
+      await reorderSections(contentId, sectionIds)
     } catch (error) {
-      console.error('Failed to reorder sections:', error);
-      fetchSections(contentId);
+      console.error('Failed to reorder sections:', error)
+      fetchSections(contentId)
     }
-  };
+  }
 
   const handleSelectType = (type: SectionType) => {
     if (!contentId || contentId === 'undefined') {
-      alert('Błąd: Nie można dodać sekcji do nieistniejącej treści.');
-      return;
+      alert('Błąd: Nie można dodać sekcji do nieistniejącej treści.')
+      return
     }
 
-    setSelectedType(type);
-    setTypeModalOpen(false);
+    setSelectedType(type)
+    setTypeModalOpen(false)
 
     const newSection: Partial<ContentSection> = {
       content_id: contentId,
@@ -73,43 +93,43 @@ export default function ContentSections({ contentId }: ContentSectionsProps) {
       status: true,
       media_ids: [],
       settings: {},
-    };
+    }
 
-    setSelectedSection(newSection as ContentSection);
-    setEditModalOpen(true);
-  };
+    setSelectedSection(newSection as ContentSection)
+    setEditModalOpen(true)
+  }
 
   const handleEdit = (section: ContentSection) => {
-    setSelectedSection(section);
-    setEditModalOpen(true);
-  };
+    setSelectedSection(section)
+    setEditModalOpen(true)
+  }
 
   const handleDelete = async () => {
-    if (!selectedSection?.section_id || !contentId) return;
+    if (!selectedSection?.section_id || !contentId) return
 
     try {
-      await deleteSection(contentId, selectedSection.section_id);
-      setDeleteModalOpen(false);
-      setSelectedSection(null);
+      await deleteSection(contentId, selectedSection.section_id)
+      setDeleteModalOpen(false)
+      setSelectedSection(null)
     } catch (error) {
-      console.error('Failed to delete section:', error);
+      console.error('Failed to delete section:', error)
     }
-  };
+  }
 
   const handleToggle = async (sectionId: string) => {
     try {
-      await toggleSectionStatus(sectionId);
+      await toggleSectionStatus(sectionId)
     } catch (error) {
-      console.error('Failed to toggle section:', error);
+      console.error('Failed to toggle section:', error)
     }
-  };
+  }
 
   if (loading && sections.length === 0) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
-    );
+    )
   }
 
   return (
@@ -117,7 +137,8 @@ export default function ContentSections({ contentId }: ContentSectionsProps) {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            {sections.length} sekcj{sections.length === 1 ? 'a' : 'i'}
+            {sections.length} sekcj
+            {sections.length === 1 ? 'a' : 'i'}
           </p>
           <Button
             variant="primary"
@@ -140,7 +161,10 @@ export default function ContentSections({ contentId }: ContentSectionsProps) {
             </Button>
           </div>
         ) : (
-          <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <DndContext
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
             <SortableContext
               items={sections.map((s) => s.section_id)}
               strategy={verticalListSortingStrategy}
@@ -152,8 +176,8 @@ export default function ContentSections({ contentId }: ContentSectionsProps) {
                     section={section}
                     onEdit={handleEdit}
                     onDelete={(s) => {
-                      setSelectedSection(s);
-                      setDeleteModalOpen(true);
+                      setSelectedSection(s)
+                      setDeleteModalOpen(true)
                     }}
                     onToggle={handleToggle}
                   />
@@ -175,8 +199,8 @@ export default function ContentSections({ contentId }: ContentSectionsProps) {
         <SectionEditModal
           open={editModalOpen}
           onClose={() => {
-            setEditModalOpen(false);
-            setSelectedSection(null);
+            setEditModalOpen(false)
+            setSelectedSection(null)
           }}
           section={selectedSection}
           contentId={contentId}
@@ -186,34 +210,46 @@ export default function ContentSections({ contentId }: ContentSectionsProps) {
       <DeleteConfirmModal
         open={deleteModalOpen}
         onCancel={() => {
-          setDeleteModalOpen(false);
-          setSelectedSection(null);
+          setDeleteModalOpen(false)
+          setSelectedSection(null)
         }}
         onConfirm={handleDelete}
         title="Usuń sekcję"
         message="Czy na pewno chcesz usunąć tę sekcję? Tej akcji nie będzie można cofnąć."
       />
     </>
-  );
+  )
 }
 
 interface SectionItemProps {
-  section: ContentSection;
-  onEdit: (section: ContentSection) => void;
-  onDelete: (section: ContentSection) => void;
-  onToggle: (sectionId: string) => void;
+  section: ContentSection
+  onEdit: (section: ContentSection) => void
+  onDelete: (section: ContentSection) => void
+  onToggle: (sectionId: string) => void
 }
 
-function SectionItem({ section, onEdit, onDelete, onToggle }: SectionItemProps) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+function SectionItem({
+  section,
+  onEdit,
+  onDelete,
+  onToggle,
+}: SectionItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
     id: section.section_id,
-  });
+  })
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-  };
+  }
 
   const sectionTypeLabels: Record<SectionType, string> = {
     text: 'Tekst',
@@ -223,7 +259,7 @@ function SectionItem({ section, onEdit, onDelete, onToggle }: SectionItemProps) 
     video: 'Wideo',
     html: 'HTML',
     embed: 'Osadzony',
-  };
+  }
 
   return (
     <div
@@ -256,7 +292,9 @@ function SectionItem({ section, onEdit, onDelete, onToggle }: SectionItemProps) 
               {sectionTypeLabels[section.section_type]}
             </span>
             {section.heading && (
-              <span className="text-sm text-gray-500 dark:text-gray-400">- {section.heading}</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                - {section.heading}
+              </span>
             )}
           </div>
           {section.subheading && (
@@ -297,5 +335,5 @@ function SectionItem({ section, onEdit, onDelete, onToggle }: SectionItemProps) 
         </div>
       </div>
     </div>
-  );
+  )
 }

@@ -1,19 +1,19 @@
-import { useEffect } from 'react';
-import flatpickr from 'flatpickr';
-import 'flatpickr/dist/flatpickr.css';
-import Label from './Label';
-import { CalenderIcon } from '../../icons';
-import Hook = flatpickr.Options.Hook;
-import DateOption = flatpickr.Options.DateOption;
+import { useEffect } from 'react'
+import flatpickr from 'flatpickr'
+import 'flatpickr/dist/flatpickr.css'
+import Label from './Label'
+import { CalenderIcon } from '../../icons'
+import Hook = flatpickr.Options.Hook
+import DateOption = flatpickr.Options.DateOption
 
 type PropsType = {
-  id: string;
-  mode?: 'single' | 'multiple' | 'range' | 'time';
-  onChange?: Hook | Hook[];
-  defaultDate?: DateOption;
-  label?: string;
-  placeholder?: string;
-};
+  id: string
+  mode?: 'single' | 'multiple' | 'range' | 'time'
+  onChange?: Hook | Hook[]
+  defaultDate?: DateOption
+  label?: string
+  placeholder?: string
+}
 
 export default function DatePicker({
   id,
@@ -31,14 +31,14 @@ export default function DatePicker({
       dateFormat: 'Y-m-d',
       defaultDate,
       onChange,
-    });
+    })
 
     return () => {
       if (!Array.isArray(flatPickr)) {
-        flatPickr.destroy();
+        flatPickr.destroy()
       }
-    };
-  }, [mode, onChange, id, defaultDate]);
+    }
+  }, [mode, onChange, id, defaultDate])
 
   return (
     <div>
@@ -56,5 +56,5 @@ export default function DatePicker({
         </span>
       </div>
     </div>
-  );
+  )
 }

@@ -1,14 +1,17 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { SaveIcon, ArrowLeftIcon } from 'lucide-react';
-import PageBreadcrumb from '../../components/common/PageBreadCrumb';
-import PageMeta from '../../components/common/PageMeta';
-import Button from '../../ui/button/Button';
-import { api } from '../../api/axios';
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { SaveIcon, ArrowLeftIcon } from 'lucide-react'
+import PageBreadcrumb from '../../components/common/PageBreadCrumb'
+import PageMeta from '../../components/common/PageMeta'
+import Button from '../../ui/button/Button'
+import { api } from '../../api/axios'
+import { useAlerts } from '../../store/alerts'
 
 export default function NewContentPage() {
-  const navigate = useNavigate();
-  const [saving, setSaving] = useState(false);
+  const navigate = useNavigate()
+  const [saving, setSaving] = useState(false)
+
+  const { showAlert } = useAlerts()
 
   const [formData, setFormData] = useState({
     title: '',
@@ -18,7 +21,7 @@ export default function NewContentPage() {
     meta_title: '',
     meta_description: '',
     status: 'D',
-  });
+  })
 
   const generateSlug = (title: string) => {
     return title
@@ -29,46 +32,58 @@ export default function NewContentPage() {
       .replace(/[^\w\s-]/g, '')
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
-      .trim();
-  };
+      .trim()
+  }
 
   const handleTitleChange = (title: string) => {
     setFormData({
       ...formData,
       title,
       slug: generateSlug(title),
-    });
-  };
+    })
+  }
 
   const handleCreate = async () => {
     if (!formData.title || !formData.slug) {
-      alert('Tytuł i slug są wymagane');
-      return;
+      showAlert({
+        variant: 'error',
+        title: 'Tytuł i slug są wymagane',
+        message: 'Treść nie została utworzona.',
+        duration: 3000,
+      })
+      return
     }
 
-    setSaving(true);
+    setSaving(true)
     try {
-      const res = await api.post('/contents', formData);
-      const newContentId = res.data.content_id;
+      const res = await api.post('/contents', formData)
+      const newContentId = res.data.content_id
 
-      alert('Treść utworzona!');
-      navigate(`/contents/${newContentId}/edit`);
+      showAlert({
+        variant: 'success',
+        title: 'Utworzono treśc',
+        message: 'Treść została utworzona.',
+        duration: 3000,
+      })
+
+      navigate(`/contents/${newContentId}/edit`)
     } catch (error: any) {
-      console.error('Failed to create content:', error);
-      alert(error?.response?.data?.error || 'Błąd tworzenia treści');
+      console.error('Failed to create content:', error)
+      alert(error?.response?.data?.error || 'Błąd tworzenia treści')
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
-  };
+  }
 
   return (
     <>
-      <PageMeta title="Dodawanie nowej treści" description="To jest strona dodawania nowej treści w panelu administracyjnym" />
-      <PageBreadcrumb 
-        pageTitle="Nowa Treść" 
-        items={[
-          { label: 'Treści', path: '/contents' }
-        ]}
+      <PageMeta
+        title="Dodawanie nowej treści"
+        description="To jest strona dodawania nowej treści w panelu administracyjnym"
+      />
+      <PageBreadcrumb
+        pageTitle="Nowa Treść"
+        items={[{ label: 'Treści', path: '/contents' }]}
       />
 
       <div className="space-y-6">
@@ -118,12 +133,18 @@ export default function NewContentPage() {
               <input
                 type="text"
                 value={formData.slug}
-                onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    slug: e.target.value,
+                  })
+                }
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white font-mono"
                 placeholder="strona-o-nas"
               />
               <p className="text-xs text-gray-500 mt-1">
-                Slug jest generowany automatycznie z tytułu, ale możesz go edytować
+                Slug jest generowany automatycznie z tytułu, ale możesz go
+                edytować
               </p>
             </div>
 
@@ -133,7 +154,12 @@ export default function NewContentPage() {
               </label>
               <textarea
                 value={formData.lead}
-                onChange={(e) => setFormData({ ...formData, lead: e.target.value })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    lead: e.target.value,
+                  })
+                }
                 rows={3}
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white"
                 placeholder="Krótki opis strony..."
@@ -147,7 +173,12 @@ export default function NewContentPage() {
               <input
                 type="text"
                 value={formData.meta_title}
-                onChange={(e) => setFormData({ ...formData, meta_title: e.target.value })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    meta_title: e.target.value,
+                  })
+                }
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
                 placeholder="Tytuł dla wyszukiwarek"
                 maxLength={70}
@@ -160,7 +191,12 @@ export default function NewContentPage() {
               </label>
               <textarea
                 value={formData.meta_description}
-                onChange={(e) => setFormData({ ...formData, meta_description: e.target.value })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    meta_description: e.target.value,
+                  })
+                }
                 rows={2}
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
                 placeholder="Opis dla wyszukiwarek"
@@ -172,8 +208,9 @@ export default function NewContentPage() {
 
         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
           <p className="text-sm text-blue-900 dark:text-blue-200">
-            💡 <strong>Wskazówka:</strong> Po utworzeniu treści będziesz mógł dodać sekcje (tekst,
-            zdjęcia, galerie, wideo, etc.) na stronie edycji.
+            💡 <strong>Wskazówka:</strong> Po utworzeniu treści będziesz mógł
+            dodać sekcje (tekst, zdjęcia, galerie, wideo, etc.) na stronie
+            edycji.
           </p>
         </div>
 
@@ -193,5 +230,5 @@ export default function NewContentPage() {
         </div>
       </div>
     </>
-  );
+  )
 }

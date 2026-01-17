@@ -1,12 +1,12 @@
-import { SidebarProvider, useSidebar } from '../context/SidebarContext';
-import { Outlet } from 'react-router';
-import AppHeader from './AppHeader';
-import Backdrop from './Backdrop';
-import AppSidebar from './AppSidebar';
-import Loader from '../ui/Loader/Loader';
+import { SidebarProvider, useSidebar } from '../context/SidebarContext'
+import { Outlet } from 'react-router'
+import AppHeader from './AppHeader'
+import Backdrop from './Backdrop'
+import AppSidebar from './AppSidebar'
+import Loader from '../ui/Loader/Loader'
 
 const LayoutContent: React.FC<{ loading: boolean }> = ({ loading }) => {
-  const { isExpanded, isHovered, isMobileOpen } = useSidebar();
+  const { isExpanded, isHovered, isMobileOpen } = useSidebar()
 
   return (
     <div className="h-screen xl:flex overflow-hidden">
@@ -31,15 +31,15 @@ const LayoutContent: React.FC<{ loading: boolean }> = ({ loading }) => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
 const AppLayout: React.FC<{ loading: boolean }> = ({ loading }) => {
   return (
     <SidebarProvider>
       <LayoutContent loading={loading} />
     </SidebarProvider>
-  );
-};
+  )
+}
 
-export default AppLayout;
+export default AppLayout

@@ -1,41 +1,46 @@
-import { useState, useEffect } from 'react';
-import { Save } from 'lucide-react';
-import ComponentCard from '../../common/ComponentCard';
-import Button from '../../ui/button/Button';
-import { useSiteSettings } from '../../../store/siteSettings';
-import MediaSelector from '../content/MediaSelector';
-import { useMenus } from '../../../store/menus';
+import { useState, useEffect } from 'react'
+import { Save } from 'lucide-react'
+import ComponentCard from '../../common/ComponentCard'
+import Button from '../../ui/button/Button'
+import { useSiteSettings } from '../../../store/siteSettings'
+import MediaSelector from '../content/MediaSelector'
+import { useMenus } from '../../../store/menus'
 
 interface HeaderSettingsProps {
-  settings: any;
+  settings: any
 }
 
-export default function HeaderSettings({ settings: initialSettings }: HeaderSettingsProps) {
-  const { updateSettings, saving } = useSiteSettings();
-  const { items: menus, fetchMenus } = useMenus();
-  const [settings, setSettings] = useState(initialSettings || {});
+export default function HeaderSettings({
+  settings: initialSettings,
+}: HeaderSettingsProps) {
+  const { updateSettings, saving } = useSiteSettings()
+  const { items: menus, fetchMenus } = useMenus()
+  const [settings, setSettings] = useState(initialSettings || {})
 
   useEffect(() => {
-    setSettings(initialSettings || {});
-  }, [initialSettings]);
+    setSettings(initialSettings || {})
+  }, [initialSettings])
 
   useEffect(() => {
-    fetchMenus();
-  }, []);
+    fetchMenus()
+  }, [])
 
   const handleChange = (field: string, value: any) => {
-    setSettings((prev: any) => ({ ...prev, [field]: value }));
-  };
+    setSettings((prev: any) => ({ ...prev, [field]: value }))
+  }
 
   const handleSave = async () => {
-    await updateSettings('header', settings);
-  };
+    await updateSettings('header', settings)
+  }
 
-  const activeMenus = menus.filter((m: any) => m.status);
-  const backgroundType = settings.header_background_type || 'color';
+  const activeMenus = menus.filter((m: any) => m.status)
+  const backgroundType = settings.header_background_type || 'color'
 
   return (
-    <ComponentCard title="Ustawienia Header" desc="Konfiguruj wygląd i zawartość nagłówka strony">
+    <ComponentCard
+      title="Ustawienia Header"
+      desc="Konfiguruj wygląd i zawartość nagłówka strony"
+    >
       <div className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -43,7 +48,9 @@ export default function HeaderSettings({ settings: initialSettings }: HeaderSett
           </label>
           <MediaSelector
             selectedMediaId={settings.header_logo_media_id}
-            onSelect={(mediaId) => handleChange('header_logo_media_id', mediaId)}
+            onSelect={(mediaId) =>
+              handleChange('header_logo_media_id', mediaId)
+            }
             onRemove={() => handleChange('header_logo_media_id', undefined)}
             allowedTypes={['image']}
           />
@@ -83,20 +90,28 @@ export default function HeaderSettings({ settings: initialSettings }: HeaderSett
                 type="radio"
                 value="color"
                 checked={backgroundType === 'color'}
-                onChange={(e) => handleChange('header_background_type', e.target.value)}
+                onChange={(e) =>
+                  handleChange('header_background_type', e.target.value)
+                }
                 className="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
               />
-              <span className="text-sm text-gray-700 dark:text-gray-300">Kolor</span>
+              <span className="text-sm text-gray-700 dark:text-gray-300">
+                Kolor
+              </span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="radio"
                 value="image"
                 checked={backgroundType === 'image'}
-                onChange={(e) => handleChange('header_background_type', e.target.value)}
+                onChange={(e) =>
+                  handleChange('header_background_type', e.target.value)
+                }
                 className="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
               />
-              <span className="text-sm text-gray-700 dark:text-gray-300">Obraz</span>
+              <span className="text-sm text-gray-700 dark:text-gray-300">
+                Obraz
+              </span>
             </label>
           </div>
         </div>
@@ -110,13 +125,17 @@ export default function HeaderSettings({ settings: initialSettings }: HeaderSett
               <input
                 type="color"
                 value={settings.header_background_color || '#ffffff'}
-                onChange={(e) => handleChange('header_background_color', e.target.value)}
+                onChange={(e) =>
+                  handleChange('header_background_color', e.target.value)
+                }
                 className="w-20 h-10 rounded cursor-pointer"
               />
               <input
                 type="text"
                 value={settings.header_background_color || '#ffffff'}
-                onChange={(e) => handleChange('header_background_color', e.target.value)}
+                onChange={(e) =>
+                  handleChange('header_background_color', e.target.value)
+                }
                 className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white font-mono text-sm"
                 placeholder="#ffffff"
               />
@@ -131,12 +150,17 @@ export default function HeaderSettings({ settings: initialSettings }: HeaderSett
             </label>
             <MediaSelector
               selectedMediaId={settings.header_background_media_id}
-              onSelect={(mediaId) => handleChange('header_background_media_id', mediaId)}
-              onRemove={() => handleChange('header_background_media_id', undefined)}
+              onSelect={(mediaId) =>
+                handleChange('header_background_media_id', mediaId)
+              }
+              onRemove={() =>
+                handleChange('header_background_media_id', undefined)
+              }
               allowedTypes={['image']}
             />
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Rekomendowany rozmiar: 1920x400px. Obraz zostanie automatycznie dopasowany.
+              Rekomendowany rozmiar: 1920x400px. Obraz zostanie automatycznie
+              dopasowany.
             </p>
           </div>
         )}
@@ -146,7 +170,9 @@ export default function HeaderSettings({ settings: initialSettings }: HeaderSett
             <input
               type="checkbox"
               checked={settings.header_show_social ?? false}
-              onChange={(e) => handleChange('header_show_social', e.target.checked)}
+              onChange={(e) =>
+                handleChange('header_show_social', e.target.checked)
+              }
               className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
             />
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -156,11 +182,16 @@ export default function HeaderSettings({ settings: initialSettings }: HeaderSett
         </div>
 
         <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
-          <Button variant="primary" startIcon={<Save />} onClick={handleSave} disabled={saving}>
+          <Button
+            variant="primary"
+            startIcon={<Save />}
+            onClick={handleSave}
+            disabled={saving}
+          >
             {saving ? 'Zapisywanie...' : 'Zapisz Ustawienia'}
           </Button>
         </div>
       </div>
     </ComponentCard>
-  );
+  )
 }

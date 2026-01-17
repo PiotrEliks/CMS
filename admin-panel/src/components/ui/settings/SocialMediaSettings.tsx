@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'
 import {
   Save,
   Plus,
@@ -9,13 +9,13 @@ import {
   Linkedin,
   Youtube,
   Github,
-} from 'lucide-react';
-import ComponentCard from '../../common/ComponentCard';
-import Button from '../../ui/button/Button';
-import { useSiteSettings, type SocialMedia } from '../../../store/siteSettings';
+} from 'lucide-react'
+import ComponentCard from '../../common/ComponentCard'
+import Button from '../../ui/button/Button'
+import { useSiteSettings, type SocialMedia } from '../../../store/siteSettings'
 
 interface SocialMediaSettingsProps {
-  settings: any;
+  settings: any
 }
 
 const platformIcons: Record<string, any> = {
@@ -25,7 +25,7 @@ const platformIcons: Record<string, any> = {
   linkedin: Linkedin,
   youtube: Youtube,
   github: Github,
-};
+}
 
 const platformLabels: Record<string, string> = {
   facebook: 'Facebook',
@@ -35,44 +35,53 @@ const platformLabels: Record<string, string> = {
   youtube: 'YouTube',
   tiktok: 'TikTok',
   github: 'GitHub',
-};
+}
 
 export default function SocialMediaSettings({
   settings: initialSettings,
 }: SocialMediaSettingsProps) {
-  const { updateSettings, saving } = useSiteSettings();
+  const { updateSettings, saving } = useSiteSettings()
   const [socialMedia, setSocialMedia] = useState<SocialMedia[]>(
     initialSettings?.social_media || []
-  );
+  )
 
   useEffect(() => {
-    setSocialMedia(initialSettings?.social_media || []);
-  }, [initialSettings]);
+    setSocialMedia(initialSettings?.social_media || [])
+  }, [initialSettings])
 
   const handleAdd = () => {
-    setSocialMedia([...socialMedia, { platform: 'facebook', url: '' }]);
-  };
+    setSocialMedia([...socialMedia, { platform: 'facebook', url: '' }])
+  }
 
   const handleRemove = (index: number) => {
-    setSocialMedia(socialMedia.filter((_, i) => i !== index));
-  };
+    setSocialMedia(socialMedia.filter((_, i) => i !== index))
+  }
 
-  const handleChange = (index: number, field: keyof SocialMedia, value: any) => {
-    const updated = [...socialMedia];
-    updated[index] = { ...updated[index], [field]: value };
-    setSocialMedia(updated);
-  };
+  const handleChange = (
+    index: number,
+    field: keyof SocialMedia,
+    value: any
+  ) => {
+    const updated = [...socialMedia]
+    updated[index] = { ...updated[index], [field]: value }
+    setSocialMedia(updated)
+  }
 
   const handleSave = async () => {
-    await updateSettings('social_media', { social_media: socialMedia });
-  };
+    await updateSettings('social_media', { social_media: socialMedia })
+  }
 
   return (
     <ComponentCard
       title="Social Media"
       desc="Zarządzaj linkami do mediów społecznościowych"
       button={
-        <Button variant="outline" size="sm" startIcon={<Plus />} onClick={handleAdd}>
+        <Button
+          variant="outline"
+          size="sm"
+          startIcon={<Plus />}
+          onClick={handleAdd}
+        >
           Dodaj Link
         </Button>
       }
@@ -86,7 +95,7 @@ export default function SocialMediaSettings({
         ) : (
           <div className="space-y-4">
             {socialMedia.map((item, index) => {
-              const Icon = platformIcons[item.platform] || Facebook;
+              const Icon = platformIcons[item.platform] || Facebook
 
               return (
                 <div
@@ -104,14 +113,18 @@ export default function SocialMediaSettings({
                       </label>
                       <select
                         value={item.platform}
-                        onChange={(e) => handleChange(index, 'platform', e.target.value as any)}
+                        onChange={(e) =>
+                          handleChange(index, 'platform', e.target.value as any)
+                        }
                         className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white text-sm"
                       >
-                        {Object.entries(platformLabels).map(([value, label]) => (
-                          <option key={value} value={value}>
-                            {label}
-                          </option>
-                        ))}
+                        {Object.entries(platformLabels).map(
+                          ([value, label]) => (
+                            <option key={value} value={value}>
+                              {label}
+                            </option>
+                          )
+                        )}
                       </select>
                     </div>
 
@@ -122,7 +135,9 @@ export default function SocialMediaSettings({
                       <input
                         type="url"
                         value={item.url}
-                        onChange={(e) => handleChange(index, 'url', e.target.value)}
+                        onChange={(e) =>
+                          handleChange(index, 'url', e.target.value)
+                        }
                         placeholder="https://facebook.com/yourpage"
                         className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white text-sm"
                       />
@@ -136,19 +151,21 @@ export default function SocialMediaSettings({
                     <Trash2 className="w-5 h-5" />
                   </button>
                 </div>
-              );
+              )
             })}
           </div>
         )}
 
         {socialMedia.length > 0 && (
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
-            <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Podgląd</h4>
+            <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+              Podgląd
+            </h4>
             <div className="flex gap-3">
               {socialMedia
                 .filter((item) => item.url)
                 .map((item, index) => {
-                  const Icon = platformIcons[item.platform] || Facebook;
+                  const Icon = platformIcons[item.platform] || Facebook
                   return (
                     <a
                       key={index}
@@ -160,18 +177,23 @@ export default function SocialMediaSettings({
                     >
                       <Icon className="w-5 h-5 text-gray-700 dark:text-gray-300" />
                     </a>
-                  );
+                  )
                 })}
             </div>
           </div>
         )}
 
         <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
-          <Button variant="primary" startIcon={<Save />} onClick={handleSave} disabled={saving}>
+          <Button
+            variant="primary"
+            startIcon={<Save />}
+            onClick={handleSave}
+            disabled={saving}
+          >
             {saving ? 'Zapisywanie...' : 'Zapisz Ustawienia'}
           </Button>
         </div>
       </div>
     </ComponentCard>
-  );
+  )
 }

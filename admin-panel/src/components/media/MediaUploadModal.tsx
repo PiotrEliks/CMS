@@ -1,82 +1,85 @@
-import { useState, useRef, type DragEvent } from 'react';
-import { createPortal } from 'react-dom';
-import { X, Upload, File, Trash2 } from 'lucide-react';
-import Button from '../ui/button/Button';
-import { useMedia } from '../../store/media';
+import { useState, useRef, type DragEvent } from 'react'
+import { createPortal } from 'react-dom'
+import { X, Upload, File, Trash2 } from 'lucide-react'
+import Button from '../ui/button/Button'
+import { useMedia } from '../../store/media'
 
 interface MediaUploadModalProps {
-  open: boolean;
-  onClose: () => void;
+  open: boolean
+  onClose: () => void
 }
 
-export default function MediaUploadModal({ open, onClose }: MediaUploadModalProps) {
-  const { upload, uploadBulk, bulkUploading, bulkProgress } = useMedia();
+export default function MediaUploadModal({
+  open,
+  onClose,
+}: MediaUploadModalProps) {
+  const { upload, uploadBulk, bulkUploading, bulkProgress } = useMedia()
 
-  const [files, setFiles] = useState<File[]>([]);
-  const [dragOver, setDragOver] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const [files, setFiles] = useState<File[]>([])
+  const [dragOver, setDragOver] = useState(false)
+  const [uploading, setUploading] = useState(false)
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  if (!open) return null;
+  if (!open) return null
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const newFiles = Array.from(e.target.files);
-      setFiles((prev) => [...prev, ...newFiles]);
+      const newFiles = Array.from(e.target.files)
+      setFiles((prev) => [...prev, ...newFiles])
     }
-  };
+  }
 
   const handleDrop = (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setDragOver(false);
+    e.preventDefault()
+    setDragOver(false)
 
     if (e.dataTransfer.files) {
-      const newFiles = Array.from(e.dataTransfer.files);
-      setFiles((prev) => [...prev, ...newFiles]);
+      const newFiles = Array.from(e.dataTransfer.files)
+      setFiles((prev) => [...prev, ...newFiles])
     }
-  };
+  }
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setDragOver(true);
-  };
+    e.preventDefault()
+    setDragOver(true)
+  }
 
   const handleDragLeave = () => {
-    setDragOver(false);
-  };
+    setDragOver(false)
+  }
 
   const removeFile = (index: number) => {
-    setFiles((prev) => prev.filter((_, i) => i !== index));
-  };
+    setFiles((prev) => prev.filter((_, i) => i !== index))
+  }
 
   const handleSubmit = async () => {
-    if (files.length === 0) return;
+    if (files.length === 0) return
 
-    setUploading(true);
+    setUploading(true)
     try {
       if (files.length === 1) {
-        await upload(files[0]);
+        await upload(files[0])
       } else {
-        await uploadBulk(files);
+        await uploadBulk(files)
       }
 
-      setFiles([]);
-      onClose();
+      setFiles([])
+      onClose()
     } catch (error) {
-      console.error('Upload failed:', error);
+      console.error('Upload failed:', error)
     } finally {
-      setUploading(false);
+      setUploading(false)
     }
-  };
+  }
 
   const formatFileSize = (bytes: number) => {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(2)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
-  };
+    if (bytes < 1024) return `${bytes} B`
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(2)} KB`
+    return `${(bytes / (1024 * 1024)).toFixed(2)} MB`
+  }
 
-  const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+  const totalSize = files.reduce((sum, file) => sum + file.size, 0)
 
   return createPortal(
     <div className="fixed inset-0 z-50 overflow-y-auto">
@@ -89,9 +92,12 @@ export default function MediaUploadModal({ open, onClose }: MediaUploadModalProp
         <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full">
           <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
             <div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white">Dodaj Pliki</h3>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                Dodaj Pliki
+              </h3>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                Przeciągnij pliki lub kliknij, aby wybrać (max 20 plików, 50MB każdy)
+                Przeciągnij pliki lub kliknij, aby wybrać (max 20 plików, 50MB
+                każdy)
               </p>
             </div>
             <button
@@ -120,8 +126,10 @@ export default function MediaUploadModal({ open, onClose }: MediaUploadModalProp
             >
               <Upload className="w-12 h-12 mx-auto text-gray-400 mb-4" />
               <p className="text-gray-600 dark:text-gray-400 mb-2">
-                <span className="font-semibold text-primary">Kliknij aby wybrać</span> lub
-                przeciągnij pliki tutaj
+                <span className="font-semibold text-primary">
+                  Kliknij aby wybrać
+                </span>{' '}
+                lub przeciągnij pliki tutaj
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-500">
                 PNG, JPG, WEBP, PDF (max 50MB każdy, max 20 plików)
@@ -227,5 +235,5 @@ export default function MediaUploadModal({ open, onClose }: MediaUploadModalProp
       </div>
     </div>,
     document.body
-  );
+  )
 }

@@ -1,8 +1,8 @@
 export function formatDate(dateString?: string | null) {
-  if (!dateString) return 'Brak danych';
+  if (!dateString) return 'Brak danych'
 
   try {
-    const date = new Date(dateString);
+    const date = new Date(dateString)
 
     return date.toLocaleString('pl-PL', {
       day: '2-digit',
@@ -10,8 +10,8 @@ export function formatDate(dateString?: string | null) {
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-    });
+    })
   } catch {
-    return 'Niepoprawna data';
+    return 'Niepoprawna data'
   }
 }

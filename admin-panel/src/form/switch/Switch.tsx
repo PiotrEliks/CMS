@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState } from 'react'
 
 interface SwitchProps {
-  label: string;
-  defaultChecked?: boolean;
-  disabled?: boolean;
-  onChange?: (checked: boolean) => void;
-  color?: 'blue' | 'gray'; // Added prop to toggle color theme
+  label: string
+  defaultChecked?: boolean
+  disabled?: boolean
+  onChange?: (checked: boolean) => void
+  color?: 'blue' | 'gray' // Added prop to toggle color theme
 }
 
 const Switch: React.FC<SwitchProps> = ({
@@ -15,27 +15,35 @@ const Switch: React.FC<SwitchProps> = ({
   onChange,
   color = 'blue', // Default to blue color
 }) => {
-  const [isChecked, setIsChecked] = useState(defaultChecked);
+  const [isChecked, setIsChecked] = useState(defaultChecked)
 
   const handleToggle = () => {
-    if (disabled) return;
-    const newCheckedState = !isChecked;
-    setIsChecked(newCheckedState);
+    if (disabled) return
+    const newCheckedState = !isChecked
+    setIsChecked(newCheckedState)
     if (onChange) {
-      onChange(newCheckedState);
+      onChange(newCheckedState)
     }
-  };
+  }
 
   const switchColors =
     color === 'blue'
       ? {
-          background: isChecked ? 'bg-brand-500 ' : 'bg-gray-200 dark:bg-white/10', // Blue version
-          knob: isChecked ? 'translate-x-full bg-white' : 'translate-x-0 bg-white',
+          background: isChecked
+            ? 'bg-brand-500 '
+            : 'bg-gray-200 dark:bg-white/10', // Blue version
+          knob: isChecked
+            ? 'translate-x-full bg-white'
+            : 'translate-x-0 bg-white',
         }
       : {
-          background: isChecked ? 'bg-gray-800 dark:bg-white/10' : 'bg-gray-200 dark:bg-white/10', // Gray version
-          knob: isChecked ? 'translate-x-full bg-white' : 'translate-x-0 bg-white',
-        };
+          background: isChecked
+            ? 'bg-gray-800 dark:bg-white/10'
+            : 'bg-gray-200 dark:bg-white/10', // Gray version
+          knob: isChecked
+            ? 'translate-x-full bg-white'
+            : 'translate-x-0 bg-white',
+        }
 
   return (
     <label
@@ -47,7 +55,9 @@ const Switch: React.FC<SwitchProps> = ({
       <div className="relative">
         <div
           className={`block transition duration-150 ease-linear h-6 w-11 rounded-full ${
-            disabled ? 'bg-gray-100 pointer-events-none dark:bg-gray-800' : switchColors.background
+            disabled
+              ? 'bg-gray-100 pointer-events-none dark:bg-gray-800'
+              : switchColors.background
           }`}
         ></div>
         <div
@@ -56,7 +66,7 @@ const Switch: React.FC<SwitchProps> = ({
       </div>
       {label}
     </label>
-  );
-};
+  )
+}
 
-export default Switch;
+export default Switch

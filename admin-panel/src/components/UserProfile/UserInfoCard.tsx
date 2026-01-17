@@ -1,112 +1,112 @@
-import { useEffect, useState } from 'react';
-import { Modal } from '../ui/modal';
-import Button from '../ui/button/Button';
-import Input from '../form/input/InputField';
-import Label from '../form/Label';
-import { useAuth } from '../../store/auth';
-import { EyeCloseIcon, EyeIcon } from '../../icons';
+import { useEffect, useState } from 'react'
+import { Modal } from '../ui/modal'
+import Button from '../ui/button/Button'
+import Input from '../form/input/InputField'
+import Label from '../form/Label'
+import { useAuth } from '../../store/auth'
+import { EyeCloseIcon, EyeIcon } from '../../icons'
 
 const STRONG_PASSWORD_REGEX =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/
 
 export default function UserInfoCard() {
-  const { user, updateMe, updatingMe, error, clearError } = useAuth();
+  const { user, updateMe, updatingMe, error, clearError } = useAuth()
 
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false)
 
-  const [displayName, setDisplayName] = useState('');
-  const [email, setEmail] = useState('');
+  const [displayName, setDisplayName] = useState('')
+  const [email, setEmail] = useState('')
 
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
 
-  const [localError, setLocalError] = useState<string | null>(null);
-  const [localSuccess, setLocalSuccess] = useState<string | null>(null);
+  const [localError, setLocalError] = useState<string | null>(null)
+  const [localSuccess, setLocalSuccess] = useState<string | null>(null)
 
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   useEffect(() => {
     if (user) {
-      setDisplayName(user.display_name ?? '');
-      setEmail(user.email ?? '');
+      setDisplayName(user.display_name ?? '')
+      setEmail(user.email ?? '')
     }
-  }, [user]);
+  }, [user])
 
   const resetFormState = () => {
-    setCurrentPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
-    setLocalError(null);
-    setLocalSuccess(null);
-    setShowCurrentPassword(false);
-    setShowNewPassword(false);
-    setShowConfirmPassword(false);
-    clearError();
-  };
+    setCurrentPassword('')
+    setNewPassword('')
+    setConfirmPassword('')
+    setLocalError(null)
+    setLocalSuccess(null)
+    setShowCurrentPassword(false)
+    setShowNewPassword(false)
+    setShowConfirmPassword(false)
+    clearError()
+  }
 
   const openModal = () => {
-    resetFormState();
-    setIsOpen(true);
-  };
+    resetFormState()
+    setIsOpen(true)
+  }
 
   const handleClose = () => {
-    resetFormState();
-    setIsOpen(false);
-  };
+    resetFormState()
+    setIsOpen(false)
+  }
 
   const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLocalError(null);
-    setLocalSuccess(null);
-    clearError();
+    e.preventDefault()
+    setLocalError(null)
+    setLocalSuccess(null)
+    clearError()
 
     const payload: any = {
       display_name: displayName,
       email,
-    };
+    }
 
     const passwordFieldsFilled =
-      currentPassword !== '' || newPassword !== '' || confirmPassword !== '';
+      currentPassword !== '' || newPassword !== '' || confirmPassword !== ''
 
     if (passwordFieldsFilled) {
       if (!currentPassword || !newPassword || !confirmPassword) {
-        setLocalError('Aby zmienić hasło, wypełnij wszystkie pola.');
-        return;
+        setLocalError('Aby zmienić hasło, wypełnij wszystkie pola.')
+        return
       }
 
       if (newPassword !== confirmPassword) {
-        setLocalError('Nowe hasła nie są identyczne.');
-        return;
+        setLocalError('Nowe hasła nie są identyczne.')
+        return
       }
 
       if (!STRONG_PASSWORD_REGEX.test(newPassword)) {
         setLocalError(
           'Nowe hasło musi mieć co najmniej 8 znaków, jedną małą literę, jedną wielką literę i jeden znak specjalny.'
-        );
-        return;
+        )
+        return
       }
 
-      payload.current_password = currentPassword;
-      payload.new_password = newPassword;
+      payload.current_password = currentPassword
+      payload.new_password = newPassword
     }
 
     try {
-      await updateMe(payload);
-      setLocalSuccess('Zapisano zmiany profilu.');
+      await updateMe(payload)
+      setLocalSuccess('Zapisano zmiany profilu.')
 
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
+      setCurrentPassword('')
+      setNewPassword('')
+      setConfirmPassword('')
     } catch (e: any) {
       const msg =
         (e as any)?.response?.data?.error ??
-        'Nie udało się zaktualizować danych. Spróbuj ponownie.';
-      setLocalError(msg);
+        'Nie udało się zaktualizować danych. Spróbuj ponownie.'
+      setLocalError(msg)
     }
-  };
+  }
 
   return (
     <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
@@ -130,11 +130,15 @@ export default function UserInfoCard() {
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
                 Adres email
               </p>
-              <p className="text-sm font-medium text-gray-800 dark:text-white/90">{user?.email}</p>
+              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                {user?.email}
+              </p>
             </div>
 
             <div>
-              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">Rola</p>
+              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                Rola
+              </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
                 {user?.role?.display_name}
               </p>
@@ -163,7 +167,11 @@ export default function UserInfoCard() {
         </button>
       </div>
 
-      <Modal isOpen={isOpen} onClose={handleClose} className="max-w-[700px] m-4">
+      <Modal
+        isOpen={isOpen}
+        onClose={handleClose}
+        className="max-w-[700px] m-4"
+      >
         <div className="relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
           <div className="px-2 pr-14">
             <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
@@ -193,7 +201,11 @@ export default function UserInfoCard() {
 
                   <div className="col-span-2 lg:col-span-1">
                     <Label>Adres email</Label>
-                    <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                    <Input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
                   </div>
                 </div>
               </div>
@@ -235,7 +247,9 @@ export default function UserInfoCard() {
                         type="button"
                         onClick={() => setShowCurrentPassword((v) => !v)}
                         className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
-                        aria-label={showCurrentPassword ? 'Ukryj hasło' : 'Pokaż hasło'}
+                        aria-label={
+                          showCurrentPassword ? 'Ukryj hasło' : 'Pokaż hasło'
+                        }
                       >
                         {showCurrentPassword ? (
                           <EyeIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
@@ -259,7 +273,9 @@ export default function UserInfoCard() {
                         type="button"
                         onClick={() => setShowNewPassword((v) => !v)}
                         className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
-                        aria-label={showNewPassword ? 'Ukryj hasło' : 'Pokaż hasło'}
+                        aria-label={
+                          showNewPassword ? 'Ukryj hasło' : 'Pokaż hasło'
+                        }
                       >
                         {showNewPassword ? (
                           <EyeIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
@@ -283,7 +299,9 @@ export default function UserInfoCard() {
                         type="button"
                         onClick={() => setShowConfirmPassword((v) => !v)}
                         className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
-                        aria-label={showConfirmPassword ? 'Ukryj hasło' : 'Pokaż hasło'}
+                        aria-label={
+                          showConfirmPassword ? 'Ukryj hasło' : 'Pokaż hasło'
+                        }
                       >
                         {showConfirmPassword ? (
                           <EyeIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
@@ -308,5 +326,5 @@ export default function UserInfoCard() {
         </div>
       </Modal>
     </div>
-  );
+  )
 }

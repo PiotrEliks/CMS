@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import Button from '../ui/button/Button';
-import type { MediaItem, MediaUsagePlace } from '../../store/media';
-import { useMedia } from '../../store/media';
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import Button from '../ui/button/Button'
+import type { MediaItem, MediaUsagePlace } from '../../store/media'
+import { useMedia } from '../../store/media'
 
 export default function MediaDetailsDrawer({
   open,
@@ -11,60 +11,68 @@ export default function MediaDetailsDrawer({
   onClose,
   canUpdate,
 }: {
-  open: boolean;
-  media: MediaItem | null;
-  usage: any;
-  onClose: () => void;
-  canUpdate: boolean;
+  open: boolean
+  media: MediaItem | null
+  usage: any
+  onClose: () => void
+  canUpdate: boolean
 }) {
-  const { update, loading } = useMedia();
-  const [title, setTitle] = useState('');
-  const [alt, setAlt] = useState('');
-  const [status, setStatus] = useState(true);
+  const { update, loading } = useMedia()
+  const [title, setTitle] = useState('')
+  const [alt, setAlt] = useState('')
+  const [status, setStatus] = useState(true)
 
-  const places: MediaUsagePlace[] = Array.isArray(usage) ? usage : (usage?.places ?? []);
+  const places: MediaUsagePlace[] = Array.isArray(usage)
+    ? usage
+    : (usage?.places ?? [])
 
   useEffect(() => {
     if (media) {
-      setTitle(media.title ?? '');
-      setAlt(media.alt_text ?? '');
-      setStatus(media.status ?? true);
+      setTitle(media.title ?? '')
+      setAlt(media.alt_text ?? '')
+      setStatus(media.status ?? true)
     }
-  }, [media]);
+  }, [media])
 
-  if (!open || !media) return null;
+  if (!open || !media) return null
 
-  const isImage = (media.mime_type ?? '').startsWith('image/');
-  const isPdf = media.mime_type === 'application/pdf';
-  const previewUrl = media.storage_path;
+  const isImage = (media.mime_type ?? '').startsWith('image/')
+  const isPdf = media.mime_type === 'application/pdf'
+  const previewUrl = media.storage_path
 
   const save = async () => {
     try {
-      await update(media.media_id, { title, alt_text: alt, status });
+      await update(media.media_id, { title, alt_text: alt, status })
     } catch (err) {
-      console.error('Błąd podczas zapisywania:', err);
+      console.error('Błąd podczas zapisywania:', err)
     }
-  };
+  }
 
   const getUsageLabel = (type: string) => {
     switch (type) {
       case 'content.cover':
-        return 'Okładka';
+        return 'Okładka'
       case 'content.section':
-        return 'Sekcja wpisu';
+        return 'Sekcja wpisu'
       case 'content.attachment':
-        return 'Załącznik';
+        return 'Załącznik'
       default:
-        return 'Inne';
+        return 'Inne'
     }
-  };
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-black/40 top-19">
       <div className="h-full w-full max-w-xl bg-white p-5 dark:bg-gray-900 overflow-y-auto shadow-2xl animate-in slide-in-from-right">
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Szczegóły zasobu</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-2" type="button">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+            Szczegóły zasobu
+          </h3>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 p-2"
+            type="button"
+          >
             ✕
           </button>
         </div>
@@ -131,7 +139,9 @@ export default function MediaDetailsDrawer({
               <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
                 Publiczny status
               </p>
-              <p className="text-xs text-gray-500">Czy plik jest dostępny dla użytkowników.</p>
+              <p className="text-xs text-gray-500">
+                Czy plik jest dostępny dla użytkowników.
+              </p>
             </div>
             <button
               type="button"
@@ -180,13 +190,16 @@ export default function MediaDetailsDrawer({
                 >
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="text-gray-700 dark:text-gray-200 font-medium">{p.title}</p>
+                      <p className="text-gray-700 dark:text-gray-200 font-medium">
+                        {p.title}
+                      </p>
                       <div className="flex gap-2 mt-1">
                         <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-500 rounded">
                           {getUsageLabel(p.type)}
                         </span>
                         <span className="text-[10px] text-gray-400 font-mono">
-                          ID: {p.content_id.split('-')[0]}...
+                          ID: {p.content_id.split('-')[0]}
+                          ...
                         </span>
                       </div>
                     </div>
@@ -215,5 +228,5 @@ export default function MediaDetailsDrawer({
         </div>
       </div>
     </div>
-  );
+  )
 }
