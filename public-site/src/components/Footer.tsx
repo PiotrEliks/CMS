@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
-import type { SiteSettings, SocialMedia } from '../types';
+import type { Menu, MenuItem, SiteSettings, SocialMedia } from '../types';
 
 interface FooterProps {
+  menu?: Menu;
   settings: SiteSettings;
 }
 
@@ -15,14 +16,26 @@ const socialIcons: Record<string, string> = {
   github: 'icon-github',
 };
 
-export default function Footer({ settings }: FooterProps) {
+export default function Footer({ menu, settings }: FooterProps) {
   const currentYear = new Date().getFullYear();
   const siteName = settings.general?.site_name || 'CMS Site';
-  const description = settings.general?.site_description;
+  const description = settings.footer?.footer_description || settings.general?.site_description;
   const copyrightText = settings.footer?.footer_copyright_text;
   const showSocial = settings.footer?.footer_show_social !== false;
   const socialLinks = settings.social_media?.social_media || [];
   const contact = settings.contact || {};
+
+  const getMenuItemHref = (item: MenuItem): string => {
+    if (item.url) return item.url;
+    if (item.content?.slug) return `/${item.content.slug}`;
+    return '#';
+  };
+
+  // Split menu items into two columns
+  const menuItems = menu?.items || [];
+  const midPoint = Math.ceil(menuItems.length / 2);
+  const firstColumn = menuItems.slice(0, midPoint);
+  const secondColumn = menuItems.slice(midPoint);
 
   return (
     <footer className="site-footer">
@@ -66,12 +79,20 @@ export default function Footer({ settings }: FooterProps) {
               <div className="col-md-6 col-lg-6">
                 <ul className="list-unstyled">
                   <li><Link to="/">Strona Glowna</Link></li>
-                  <li><Link to="/artykuly">Artykuly</Link></li>
+                  {firstColumn.map((item) => (
+                    <li key={item.menu_item_id}>
+                      <Link to={getMenuItemHref(item)}>{item.label}</Link>
+                    </li>
+                  ))}
                 </ul>
               </div>
               <div className="col-md-6 col-lg-6">
                 <ul className="list-unstyled">
-                  <li><Link to="/kontakt">Kontakt</Link></li>
+                  {secondColumn.map((item) => (
+                    <li key={item.menu_item_id}>
+                      <Link to={getMenuItemHref(item)}>{item.label}</Link>
+                    </li>
+                  ))}
                 </ul>
               </div>
             </div>

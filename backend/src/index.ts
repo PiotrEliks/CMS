@@ -11,6 +11,8 @@ import {
   ensureAdminSeed,
   ensureHomepageSeed,
   ensureSiteSettingsSeed,
+  ensureMenuSeed,
+  ensureSiteSettingsSeeded,
 } from './db/seed.js'
 
 import adminRouter from './routes/admin/index.js'
@@ -75,6 +77,8 @@ const PORT = Number(process.env.PORT)
         await ensureAdminSeed()
         await ensureSiteSettingsSeed()
         await ensureHomepageSeed()
+        await ensureMenuSeed()
+        await ensureSiteSettingsSeeded()
       },
     })
     console.log('Database ready.')

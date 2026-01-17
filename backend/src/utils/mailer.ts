@@ -55,3 +55,37 @@ export async function sendPasswordResetMail(options: {
     `,
   })
 }
+
+export async function sendContactFormEmail(options: {
+  to: string
+  formData: Record<string, any>
+  subject?: string
+}) {
+  const fieldsList = Object.entries(options.formData)
+    .map(([key, value]) => `<strong>${key}:</strong> ${value}`)
+    .join('<br/>')
+
+  const textFieldsList = Object.entries(options.formData)
+    .map(([key, value]) => `${key}: ${value}`)
+    .join('\n')
+
+  await transporter.sendMail({
+    from: process.env.MAIL_FROM ?? '"CMS" <no-reply@twoja-domena.pl>',
+    to: options.to,
+    subject: options.subject || 'Nowa wiadomosc z formularza kontaktowego',
+    text: `
+Nowa wiadomosc z formularza kontaktowego
+
+${textFieldsList}
+
+---
+Wyslano przez CMS
+`,
+    html: `
+      <h2>Nowa wiadomosc z formularza kontaktowego</h2>
+      <p>${fieldsList}</p>
+      <hr/>
+      <p><small>Wyslano przez CMS</small></p>
+    `,
+  })
+}

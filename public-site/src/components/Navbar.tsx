@@ -27,33 +27,39 @@ export default function Navbar({ menu, settings }: NavbarProps) {
 
   const isActive = (path: string) => location.pathname === path;
 
+  const getMenuItemHref = (item: MenuItem): string => {
+    // External URL takes precedence
+    if (item.url) return item.url
+    // Then content slug (direct path without prefix)
+    if (item.content?.slug) return `/${item.content.slug}`
+    return '#'
+  }
+
   const renderMenuItem = (item: MenuItem) => {
-    const hasChildren = item.children && item.children.length > 0;
-    const href = item.url || (item.content ? `/artykul/${item.content.slug}` : '#');
+    const hasChildren = item.children && item.children.length > 0
+    const href = getMenuItemHref(item)
 
     if (hasChildren) {
       return (
         <li key={item.menu_item_id} className="has-children">
           <Link to={href}>{item.label}</Link>
           <ul className="dropdown">
-            {item.children!.map(child => (
+            {item.children!.map((child) => (
               <li key={child.menu_item_id}>
-                <Link to={child.url || (child.content ? `/artykul/${child.content.slug}` : '#')}>
-                  {child.label}
-                </Link>
+                <Link to={getMenuItemHref(child)}>{child.label}</Link>
               </li>
             ))}
           </ul>
         </li>
-      );
+      )
     }
 
     return (
       <li key={item.menu_item_id} className={isActive(href) ? 'active' : ''}>
         <Link to={href}>{item.label}</Link>
       </li>
-    );
-  };
+    )
+  }
 
   const renderSocialLinks = () => {
     if (!showSocial || socialLinks.length === 0) return null;

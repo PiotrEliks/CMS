@@ -1,15 +1,18 @@
-import { siteSettingsService } from '../../services/siteSettings.service.js';
+import { siteSettingsService } from '../../services/siteSettings.service.js'
 import { Router, Request, Response } from 'express'
 import { keyValueService } from '../../services/keyValue.service.js'
 import { SITE_SETTINGS } from '../../constants/siteSettings.js'
 
 const router = Router()
 
-// GET /api/sites/settings - Get all public site settings
+// GET /api/sites/settings - Get all public site settings (grouped structure)
 router.get('/', async (_req: Request, res: Response) => {
   try {
-    const settings = await keyValueService.getAllSiteSettings()
-    res.json({ settings })
+    // Use siteSettingsService.getPublic() which returns the nested structure
+    // that the public-site frontend expects
+    const settings = await siteSettingsService.getPublic()
+    res.set('Cache-Control', 'public, max-age=300')
+    res.json(settings)
   } catch (error) {
     console.error('Error fetching site settings:', error)
     res.status(500).json({ error: 'Failed to fetch site settings' })

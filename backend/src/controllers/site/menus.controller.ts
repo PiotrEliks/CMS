@@ -57,8 +57,29 @@ export const getMenuById = asyncHandler(async (req: Request, res: Response) => {
     return res.status(404).json({ error: 'Menu not found' });
   }
 
+  // Map items to include content info that frontend expects
+  const mapItems = (items: any[]): any[] => {
+    return items.map((item: any) => ({
+      menu_item_id: item.menu_item_id,
+      label: item.label,
+      url: item.external_url,
+      order: item.order_index,
+      content: item.content ? {
+        content_id: item.content.content_id,
+        title: item.content.title,
+        slug: item.content.slug,
+      } : undefined,
+      children: item.children ? mapItems(item.children) : [],
+    }));
+  };
+
   res.set('Cache-Control', 'public, max-age=60');
-  return res.json({ menu_id: result.menu_id, code: result.code, name: result.name, items: buildMenuTree(result.items) });
+  return res.json({
+    menu_id: result.menu_id,
+    code: result.code,
+    name: result.name,
+    items: mapItems(result.items || []),
+  });
 });
 
 export const getMenuTree = asyncHandler(async (req: Request, res: Response) => {

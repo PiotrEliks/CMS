@@ -1,3 +1,9 @@
+import type { ContentSection } from './sections'
+import type { PageComponent } from './components'
+
+export * from './sections'
+export * from './components'
+
 export interface Content {
   content_id: string;
   title: string;
@@ -12,6 +18,8 @@ export interface Content {
   created_at: string;
   updated_at: string;
   categories?: Category[];
+  sections?: ContentSection[];
+  components?: PageComponent[];
 }
 
 export interface Category {
@@ -71,6 +79,7 @@ export interface SiteSettings {
   footer: {
     footer_logo_media_id?: string;
     footer_menu_id?: string;
+    footer_description?: string;
     footer_background_color?: string;
     footer_copyright_text?: string;
     footer_show_social?: boolean;

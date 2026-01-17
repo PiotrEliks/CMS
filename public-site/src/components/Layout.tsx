@@ -4,20 +4,19 @@ import Footer from './Footer';
 import type { Menu, SiteSettings } from '../types';
 
 interface LayoutProps {
-  menu?: Menu;
+  headerMenu?: Menu;
+  footerMenu?: Menu;
   settings: SiteSettings;
 }
 
-export default function Layout({ menu, settings }: LayoutProps) {
-  const siteName = settings.general?.site_name || 'CMS Site';
-
-  return (
+export default function Layout({ headerMenu, footerMenu, settings }: LayoutProps) {
+   return (
     <div className="site-wrap">
-      <Navbar menu={menu} settings={settings} />
+      <Navbar menu={headerMenu} settings={settings} />
       <main>
         <Outlet />
       </main>
-      <Footer settings={settings} />
+      <Footer menu={footerMenu} settings={settings} />
     </div>
   );
 }
