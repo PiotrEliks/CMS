@@ -1,11 +1,11 @@
-import { getMediaUrl } from '../../api/axios'
 import type { TeamComponentData } from '../../types'
 
 interface TeamRendererProps {
   data: TeamComponentData
+  getMediaUrl: (mediaId: string | undefined) => string
 }
 
-export default function TeamRenderer({ data }: TeamRendererProps) {
+export default function TeamRenderer({ data, getMediaUrl }: TeamRendererProps) {
   const { title, subtitle, members = [], layout = 'grid', columns = 3 } = data
 
   if (members.length === 0) return null
@@ -32,9 +32,9 @@ export default function TeamRenderer({ data }: TeamRendererProps) {
                 key={idx}
                 className="team-member d-flex align-items-start mb-4 p-4 bg-light rounded"
               >
-                {member.media_id && (
+                {member.media_id && getMediaUrl(member.media_id) && (
                   <img
-                    src={getMediaUrl(`/uploads/media/${member.media_id}`)}
+                    src={getMediaUrl(member.media_id)}
                     alt={member.name}
                     className="rounded-circle me-4"
                     style={{ width: '120px', height: '120px', objectFit: 'cover' }}
@@ -111,9 +111,9 @@ export default function TeamRenderer({ data }: TeamRendererProps) {
             {members.map((member, idx) => (
               <div key={idx} className={`${colClass} mb-4`}>
                 <div className="team-card h-100 text-center p-4 bg-white shadow-sm rounded">
-                  {member.media_id && (
+                  {member.media_id && getMediaUrl(member.media_id) && (
                     <img
-                      src={getMediaUrl(`/uploads/media/${member.media_id}`)}
+                      src={getMediaUrl(member.media_id)}
                       alt={member.name}
                       className="rounded-circle mb-3"
                       style={{ width: '150px', height: '150px', objectFit: 'cover' }}

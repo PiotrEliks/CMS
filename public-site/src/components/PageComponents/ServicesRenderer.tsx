@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom'
-import { getMediaUrl } from '../../api/axios'
 import type { ServicesComponentData } from '../../types'
 
 interface ServicesRendererProps {
   data: ServicesComponentData
+  getMediaUrl: (mediaId: string | undefined) => string
 }
 
-export default function ServicesRenderer({ data }: ServicesRendererProps) {
+export default function ServicesRenderer({ data, getMediaUrl }: ServicesRendererProps) {
   const { title, subtitle, items = [], layout = 'grid', columns = 3 } = data
 
   if (items.length === 0) return null
@@ -33,9 +33,9 @@ export default function ServicesRenderer({ data }: ServicesRendererProps) {
                 key={idx}
                 className="service-item d-flex align-items-center mb-4 p-3 bg-light rounded"
               >
-                {item.media_id && (
+                {item.media_id && getMediaUrl(item.media_id) && (
                   <img
-                    src={getMediaUrl(`/uploads/media/${item.media_id}`)}
+                    src={getMediaUrl(item.media_id)}
                     alt={item.name}
                     className="me-4 rounded"
                     style={{ width: '100px', height: '100px', objectFit: 'cover' }}
@@ -62,9 +62,9 @@ export default function ServicesRenderer({ data }: ServicesRendererProps) {
             {items.map((item, idx) => (
               <div key={idx} className={`${colClass} mb-4`}>
                 <div className="service-card h-100 p-4 bg-white shadow-sm rounded text-center">
-                  {item.media_id && (
+                  {item.media_id && getMediaUrl(item.media_id) && (
                     <img
-                      src={getMediaUrl(`/uploads/media/${item.media_id}`)}
+                      src={getMediaUrl(item.media_id)}
                       alt={item.name}
                       className="mb-3 rounded"
                       style={{

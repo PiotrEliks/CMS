@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
-import { getMediaUrl } from '../../api/axios'
 import type { TestimonialComponentData } from '../../types'
 
 interface TestimonialsRendererProps {
   data: TestimonialComponentData
+  getMediaUrl: (mediaId: string | undefined) => string
 }
 
 function StarRating({ rating }: { rating: number }) {
@@ -24,7 +24,7 @@ function StarRating({ rating }: { rating: number }) {
   )
 }
 
-export default function TestimonialsRenderer({ data }: TestimonialsRendererProps) {
+export default function TestimonialsRenderer({ data, getMediaUrl }: TestimonialsRendererProps) {
   const { title, items = [], layout = 'slider' } = data
   const [currentSlide, setCurrentSlide] = useState(0)
 
@@ -54,9 +54,9 @@ export default function TestimonialsRenderer({ data }: TestimonialsRendererProps
 
           <div className="row justify-content-center">
             <div className="col-lg-8 text-center">
-              {item.media_id && (
+              {item.media_id && getMediaUrl(item.media_id) && (
                 <img
-                  src={getMediaUrl(`/uploads/media/${item.media_id}`)}
+                  src={getMediaUrl(item.media_id)}
                   alt={item.author}
                   className="rounded-circle mb-3"
                   style={{ width: '80px', height: '80px', objectFit: 'cover' }}
@@ -116,9 +116,9 @@ export default function TestimonialsRenderer({ data }: TestimonialsRendererProps
             <div key={idx} className="col-md-6 col-lg-4 mb-4">
               <div className="testimonial-card h-100 p-4 bg-white rounded shadow-sm">
                 <div className="d-flex align-items-center mb-3">
-                  {item.media_id && (
+                  {item.media_id && getMediaUrl(item.media_id) && (
                     <img
-                      src={getMediaUrl(`/uploads/media/${item.media_id}`)}
+                      src={getMediaUrl(item.media_id)}
                       alt={item.author}
                       className="rounded-circle me-3"
                       style={{ width: '60px', height: '60px', objectFit: 'cover' }}

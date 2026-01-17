@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { getMediaUrl } from '../../api/axios'
 import type { HeroComponentData } from '../../types'
 
 interface HeroRendererProps {
   data: HeroComponentData
+  getMediaUrl: (mediaId: string | undefined) => string
 }
 
-export default function HeroRenderer({ data }: HeroRendererProps) {
+export default function HeroRenderer({ data, getMediaUrl }: HeroRendererProps) {
   const [currentSlide, setCurrentSlide] = useState(0)
   const slides = data.slides || []
 
@@ -24,9 +24,8 @@ export default function HeroRenderer({ data }: HeroRendererProps) {
 
   const slide = slides[currentSlide]
   const overlayOpacity = (slide.overlayOpacity ?? 50) / 100
-  const backgroundImage = slide.media_id
-    ? getMediaUrl(`/uploads/media/${slide.media_id}`)
-    : '/images/hero_bg_1.jpg'
+  const mediaUrl = getMediaUrl(slide.media_id)
+  const backgroundImage = mediaUrl || '/images/hero_bg_1.jpg'
 
   return (
     <div

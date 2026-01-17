@@ -1,8 +1,8 @@
-import { getMediaUrl } from '../../api/axios'
 import type { PricingComponentData } from '../../types'
 
 interface PricingRendererProps {
   data: PricingComponentData
+  getMediaUrl: (mediaId: string | undefined) => string
 }
 
 export default function PricingRenderer({ data }: PricingRendererProps) {
@@ -23,30 +23,27 @@ export default function PricingRenderer({ data }: PricingRendererProps) {
         )}
 
         <div className="row justify-content-center">
-          {services.map((service, idx) => (
-            <div key={idx} className="col-md-6 col-lg-4 mb-4">
-              <div className="pricing-card h-100 text-center p-4 bg-white shadow-sm rounded border">
-                {service.media_id && (
-                  <img
-                    src={getMediaUrl(`/uploads/media/${service.media_id}`)}
-                    alt={service.name}
-                    className="mb-3 rounded"
-                    style={{ width: '80px', height: '80px', objectFit: 'cover' }}
-                  />
-                )}
-                <h4 className="mb-3">{service.name}</h4>
-                <div
-                  className="price mb-3"
-                  style={{ fontSize: '2rem', fontWeight: 'bold', color: '#007bff' }}
-                >
-                  {service.price}
-                </div>
-                {service.description && (
-                  <p className="text-muted">{service.description}</p>
-                )}
-              </div>
+          <div className="col-lg-8">
+            <div className="pricing-table bg-white shadow-sm rounded p-4">
+              <table className="table table-hover mb-0">
+                <tbody>
+                  {services.map((service, idx) => (
+                    <tr key={idx}>
+                      <td className="align-middle">
+                        <strong>{service.name}</strong>
+                        {service.description && (
+                          <small className="d-block text-muted">{service.description}</small>
+                        )}
+                      </td>
+                      <td className="align-middle text-end" style={{ whiteSpace: 'nowrap' }}>
+                        <span className="text-primary font-weight-bold">{service.price}</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          ))}
+          </div>
         </div>
       </div>
     </div>
