@@ -70,6 +70,7 @@ export interface SiteSettings {
   };
   header: {
     header_logo_media_id?: string;
+    header_logo_url?: string;
     header_menu_id?: string;
     header_background_type?: string;
     header_background_color?: string;

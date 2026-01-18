@@ -36,9 +36,10 @@ export default function Footer({ menu, settings }: FooterProps) {
   const midPoint = Math.ceil(menuItems.length / 2);
   const firstColumn = menuItems.slice(0, midPoint);
   const secondColumn = menuItems.slice(midPoint);
+  const backgroundColor = settings.footer?.footer_background_color || '#333333';
 
   return (
-    <footer className="site-footer">
+    <footer className="site-footer" style={{ backgroundColor: backgroundColor }}>
       <div className="container">
         <div className="row">
           <div className="col-lg-4">

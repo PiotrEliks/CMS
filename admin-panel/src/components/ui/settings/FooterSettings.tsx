@@ -53,23 +53,6 @@ export default function FooterSettings({
       <div className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Logo Footer
-          </label>
-          <MediaSelector
-            selectedMediaId={settings.footer_logo_media_id}
-            onSelect={(mediaId) =>
-              handleChange('footer_logo_media_id', mediaId)
-            }
-            onRemove={() => handleChange('footer_logo_media_id', undefined)}
-            allowedTypes={['image']}
-          />
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            Opcjonalne - jeśli puste, użyje logo z headera
-          </p>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Menu Footer
           </label>
           <select

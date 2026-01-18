@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import type { Menu, MenuItem, SiteSettings, SocialMedia } from '../types';
+import { BACKEND_URL } from '../api/axios'
 
 interface NavbarProps {
   menu?: Menu;
@@ -34,6 +35,10 @@ export default function Navbar({ menu, settings }: NavbarProps) {
     if (item.content?.slug) return `/${item.content.slug}`
     return '#'
   }
+
+  const backgroundColor = settings.header?.header_background_color || '#333333';
+  const isLogoAvailable = settings.header?.header_logo_url !== null;
+  const logoUrl = BACKEND_URL + settings.header?.header_logo_url;
 
   const renderMenuItem = (item: MenuItem) => {
     const hasChildren = item.children && item.children.length > 0
@@ -102,12 +107,26 @@ export default function Navbar({ menu, settings }: NavbarProps) {
       </div>
 
       {/* Header */}
-      <header className="site-navbar py-1" role="banner">
+      <header className="site-navbar py-1" role="banner" style={{ backgroundColor: backgroundColor }}>
         <div className="container-fluid">
           <div className="row align-items-center">
             <div className="col-6 col-xl-2" data-aos="fade-down">
               <h1 className="mb-0">
-                <Link to="/" className="text-black h2 mb-0">{siteName}</Link>
+                <Link to="/" className="text-black h2 mb-0 d-flex align-items-center">
+                  {isLogoAvailable ? (
+                    <img 
+                      src={logoUrl} 
+                      alt={siteName} 
+                      style={{ 
+                        maxWidth: '200px', 
+                        maxHeight: '50px', 
+                        objectFit: 'contain' 
+                      }} 
+                    />
+                  ) : (
+                    siteName
+                  )}
+                </Link>
               </h1>
             </div>
 

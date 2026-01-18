@@ -1,4 +1,5 @@
 import { SiteSetting, SiteSettingsData } from '../models/siteSettings.model.js'
+import { Media } from '../models/media.model.js'
 
 export class SiteSettingsService {
   async get(key: string): Promise<SiteSettingsData | null> {
@@ -70,8 +71,19 @@ export class SiteSettingsService {
       return created
     }
 
-    const currentValue = (setting.value as SiteSettingsData) || {}
-    const newValue = { ...currentValue, ...updates }
+     const currentValue = (setting.value as SiteSettingsData) || {}
+    
+    const newValue = { ...currentValue }
+    
+    Object.keys(updates).forEach((updateKey) => {
+      const value = updates[updateKey as keyof SiteSettingsData]
+      
+      if (value === undefined || value === null) {
+        delete newValue[updateKey as keyof SiteSettingsData]
+      } else {
+        (newValue as any)[updateKey] = value
+      }
+    })
 
     await setting.update({ value: newValue as any, updated_at: new Date() })
 
@@ -83,6 +95,30 @@ export class SiteSettingsService {
     return deleted > 0
   }
 
+  private async getMediaUrls(mediaIds: (string | undefined)[]): Promise<Record<string, string>> {
+    const validIds = mediaIds.filter(Boolean) as string[]
+    
+    if (validIds.length === 0) {
+      return {}
+    }
+
+    const mediaList = await Media.findAll({
+      where: { media_id: validIds },
+      attributes: ['media_id', 'storage_path'],
+    })
+
+    const mediaMap: Record<string, string> = {}
+    mediaList.forEach((media) => {
+      const path = media.storage_path.startsWith('/uploads') 
+        ? media.storage_path 
+        : `/uploads/${media.storage_path}`
+      
+      mediaMap[media.media_id] = path
+    })
+
+    return mediaMap
+  }
+
   async getPublic(): Promise<{
     general: any
     header: any
@@ -92,6 +128,16 @@ export class SiteSettingsService {
   }> {
     const all = await this.getAllGrouped()
 
+    const mediaIds = [
+      all.header.header_logo_media_id,
+      all.header.header_background_media_id,
+      all.footer.footer_logo_media_id,
+      all.seo.default_og_image_media_id,
+      all.advanced.favicon_media_id,
+    ]
+
+    const mediaUrls = await this.getMediaUrls(mediaIds)
+
     return {
       general: {
         site_name: all.general.site_name,
@@ -99,6 +145,9 @@ export class SiteSettingsService {
         site_description: all.general.site_description,
       },
       header: {
+        header_logo_url: all.header.header_logo_media_id 
+          ? mediaUrls[all.header.header_logo_media_id] 
+          : null,
         header_logo_media_id: all.header.header_logo_media_id,
         header_menu_id: all.header.header_menu_id,
         header_background_type: all.header.header_background_type,

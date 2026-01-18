@@ -30,11 +30,21 @@ export default function HeaderSettings({
   }
 
   const handleSave = async () => {
-    await updateSettings('header', settings)
+    const dataToSave: any = {}
+    
+    Object.keys(settings).forEach((key) => {
+      const value = settings[key]
+      if (value === undefined) {
+        dataToSave[key] = null
+      } else {
+        dataToSave[key] = value
+      }
+    })
+    
+    await updateSettings('header', dataToSave)
   }
 
   const activeMenus = menus.filter((m: any) => m.status)
-  const backgroundType = settings.header_background_type || 'color'
 
   return (
     <ComponentCard
@@ -48,10 +58,12 @@ export default function HeaderSettings({
           </label>
           <MediaSelector
             selectedMediaId={settings.header_logo_media_id}
-            onSelect={(mediaId) =>
+            onSelect={(mediaId) => {
               handleChange('header_logo_media_id', mediaId)
-            }
-            onRemove={() => handleChange('header_logo_media_id', undefined)}
+            }}
+            onRemove={() => {
+              handleChange('header_logo_media_id', null)
+            }}
             allowedTypes={['image']}
           />
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -65,7 +77,10 @@ export default function HeaderSettings({
           </label>
           <select
             value={settings.header_menu_id || ''}
-            onChange={(e) => handleChange('header_menu_id', e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value || null
+              handleChange('header_menu_id', value)
+            }}
             className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
           >
             <option value="">-- Wybierz menu --</option>
@@ -80,43 +95,6 @@ export default function HeaderSettings({
           </p>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Typ Tła
-          </label>
-          <div className="flex gap-4">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="radio"
-                value="color"
-                checked={backgroundType === 'color'}
-                onChange={(e) =>
-                  handleChange('header_background_type', e.target.value)
-                }
-                className="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
-              />
-              <span className="text-sm text-gray-700 dark:text-gray-300">
-                Kolor
-              </span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="radio"
-                value="image"
-                checked={backgroundType === 'image'}
-                onChange={(e) =>
-                  handleChange('header_background_type', e.target.value)
-                }
-                className="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
-              />
-              <span className="text-sm text-gray-700 dark:text-gray-300">
-                Obraz
-              </span>
-            </label>
-          </div>
-        </div>
-
-        {backgroundType === 'color' && (
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Kolor Tła
@@ -141,29 +119,6 @@ export default function HeaderSettings({
               />
             </div>
           </div>
-        )}
-
-        {backgroundType === 'image' && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Obraz Tła
-            </label>
-            <MediaSelector
-              selectedMediaId={settings.header_background_media_id}
-              onSelect={(mediaId) =>
-                handleChange('header_background_media_id', mediaId)
-              }
-              onRemove={() =>
-                handleChange('header_background_media_id', undefined)
-              }
-              allowedTypes={['image']}
-            />
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Rekomendowany rozmiar: 1920x400px. Obraz zostanie automatycznie
-              dopasowany.
-            </p>
-          </div>
-        )}
 
         <div>
           <label className="flex items-center gap-2">
