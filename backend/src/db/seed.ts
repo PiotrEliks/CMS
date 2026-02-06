@@ -48,6 +48,13 @@ const PERMISSIONS_SEED: { code: string; description: string }[] = [
   { code: 'content.delete_any', description: 'Usuwanie dowolnej treści' },
   { code: 'content.publish', description: 'Publikacja treści' },
 
+  { code: 'category.read', description: 'Podgląd kategorii' },
+  { code: 'category.create', description: 'Tworzenie kategorii' },
+  { code: 'category.update_own', description: 'Edycja własnych kategorii' },
+  { code: 'category.update_any', description: 'Edycja dowolnej kategorii' },
+  { code: 'category.delete_own', description: 'Usuwanie własnych kategorii' },
+  { code: 'category.delete_any', description: 'Usuwanie dowolnej kategorii' },
+
   { code: 'users.read', description: 'Podgląd użytkowników' },
   { code: 'users.create', description: 'Tworzenie użytkowników' },
   { code: 'users.update', description: 'Edycja użytkowników' },
