@@ -1,0 +1,101 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: cms-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: CMSDatabase
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - cms-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: cms-backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      PORT: 5000
+      NODE_ENV: development
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/CMSDatabase
+      JWT_SECRET: uzupelnij-swoj-jwt-secret
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: CMSDatabase
+      CORS_ORIGIN: http://localhost:5173,http://localhost:5175
+      SMTP_HOST: uzpelnij-swoje-smtp
+      SMTP_PORT: 587
+      SMTP_USER: uzpelnij-swoj-smtp-user
+      SMTP_PASS: uzupelnij-swoje-smtp-haslo
+      MAIL_FROM: CMS <no-reply@twoja-domena.pl>
+      FRONTEND_URL: http://localhost:5173
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - cms-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # Admin Panel
+  admin-panel:
+    build:
+      context: ./admin-panel
+      dockerfile: Dockerfile
+    container_name: cms-admin-panel
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_BASE: http://localhost:5000/api/admin
+      VITE_API_UPLOADS: http://localhost:5000
+      VITE_TINYMCE_API_KEY: uzupelnij-swoj-tinymce-api-key
+    volumes:
+      - ./admin-panel:/app
+      - /app/node_modules
+    networks:
+      - cms-network
+    depends_on:
+      - backend
+
+  # Public Site
+  public-site:
+    build:
+      context: ./public-site
+      dockerfile: Dockerfile
+    container_name: cms-public-site
+    restart: unless-stopped
+    ports:
+      - "5175:5175"
+    environment:
+      VITE_API_BASE: http://localhost:5000/api/sites
+    volumes:
+      - ./public-site:/app
+      - /app/node_modules
+    networks:
+      - cms-network
+    depends_on:
+      - backend
+
+networks:
+  cms-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

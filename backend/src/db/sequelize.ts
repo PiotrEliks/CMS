@@ -1,6 +1,8 @@
 import { Sequelize } from 'sequelize'
 import dotenv from 'dotenv'
-dotenv.config()
+if (!process.env.DATABASE_URL) {
+  dotenv.config()
+}
 
 const isProd = process.env.NODE_ENV === 'production'
 const dbUrl = process.env.DATABASE_URL

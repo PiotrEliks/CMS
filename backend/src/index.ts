@@ -1,7 +1,9 @@
 import path from 'path'
 import express from 'express'
 import dotenv from 'dotenv'
-dotenv.config()
+if (!process.env.DATABASE_URL) {
+  dotenv.config()
+}
 import { fileURLToPath } from 'url'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
@@ -68,9 +70,9 @@ app.use(
   }
 )
 
-const PORT = Number(process.env.PORT)
+const PORT = Number(process.env.PORT) || 5000;
 
-;(async () => {
+(async () => {
   try {
     await initDatabase({
       seed: async () => {
@@ -81,12 +83,11 @@ const PORT = Number(process.env.PORT)
         await ensureSiteSettingsSeeded()
       },
     })
-    console.log('Database ready.')
     app.listen(PORT, () => {
-      console.log('Server running on port', PORT)
+      console.log(`🚀 Server running on port ${PORT}`)
     })
   } catch (error) {
-    console.error('Error starting server:', error)
+    console.error('❌ Error starting server:', error)
     process.exit(1)
   }
 })()
