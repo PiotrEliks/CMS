@@ -5,6 +5,6 @@ const router = Router()
 
 router.get('/', CategoryController.listCategories)
 
-router.get('/:slug', CategoryController.getCategoryBySlug)
+router.get('/:slug', CategoryController.getPublishedCategory)
 
 export default router

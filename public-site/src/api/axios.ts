@@ -4,6 +4,17 @@ export const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE,
 });
 
+// Cache busting - dodaje timestamp do każdego requestu GET
+api.interceptors.request.use((config) => {
+  if (config.method === 'get') {
+    config.params = {
+      ...config.params,
+      _t: Date.now(),
+    };
+  }
+  return config;
+});
+
 // Backend base URL for static files (uploads)
 export const BACKEND_URL = import.meta.env.VITE_API_BASE?.replace('/api/sites', '') || 'http://localhost:5001';
 

@@ -44,7 +44,7 @@ export default function ContentCard({ content }: ContentCardProps) {
             <div className="mb-3">
               {content.categories.map(cat => (
                 <span key={cat.category_id} className="badge badge-light mr-1">
-                  {cat.name}
+                  {cat.display_name || cat.name}
                 </span>
               ))}
             </div>

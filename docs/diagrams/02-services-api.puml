@@ -1,0 +1,206 @@
+@startuml Services-API
+!theme plain
+skinparam dpi 150
+skinparam defaultFontSize 10
+skinparam classFontSize 11
+skinparam classAttributeFontSize 9
+skinparam linetype ortho
+
+title CMS - Diagram Serwisów i API
+
+package "Serwisy (Backend)" as Services #E3F2FD {
+
+  abstract class BaseService<T> << (S,#90CAF9) >> {
+    #model: Model<T>
+    +create(data): Promise<T>
+    +update(id, data): Promise<T>
+    +getById(id): Promise<T>
+    +list(options): Promise<T[]>
+    +delete(id): Promise<void>
+  }
+
+  class UserService << (S,#90CAF9) >> {
+    +getUserWithRole(id)
+    +getUserByEmail(email)
+    +createWithEmail(data)
+    +changePassword(id, old, new)
+    +assignRole(userId, roleId)
+    +activate(id) / deactivate(id)
+    +updateAvatar(id, url)
+  }
+
+  class AuthService << (S,#90CAF9) >> {
+    +loginWithEmail(email, pass)
+    +generateToken(user)
+    +verifyToken(token)
+    +forgotPassword(email)
+    +resetPassword(token, pass)
+  }
+
+  class ContentService << (S,#90CAF9) >> {
+    +create(data) / update(id, data)
+    +getBySlug(slug)
+    +generateSlug(title)
+    +publish(id) / unpublish(id)
+    +getPublished(options)
+    +attachCategory(cId, catId)
+    +attachMedia(cId, mId)
+  }
+
+  class ContentSectionService << (S,#90CAF9) >> {
+    +getSectionsByContentId(id)
+    +createSection(data)
+    +updateSection(id, data)
+    +deleteSection(id)
+    +reorderSections(cId, items)
+    +duplicateSection(id)
+  }
+
+  class PageComponentService << (S,#90CAF9) >> {
+    +getComponentsByContentId(id)
+    +createComponent(data)
+    +updateComponent(id, data)
+    +deleteComponent(id)
+    +reorderComponents(cId, ids)
+    +toggleComponentStatus(id)
+  }
+
+  class MediaService << (S,#90CAF9) >> {
+    +createFromUpload(data)
+    +listMedia(params)
+    +getWithUsage(id)
+    +deleteMedia(id)
+    +updateMetadata(id, data)
+    +getPublishedById(id)
+  }
+
+  class MenuService << (S,#90CAF9) >> {
+    +getMenuWithItems(id)
+    +createMenu(data)
+    +createMenuItem(data)
+    +updateMenuItem(id, data)
+    +reorderMenuItems(mId, ids)
+    +getPublishedById(id)
+  }
+
+  class CategoryService << (S,#90CAF9) >> {
+    +getAllCategories(filters)
+    +createCategory(data)
+    +getCategoryTree(type)
+    +assignCategoriesToContent()
+  }
+
+  class SiteSettingsService << (S,#90CAF9) >> {
+    +get(key) / set(key, value)
+    +getAll() / getAllGrouped()
+    +update(key, updates)
+    +getPublic()
+  }
+
+  class RoleService << (S,#90CAF9) >> {
+    +createRole(data)
+    +setPermissions(id, codes)
+    +getPermissions(id)
+  }
+
+  class PublicApiService << (S,#90CAF9) >> {
+    +getContentFull(slug)
+    +getPublishedContents(options)
+    +getMenuById(id)
+    +getSettings()
+    +getMediaById(id)
+  }
+}
+
+package "API Endpoints" as Controllers #FFF3E0 {
+
+  class "Auth API" as AuthAPI << (C,#FFB74D) >> {
+    POST /login
+    POST /logout
+    GET /check-auth
+    POST /forgot-password
+    POST /reset-password
+  }
+
+  class "Content API" as ContentAPI << (C,#FFB74D) >> {
+    GET /contents
+    GET /contents/:id
+    GET /contents/:slug/full
+    POST /contents
+    PUT /contents/:id
+    DELETE /contents/:id
+    POST /contents/:id/publish
+  }
+
+  class "Sections API" as SectionsAPI << (C,#FFB74D) >> {
+    GET /sections/:contentId
+    POST /sections
+    PUT /sections/:id
+    DELETE /sections/:id
+    POST /sections/reorder
+  }
+
+  class "Components API" as ComponentsAPI << (C,#FFB74D) >> {
+    GET /components/:contentId
+    POST /components
+    PUT /components/:id
+    DELETE /components/:id
+    POST /components/reorder
+  }
+
+  class "Media API" as MediaAPI << (C,#FFB74D) >> {
+    GET /media
+    GET /media/:id
+    POST /media/upload
+    PUT /media/:id
+    DELETE /media/:id
+  }
+
+  class "Menu API" as MenuAPI << (C,#FFB74D) >> {
+    GET /menus
+    GET /menus/id/:id
+    POST /menus
+    PUT /menus/:id
+    POST /menus/:id/items
+  }
+
+  class "Settings API" as SettingsAPI << (C,#FFB74D) >> {
+    GET /settings
+    GET /settings/:key
+    PUT /settings/:key
+  }
+
+  class "Users API" as UsersAPI << (C,#FFB74D) >> {
+    GET /users
+    POST /users
+    PUT /users/:id
+    DELETE /users/:id
+  }
+
+  class "Public API" as PublicAPI << (C,#FFB74D) >> {
+    GET /site/contents/:slug/full
+    GET /site/menus/:id
+    GET /site/settings
+    GET /site/media/:id
+    POST /site/contact
+  }
+}
+
+' Inheritance
+UserService --|> BaseService
+ContentService --|> BaseService
+MediaService --|> BaseService
+CategoryService --|> BaseService
+
+' Service to Controller relationships
+AuthAPI ..> AuthService
+ContentAPI ..> ContentService
+SectionsAPI ..> ContentSectionService
+ComponentsAPI ..> PageComponentService
+MediaAPI ..> MediaService
+MenuAPI ..> MenuService
+SettingsAPI ..> SiteSettingsService
+UsersAPI ..> UserService
+PublicAPI ..> PublicApiService
+
+@enduml

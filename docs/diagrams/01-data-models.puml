@@ -1,0 +1,128 @@
+@startuml Data-Models-Core
+!theme plain
+skinparam dpi 150
+skinparam defaultFontSize 11
+skinparam classFontSize 12
+skinparam classAttributeFontSize 10
+skinparam linetype ortho
+
+title CMS - Modele Danych: Użytkownicy i Treści
+
+package "Użytkownicy i Role" as Core #E8F5E9 {
+
+  class User << (M,#ADD8E6) >> {
+    +user_id: UUID <<PK>>
+    +email: String <<unique>>
+    +password_hash: String
+    +display_name: String
+    +role_id: UUID <<FK>>
+    +status: Boolean
+    +avatar_url: String
+    +last_access: DateTime
+  }
+
+  class Role << (M,#ADD8E6) >> {
+    +role_id: UUID <<PK>>
+    +type: String
+    +display_name: String
+    +status: Boolean
+  }
+
+  class Permission << (M,#ADD8E6) >> {
+    +permission_id: UUID <<PK>>
+    +code: String <<unique>>
+    +description: String
+  }
+
+  class "RolePermission" as RP << (J,#90EE90) Junction >> {
+    +role_id: UUID <<FK>>
+    +permission_id: UUID <<FK>>
+  }
+}
+
+package "Zarządzanie Treścią" as CMS #E3F2FD {
+
+  class Content << (M,#ADD8E6) >> {
+    +content_id: UUID <<PK>>
+    +type: Enum(page|post)
+    +status: Enum(D|P)
+    +slug: String <<unique>>
+    +title: String
+    +lead: Text
+    +body: Text
+    +cover_media_id: UUID <<FK>>
+    +published_at: DateTime
+    +created_by: UUID <<FK>>
+    +meta_title: String
+    +meta_description: String
+  }
+
+  class ContentSection << (M,#ADD8E6) >> {
+    +section_id: UUID <<PK>>
+    +content_id: UUID <<FK>>
+    +section_type: Enum
+    +order_index: Integer
+    +heading: String
+    +body: Text
+    +media_ids: UUID[]
+    +settings: JSONB
+    +status: Boolean
+  }
+
+  class PageComponent << (M,#ADD8E6) >> {
+    +component_id: UUID <<PK>>
+    +content_id: UUID <<FK>>
+    +component_type: Enum
+    +data: JSONB
+    +order_index: Integer
+    +status: Boolean
+  }
+
+  class Category << (M,#ADD8E6) >> {
+    +category_id: UUID <<PK>>
+    +display_name: String
+    +slug: String <<unique>>
+    +path: String
+    +status: Boolean
+  }
+
+  class "ContentCategory" as CC << (J,#90EE90) Junction >> {
+    +content_id: UUID <<FK>>
+    +category_id: UUID <<FK>>
+  }
+}
+
+' Relationships
+User "n" -- "1" Role
+Role "n" -- "n" Permission : through RP
+
+Content "1" -- "n" ContentSection
+Content "1" -- "n" PageComponent
+Content "n" -- "n" Category : through CC
+
+User "1" -- "n" Content : creates
+
+note as SectionTypes
+  **Section Types:**
+  text, image, gallery,
+  pdf, video, html, embed
+end note
+
+note as ComponentTypes
+  **Component Types:**
+  hero, services, testimonial,
+  team, pricing, hours,
+  contact_form, map
+end note
+
+note as FlowNote
+  **Przepływ:**
+  User → tworzy Content
+  Content → zawiera Sections/Components
+  Role → definiuje Permissions
+end note
+
+ContentSection .. SectionTypes
+PageComponent .. ComponentTypes
+
+@enduml

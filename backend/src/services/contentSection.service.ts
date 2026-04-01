@@ -43,10 +43,7 @@ export class ContentSectionService {
   async getSectionsByContentId(contentId: string) {
     const sections = await ContentSection.findAll({
       where: { content_id: contentId },
-      order: [
-        ['display_order', 'ASC'],
-        ['order_index', 'ASC'],
-      ],
+      order: [['order_index', 'ASC']],
     })
 
     return sections
@@ -230,10 +227,7 @@ export class ContentSectionService {
         content_id: contentId,
         status: true,
       },
-      order: [
-        ['display_order', 'ASC'],
-        ['order_index', 'ASC'],
-      ],
+      order: [['order_index', 'ASC']],
       attributes: {
         exclude: ['created_at', 'updated_at'],
       },

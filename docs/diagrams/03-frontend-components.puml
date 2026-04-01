@@ -1,0 +1,234 @@
+@startuml Frontend-Components
+!theme plain
+skinparam dpi 150
+skinparam defaultFontSize 10
+skinparam classFontSize 11
+skinparam classAttributeFontSize 9
+skinparam linetype ortho
+
+title CMS - Diagram Komponentów Frontend (Public-Site)
+
+package "Layout" as LayoutPkg #E8F5E9 {
+  class App << (R,#4CAF50) React >> {
+    +headerMenu: Menu
+    +footerMenu: Menu
+    +siteSettings: SiteSettings
+    --
+    fetchSettings()
+    fetchMenus()
+  }
+
+  class Layout << (R,#4CAF50) React >> {
+    +headerMenu: Menu
+    +footerMenu: Menu
+    +settings: SiteSettings
+    --
+    render(): Navbar + Outlet + Footer
+  }
+
+  class Navbar << (R,#4CAF50) React >> {
+    +menu: Menu
+    +settings: SiteSettings
+    --
+    renderMenuItem(item)
+    renderSocialLinks()
+  }
+
+  class Footer << (R,#4CAF50) React >> {
+    +menu: Menu
+    +settings: SiteSettings
+    --
+    getMenuItemHref(item)
+  }
+}
+
+package "Pages" as PagesPkg #E3F2FD {
+  class Home << (R,#2196F3) React >> {
+    +content: Content
+    --
+    Fetches /contents/home/full
+    Uses PageComponentsList
+    Uses SectionRenderer
+  }
+
+  class ContentPage << (R,#2196F3) React >> {
+    +slug: string (from URL)
+    +content: Content
+    --
+    Fetches /contents/:slug/full
+    Uses PageComponentsList
+    Uses SectionRenderer
+  }
+
+  class NotFound << (R,#2196F3) React >> {
+    404 error page
+  }
+}
+
+package "Page Components" as PageCompPkg #FCE4EC {
+  class PageComponentsList << (R,#E91E63) React >> {
+    +components: PageComponent[]
+    +mediaCache: Map<string, MediaInfo>
+    --
+    extractMediaIds()
+    fetchMedia()
+    getMediaUrl(id)
+  }
+
+  class ComponentRenderer << (R,#E91E63) React >> {
+    +component: PageComponent
+    +getMediaUrl: Function
+    --
+    Switch by component_type
+  }
+
+  class HeroRenderer << (R,#E91E63) React >> {
+    +data: HeroComponentData
+    +getMediaUrl: Function
+    --
+    Slider z CTA buttons
+    Background images
+  }
+
+  class ServicesRenderer << (R,#E91E63) React >> {
+    +data: ServicesComponentData
+    +getMediaUrl: Function
+    --
+    Grid/List/Carousel layout
+    Service cards with icons
+  }
+
+  class TestimonialsRenderer << (R,#E91E63) React >> {
+    +data: TestimonialComponentData
+    +getMediaUrl: Function
+    --
+    Star ratings
+    Customer quotes
+  }
+
+  class TeamRenderer << (R,#E91E63) React >> {
+    +data: TeamComponentData
+    +getMediaUrl: Function
+    --
+    Team member cards
+    Social media links
+  }
+
+  class PricingRenderer << (R,#E91E63) React >> {
+    +data: PricingComponentData
+    --
+    Price tables
+    Category grouping
+  }
+
+  class HoursRenderer << (R,#E91E63) React >> {
+    +data: HoursComponentData
+    --
+    Opening hours table
+    Closed day indicator
+  }
+
+  class ContactFormRenderer << (R,#E91E63) React >> {
+    +data: ContactFormData
+    --
+    Dynamic form fields
+    Form submission to API
+  }
+
+  class MapRenderer << (R,#E91E63) React >> {
+    +data: MapComponentData
+    --
+    Leaflet/OpenStreetMap
+    Location marker
+  }
+}
+
+package "Section Renderers" as SectionPkg #FFF3E0 {
+  class SectionRenderer << (R,#FF9800) React >> {
+    +section: ContentSection
+    +mediaCache: Map
+    +getMediaUrl: Function
+    --
+    Switch by section_type
+  }
+
+  class TextSection << (R,#FF9800) React >> {
+    HTML content rendering
+  }
+
+  class ImageSection << (R,#FF9800) React >> {
+    Single image with caption
+  }
+
+  class GallerySection << (R,#FF9800) React >> {
+    Image grid/masonry
+  }
+
+  class VideoSection << (R,#FF9800) React >> {
+    YouTube/Vimeo embed
+  }
+
+  class PdfSection << (R,#FF9800) React >> {
+    PDF thumbnail + download
+  }
+
+  class HtmlSection << (R,#FF9800) React >> {
+    Raw HTML rendering
+  }
+
+  class EmbedSection << (R,#FF9800) React >> {
+    iframe/widget embed
+  }
+}
+
+package "Hooks" as HooksPkg #F3E5F5 {
+  class useMediaCache << (H,#9C27B0) Hook >> {
+    +mediaCache: Map
+    +fetchMediaForSections()
+    +fetchMediaById()
+    +getMediaUrl()
+    +getThumbnailUrl()
+  }
+}
+
+' Layout relationships
+App --> Layout
+Layout --> Navbar
+Layout --> Footer
+
+' Page relationships
+App --> Home
+App --> ContentPage
+App --> NotFound
+
+' Page to Component relationships
+Home --> PageComponentsList
+Home --> SectionRenderer
+ContentPage --> PageComponentsList
+ContentPage --> SectionRenderer
+
+' PageComponentsList to renderers
+PageComponentsList --> ComponentRenderer
+ComponentRenderer --> HeroRenderer
+ComponentRenderer --> ServicesRenderer
+ComponentRenderer --> TestimonialsRenderer
+ComponentRenderer --> TeamRenderer
+ComponentRenderer --> PricingRenderer
+ComponentRenderer --> HoursRenderer
+ComponentRenderer --> ContactFormRenderer
+ComponentRenderer --> MapRenderer
+
+' SectionRenderer to sections
+SectionRenderer --> TextSection
+SectionRenderer --> ImageSection
+SectionRenderer --> GallerySection
+SectionRenderer --> VideoSection
+SectionRenderer --> PdfSection
+SectionRenderer --> HtmlSection
+SectionRenderer --> EmbedSection
+
+' Hook usage
+Home ..> useMediaCache
+ContentPage ..> useMediaCache
+
+@enduml

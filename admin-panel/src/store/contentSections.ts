@@ -142,11 +142,17 @@ export const useContentSections = create<ContentSectionsState>((set, get) => ({
   reorderSections: async (contentId, sectionIds) => {
     set({ loading: true, error: null })
     try {
+      // Backend expects items array with section_id and order_index
+      const items = sectionIds.map((id, index) => ({
+        section_id: id,
+        order_index: index,
+      }))
+
       const res = await api.post(`/contents/${contentId}/sections/reorder`, {
-        section_ids: sectionIds,
+        items,
       })
 
-      set({ sections: res.data, loading: false })
+      set({ sections: res.data.sections || res.data, loading: false })
     } catch (error: any) {
       set({ error: error.message, loading: false })
       throw error

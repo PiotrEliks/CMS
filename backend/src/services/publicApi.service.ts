@@ -45,7 +45,7 @@ export class PublicApiService {
         content_id: content.content_id,
         status: true,
       },
-      order: [['order_index', 'ASC']],
+      order: [['display_order', 'ASC']],
     })
 
     return {
@@ -62,7 +62,7 @@ export class PublicApiService {
         content_id: content.content_id,
         status: true,
       },
-      order: [['order_index', 'ASC']],
+      order: [['display_order', 'ASC']],
     })
 
     return {
@@ -77,11 +77,11 @@ export class PublicApiService {
     const [sections, components] = await Promise.all([
       ContentSection.findAll({
         where: { content_id: content.content_id, status: true },
-        order: [['order_index', 'ASC']],
+        order: [['display_order', 'ASC']],
       }),
       PageComponent.findAll({
         where: { content_id: content.content_id, status: true },
-        order: [['order_index', 'ASC']],
+        order: [['display_order', 'ASC']],
       }),
     ])
 
@@ -319,6 +319,50 @@ export class PublicApiService {
     return related
   }
 
+  async getContentByCategoryAndSlug(categorySlug: string, contentSlug: string) {
+    const content = await Content.findOne({
+      where: {
+        slug: contentSlug,
+        status: 'P',
+      },
+      include: [
+        {
+          model: Media,
+          as: 'cover',
+          attributes: ['media_id', 'storage_path', 'alt_text', 'title'],
+        },
+        {
+          model: Category,
+          as: 'categories',
+          through: { attributes: [] },
+          where: { slug: categorySlug, status: true },
+          required: true,
+        },
+      ],
+    })
+
+    if (!content) {
+      throw new Error('Content not found')
+    }
+
+    const [sections, components] = await Promise.all([
+      ContentSection.findAll({
+        where: { content_id: content.content_id, status: true },
+        order: [['display_order', 'ASC']],
+      }),
+      PageComponent.findAll({
+        where: { content_id: content.content_id, status: true },
+        order: [['display_order', 'ASC']],
+      }),
+    ])
+
+    return {
+      ...content.toJSON(),
+      sections,
+      components,
+    }
+  }
+
   async getHomepage() {
     const homepage = await Content.findOne({
       where: {
@@ -340,11 +384,11 @@ export class PublicApiService {
     const [sections, components] = await Promise.all([
       ContentSection.findAll({
         where: { content_id: homepage.content_id, status: true },
-        order: [['order_index', 'ASC']],
+        order: [['display_order', 'ASC']],
       }),
       PageComponent.findAll({
         where: { content_id: homepage.content_id, status: true },
-        order: [['order_index', 'ASC']],
+        order: [['display_order', 'ASC']],
       }),
     ])
 
