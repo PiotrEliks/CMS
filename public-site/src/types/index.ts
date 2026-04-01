@@ -24,7 +24,8 @@ export interface Content {
 
 export interface Category {
   category_id: string;
-  name: string;
+  name?: string;
+  display_name: string;
   slug: string;
   description?: string;
 }

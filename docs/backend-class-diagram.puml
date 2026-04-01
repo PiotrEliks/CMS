@@ -1,0 +1,374 @@
+@startuml Backend-Class-Diagram
+!theme plain
+skinparam dpi 150
+skinparam defaultFontSize 10
+skinparam classFontSize 11
+skinparam classAttributeFontSize 9
+skinparam packageFontSize 12
+skinparam nodesep 80
+skinparam ranksep 60
+skinparam linetype ortho
+
+title CMS Backend - Diagram Klas
+
+' ==========================================
+' MODELE DANYCH (Sequelize + PostgreSQL)
+' ==========================================
+package "Modele Danych" as Models #E8F5E9 {
+
+  class User << (M,#ADD8E6) Model >> {
+    +user_id: UUID <<PK>>
+    +email: String <<unique>>
+    +password_hash: String
+    +display_name: String
+    +role_id: UUID <<FK>>
+    +avatar_url: String
+    +reset_token: String
+    +reset_token_expires: Date
+    +last_access: DateTime
+    +status: Boolean
+    +created_at: DateTime
+    +updated_at: DateTime
+  }
+
+  class Role << (M,#ADD8E6) Model >> {
+    +role_id: UUID <<PK>>
+    +display_name: String
+    +type: String
+    +status: Boolean
+    +created_at: DateTime
+    +updated_at: DateTime
+  }
+
+  class Permission << (M,#ADD8E6) Model >> {
+    +permission_id: UUID <<PK>>
+    +code: String <<unique>>
+    +description: String
+    +created_at: DateTime
+    +updated_at: DateTime
+  }
+
+  class Content << (M,#ADD8E6) Model >> {
+    +content_id: UUID <<PK>>
+    +title: String
+    +slug: String <<unique>>
+    +type: String
+    +status: String
+    +lead: Text
+    +body: Text
+    +author: String
+    +published_at: DateTime
+    +cover_media_id: UUID <<FK>>
+    +created_by: UUID <<FK>>
+    +updated_by: UUID <<FK>>
+    +meta_title: String
+    +meta_description: String
+    +og_title: String
+    +og_description: String
+    +created_at: DateTime
+    +updated_at: DateTime
+  }
+
+  class ContentSection << (M,#ADD8E6) Model >> {
+    +section_id: UUID <<PK>>
+    +content_id: UUID <<FK>>
+    +section_type: Enum
+    +heading: String
+    +subheading: String
+    +body: Text
+    +media_ids: UUID[]
+    +order_index: Integer
+    +display_order: Integer
+    +settings: JSONB
+    +status: Boolean
+    +created_at: DateTime
+    +updated_at: DateTime
+  }
+
+  class PageComponent << (M,#ADD8E6) Model >> {
+    +component_id: UUID <<PK>>
+    +content_id: UUID <<FK>>
+    +component_type: Enum
+    +data: JSONB
+    +order_index: Integer
+    +display_order: Integer
+    +status: Boolean
+    +created_at: DateTime
+    +updated_at: DateTime
+  }
+
+  class Category << (M,#ADD8E6) Model >> {
+    +category_id: UUID <<PK>>
+    +display_name: String
+    +slug: String <<unique>>
+    +type: String
+    +path: String
+    +status: Boolean
+    +created_by: UUID <<FK>>
+    +updated_by: UUID <<FK>>
+    +created_at: DateTime
+    +updated_at: DateTime
+  }
+
+  class Media << (M,#ADD8E6) Model >> {
+    +media_id: UUID <<PK>>
+    +storage_path: String
+    +mime_type: String
+    +file_size: Integer
+    +width: Integer
+    +height: Integer
+    +alt_text: String
+    +title: String
+    +thumbnail_path: String
+    +status: Boolean
+    +created_at: DateTime
+    +uploaded_at: DateTime
+  }
+
+  class Menu << (M,#ADD8E6) Model >> {
+    +menu_id: UUID <<PK>>
+    +code: String <<unique>>
+    +name: String
+    +status: Boolean
+    +created_by: UUID <<FK>>
+    +updated_by: UUID <<FK>>
+    +created_at: DateTime
+    +updated_at: DateTime
+  }
+
+  class MenuItem << (M,#ADD8E6) Model >> {
+    +menu_item_id: UUID <<PK>>
+    +menu_id: UUID <<FK>>
+    +label: String
+    +content_id: UUID <<FK>>
+    +external_url: String
+    +parent_id: UUID <<FK>>
+    +order_index: Integer
+    +status: Boolean
+  }
+
+  class SiteSetting << (M,#ADD8E6) Model >> {
+    +setting_id: UUID <<PK>>
+    +key: String <<unique>>
+    +value: JSONB
+    +description: String
+    +created_at: DateTime
+    +updated_at: DateTime
+  }
+
+  class KeyValue << (M,#ADD8E6) Model >> {
+    +key: String <<PK>>
+    +value: Text
+    +description: String
+    +user_id: UUID <<FK>>
+    +created_at: DateTime
+    +updated_at: DateTime
+  }
+
+  class RolePermission << (J,#FFE082) Join >> {
+    +role_id: UUID <<PK,FK>>
+    +permission_id: UUID <<PK,FK>>
+  }
+
+  class ContentCategory << (J,#FFE082) Join >> {
+    +content_id: UUID <<PK,FK>>
+    +category_id: UUID <<PK,FK>>
+  }
+
+  class ContentsMedia << (J,#FFE082) Join >> {
+    +content_id: UUID <<PK,FK>>
+    +media_id: UUID <<PK,FK>>
+  }
+
+  class ContentMenu << (J,#FFE082) Join >> {
+    +content_id: UUID <<PK,FK>>
+    +menu_id: UUID <<PK,FK>>
+  }
+}
+
+' ==========================================
+' INTERFEJSY SERWISÓW
+' ==========================================
+package "Interfejsy" as Interfaces #F3E5F5 {
+
+  interface IPublishable << (I,#CE93D8) >> {
+    +publish(id): Promise<any>
+    +unpublish(id): Promise<any>
+  }
+
+  interface ISluggable << (I,#CE93D8) >> {
+    +generateSlug(title, existingId?): Promise<string>
+    +getBySlug(slug): Promise<any>
+  }
+
+  abstract class BaseService<T> << (A,#BA68C8) >> {
+    #model: ModelCtor<T>
+    +findById(id): Promise<T>
+    +findOne(options): Promise<T>
+    +list(options): Promise<{items, total}>
+    +create(data): Promise<T>
+    +update(id, data): Promise<T>
+    +delete(id): Promise<boolean>
+  }
+}
+
+' ==========================================
+' SERWISY (Business Logic)
+' ==========================================
+package "Serwisy" as Services #E3F2FD {
+
+  class UserService << (S,#90CAF9) Service >> {
+    +getUserWithRole(id)
+    +getUserByEmail(email)
+    +createWithEmail(data)
+    +changePassword(id, old, new)
+    +assignRole(userId, roleId)
+    +activate(id) / deactivate(id)
+    +updateAvatar(id, url)
+  }
+
+  class AuthService << (S,#90CAF9) Service >> {
+    +loginWithEmail(email, pass)
+    +generateToken(user)
+    +verifyToken(token)
+    +forgotPassword(email)
+    +resetPassword(token, pass)
+  }
+
+  class ContentService << (S,#90CAF9) Service >> {
+    +create(data) / update(id, data)
+    +getBySlug(slug)
+    +listWithEditInfo(options)
+    +generateSlug(title)
+    +publish(id) / unpublish(id)
+    +getPublished(options)
+    +attachCategory(cId, catId)
+    +attachMedia(cId, mId)
+  }
+
+  class ContentSectionService << (S,#90CAF9) Service >> {
+    +getSectionsByContentId(id)
+    +createSection(data)
+    +updateSection(id, data)
+    +deleteSection(id)
+    +reorderSections(cId, items)
+    +duplicateSection(id)
+  }
+
+  class PageComponentService << (S,#90CAF9) Service >> {
+    +getComponentsByContentId(id)
+    +createComponent(data)
+    +updateComponent(id, data)
+    +deleteComponent(id)
+    +reorderComponents(cId, ids)
+    +toggleComponentStatus(id)
+  }
+
+  class MediaService << (S,#90CAF9) Service >> {
+    +createFromUpload(data)
+    +listMedia(params)
+    +getUsage(id)
+    +getWithUsage(id)
+    +deleteMedia(id)
+    +updateMetadata(id, data)
+    +getPublishedById(id)
+  }
+
+  class MenuService << (S,#90CAF9) Service >> {
+    +getAllMenus(filters)
+    +getMenuWithItems(id)
+    +getMenuByCode(code)
+    +createMenu(data)
+    +createMenuItem(data)
+    +updateMenuItem(id, data)
+    +reorderMenuItems(mId, ids)
+    +getPublishedById(id)
+  }
+
+  class CategoryService << (S,#90CAF9) Service >> {
+    +getAllCategories(filters)
+    +createCategory(data)
+    +getCategoryTree(type)
+    +assignCategoriesToContent()
+    +getContentsByCategory(id)
+  }
+
+  class SiteSettingsService << (S,#90CAF9) Service >> {
+    +get(key) / set(key, value)
+    +getAll() / getAllGrouped()
+    +update(key, updates)
+    +getPublic()
+  }
+
+  class RoleService << (S,#90CAF9) Service >> {
+    +createRole(data)
+    +setPermissions(id, codes)
+    +getPermissions(id)
+    +getRoleWithPermissions(id)
+  }
+}
+
+' ==========================================
+' DZIEDZICZENIE I IMPLEMENTACJA INTERFEJSÓW
+' ==========================================
+UserService --|> BaseService
+ContentService --|> BaseService
+MediaService --|> BaseService
+RoleService --|> BaseService
+
+ContentService ..|> IPublishable
+ContentService ..|> ISluggable
+
+' ==========================================
+' RELACJE - Modele (User/Role/Permission)
+' ==========================================
+User "n" -down- "1" Role
+Role "1" -down- "n" RolePermission
+Permission "1" -down- "n" RolePermission
+
+' ==========================================
+' RELACJE - Content i powiązania
+' ==========================================
+Content "1" -down- "n" ContentSection
+Content "1" -down- "n" PageComponent
+Content "1" -right- "n" ContentCategory
+Category "1" -left- "n" ContentCategory
+Content "1" -left- "n" ContentsMedia
+Media "1" -right- "n" ContentsMedia
+Content "n" -up- "1" Media
+Content "1" -down- "n" ContentMenu
+Menu "1" -up- "n" ContentMenu
+
+' ==========================================
+' RELACJE - Menu
+' ==========================================
+Menu "1" -down- "n" MenuItem
+MenuItem "n" -right- "0..1" Content
+MenuItem "0..1" -down- "n" MenuItem
+
+' ==========================================
+' RELACJE - User jako autor
+' ==========================================
+User "1" -down- "n" Content
+User "1" -down- "n" Category
+User "1" -down- "n" Menu
+User "1" -down- "n" KeyValue
+
+' ==========================================
+' RELACJE - Serwisy do Modeli
+' ==========================================
+UserService ..> User
+UserService ..> Role
+AuthService ..> User
+ContentService ..> Content
+ContentSectionService ..> ContentSection
+PageComponentService ..> PageComponent
+MediaService ..> Media
+MenuService ..> Menu
+MenuService ..> MenuItem
+CategoryService ..> Category
+SiteSettingsService ..> SiteSetting
+RoleService ..> Role
+RoleService ..> Permission
+
+@enduml

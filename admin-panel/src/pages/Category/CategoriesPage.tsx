@@ -283,7 +283,7 @@ export default function CategoriesPage() {
                   </span>
                 )}
               </Button>
-              <Access allOf={['category.create']}>
+              <Access allOf={['content.create']}>
                 <Button
                   size="sm"
                   variant="primary"
@@ -527,7 +527,7 @@ export default function CategoriesPage() {
                   Wyczyść filtry
                 </Button>
               ) : (
-                <Access allOf={['category.create']}>
+                <Access allOf={['content.create']}>
                   <Button
                     variant="primary"
                     startIcon={<Plus />}
@@ -665,7 +665,7 @@ export default function CategoriesPage() {
                         </td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <Access allOf={['category.update_any']}>
+                            <Access allOf={['content.update_any']}>
                               <Button
                                 size="sm"
                                 variant="outline"
@@ -675,7 +675,7 @@ export default function CategoriesPage() {
                               </Button>
                             </Access>
 
-                            <Access allOf={['category.delete_any']}>
+                            <Access allOf={['content.delete_any']}>
                               <Button
                                 size="sm"
                                 variant="outline"

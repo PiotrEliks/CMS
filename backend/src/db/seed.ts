@@ -20,9 +20,13 @@ import { siteSettingsService } from '../services/siteSettings.service.js'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-const SEED_IMAGES_SOURCE =
-  process.env.SEED_IMAGES_PATH ||
-  path.join(__dirname, '../../../public-site/public/images')
+// Possible locations for seed images (in order of priority)
+const SEED_IMAGE_PATHS = [
+  process.env.SEED_IMAGES_PATH,
+  path.join(__dirname, '../../assets/seed-images'),  // Backend's own seed images
+  path.join(__dirname, '../../../public-site/public/images'),  // Dev environment
+].filter(Boolean) as string[]
+
 const UPLOADS_DIR = path.join(__dirname, '../../uploads/seed')
 
 const PERMISSIONS_SEED: { code: string; description: string }[] = [
@@ -132,6 +136,16 @@ async function ensureSeedMedia(): Promise<Map<string, MediaRecord>> {
     fs.mkdirSync(UPLOADS_DIR, { recursive: true })
   }
 
+  // Find the first available source directory
+  let sourceDir: string | null = null
+  for (const dir of SEED_IMAGE_PATHS) {
+    if (fs.existsSync(dir)) {
+      sourceDir = dir
+      console.log(`  📁 Using seed images from: ${dir}`)
+      break
+    }
+  }
+
   for (const img of images) {
     // Check if media already exists
     let existing = await Media.findOne({ where: { title: img.title } })
@@ -144,12 +158,20 @@ async function ensureSeedMedia(): Promise<Map<string, MediaRecord>> {
       continue
     }
 
-    // Copy file from public-site to uploads
-    const sourcePath = path.join(SEED_IMAGES_SOURCE, img.filename)
     const destPath = path.join(UPLOADS_DIR, img.filename)
 
-    if (fs.existsSync(sourcePath) && !fs.existsSync(destPath)) {
-      fs.copyFileSync(sourcePath, destPath)
+    // Try to copy file from source directory
+    if (sourceDir) {
+      const sourcePath = path.join(sourceDir, img.filename)
+      if (fs.existsSync(sourcePath) && !fs.existsSync(destPath)) {
+        fs.copyFileSync(sourcePath, destPath)
+      }
+    }
+
+    // Only create media record if file exists (either copied or already there)
+    if (!fs.existsSync(destPath)) {
+      console.log(`  ⚠️  Skipping media (file not found): ${img.filename}`)
+      continue
     }
 
     // Create Media record

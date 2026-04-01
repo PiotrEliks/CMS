@@ -125,6 +125,37 @@ export class CategoryService {
     return category
   }
 
+  async getBySlug(slug: string) {
+    return await this.getCategoryBySlug(slug)
+  }
+
+  async getPublishedBySlug(slug: string) {
+    const category = await Category.findOne({
+      where: { slug, status: true },
+      include: [
+        {
+          model: Content,
+          as: 'contents',
+          through: { attributes: [] },
+          where: { status: 'P' },
+          required: false,
+          include: [
+            {
+              association: 'cover',
+              attributes: ['media_id', 'storage_path', 'alt_text', 'title'],
+            },
+          ],
+        },
+      ],
+    })
+
+    if (!category) {
+      throw new Error('Category not found')
+    }
+
+    return category
+  }
+
   async createCategory(data: {
     type?: string
     display_name: string
@@ -290,6 +321,91 @@ export class CategoryService {
     })
 
     return tree
+  }
+
+  // Alias methods for controller compatibility
+  async findById(id: string) {
+    return await this.getCategoryById(id)
+  }
+
+  async list(options: {
+    where?: any
+    limit?: number
+    offset?: number
+    order?: [string, string][]
+  }) {
+    const { count, rows } = await Category.findAndCountAll({
+      where: options.where || {},
+      limit: options.limit || 20,
+      offset: options.offset || 0,
+      order: options.order || [['created_at', 'DESC']],
+    })
+    return { items: rows, total: count }
+  }
+
+  async listWithCounts(options: {
+    where?: any
+    limit?: number
+    offset?: number
+  }) {
+    const { count, rows } = await Category.findAndCountAll({
+      where: options.where || {},
+      limit: options.limit || 20,
+      offset: options.offset || 0,
+      order: [['created_at', 'DESC']],
+    })
+    return { items: rows, total: count }
+  }
+
+  async create(data: {
+    name?: string
+    description?: string
+    slug?: string
+    order_index?: number
+  }) {
+    return await this.createCategory({
+      display_name: data.name || '',
+      slug: data.slug || '',
+      status: true,
+    })
+  }
+
+  async update(id: string, data: any) {
+    return await this.updateCategory(id, data)
+  }
+
+  async delete(id: string) {
+    return await this.deleteCategory(id)
+  }
+
+  async reorder(items: { id: string; order_index: number }[]) {
+    for (const item of items) {
+      await Category.update(
+        { path: item.order_index.toString() },
+        { where: { category_id: item.id } }
+      )
+    }
+    return true
+  }
+
+  async generateSlug(name: string, existingId?: string) {
+    let slug = name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+
+    let counter = 1
+    let finalSlug = slug
+    let existing = await Category.findOne({ where: { slug: finalSlug } })
+
+    while (existing && existing.category_id !== existingId) {
+      finalSlug = `${slug}-${counter}`
+      existing = await Category.findOne({ where: { slug: finalSlug } })
+      counter++
+    }
+
+    return finalSlug
   }
 }
 

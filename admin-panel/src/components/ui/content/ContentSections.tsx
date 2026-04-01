@@ -6,7 +6,6 @@ import {
   Trash2,
   Eye,
   EyeOff,
-  Copy,
 } from 'lucide-react'
 import { DndContext, type DragEndEvent, closestCenter } from '@dnd-kit/core'
 import {
@@ -44,7 +43,6 @@ export default function ContentSections({ contentId }: ContentSectionsProps) {
   const [selectedSection, setSelectedSection] = useState<ContentSection | null>(
     null
   )
-  const [selectedType, setSelectedType] = useState<SectionType | null>(null)
 
   useEffect(() => {
     if (contentId) {
@@ -56,12 +54,15 @@ export default function ContentSections({ contentId }: ContentSectionsProps) {
     const { active, over } = event
     if (!over || active.id === over.id) return
 
-    const oldIndex = sections.findIndex((s) => s.section_id === active.id)
-    const newIndex = sections.findIndex((s) => s.section_id === over.id)
+    // Use sorted sections for correct index calculation
+    const sortedSections = [...sections].sort((a, b) => a.order_index - b.order_index)
+
+    const oldIndex = sortedSections.findIndex((s) => s.section_id === active.id)
+    const newIndex = sortedSections.findIndex((s) => s.section_id === over.id)
 
     if (oldIndex === -1 || newIndex === -1) return
 
-    const reordered = [...sections]
+    const reordered = [...sortedSections]
     const [moved] = reordered.splice(oldIndex, 1)
     reordered.splice(newIndex, 0, moved)
 
@@ -73,30 +74,6 @@ export default function ContentSections({ contentId }: ContentSectionsProps) {
       console.error('Failed to reorder sections:', error)
       fetchSections(contentId)
     }
-  }
-
-  const handleSelectType = (type: SectionType) => {
-    if (!contentId || contentId === 'undefined') {
-      alert('Błąd: Nie można dodać sekcji do nieistniejącej treści.')
-      return
-    }
-
-    setSelectedType(type)
-    setTypeModalOpen(false)
-
-    const newSection: Partial<ContentSection> = {
-      content_id: contentId,
-      section_type: type,
-      heading: '',
-      subheading: '',
-      body: '',
-      status: true,
-      media_ids: [],
-      settings: {},
-    }
-
-    setSelectedSection(newSection as ContentSection)
-    setEditModalOpen(true)
   }
 
   const handleEdit = (section: ContentSection) => {
@@ -166,22 +143,26 @@ export default function ContentSections({ contentId }: ContentSectionsProps) {
             onDragEnd={handleDragEnd}
           >
             <SortableContext
-              items={sections.map((s) => s.section_id)}
+              items={[...sections]
+                .sort((a, b) => a.order_index - b.order_index)
+                .map((s) => s.section_id)}
               strategy={verticalListSortingStrategy}
             >
               <div className="space-y-3">
-                {sections.map((section) => (
-                  <SectionItem
-                    key={section.section_id}
-                    section={section}
-                    onEdit={handleEdit}
-                    onDelete={(s) => {
-                      setSelectedSection(s)
-                      setDeleteModalOpen(true)
-                    }}
-                    onToggle={handleToggle}
-                  />
-                ))}
+                {[...sections]
+                  .sort((a, b) => a.order_index - b.order_index)
+                  .map((section) => (
+                    <SectionItem
+                      key={section.section_id}
+                      section={section}
+                      onEdit={handleEdit}
+                      onDelete={(s) => {
+                        setSelectedSection(s)
+                        setDeleteModalOpen(true)
+                      }}
+                      onToggle={handleToggle}
+                    />
+                  ))}
               </div>
             </SortableContext>
           </DndContext>
@@ -191,7 +172,6 @@ export default function ContentSections({ contentId }: ContentSectionsProps) {
       <SectionTypeModal
         open={typeModalOpen}
         onClose={() => setTypeModalOpen(false)}
-        onSelect={handleSelectType}
         contentId={contentId}
       />
 

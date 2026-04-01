@@ -1,0 +1,82 @@
+@startuml Data-Flow
+!theme plain
+skinparam dpi 150
+skinparam defaultFontSize 11
+skinparam sequenceArrowThickness 2
+
+title CMS - Przepływ Danych (Data Flow)
+
+actor "Użytkownik" as User
+participant "Browser\n(Public-Site)" as Browser
+participant "React App" as App
+participant "Backend API" as API
+database "PostgreSQL" as DB
+collections "File Storage\n(/uploads)" as Storage
+
+== Inicjalizacja Aplikacji ==
+
+User -> Browser: Odwiedza stronę
+Browser -> App: Ładowanie React
+App -> API: GET /site/settings
+API -> DB: SELECT * FROM site_settings
+DB --> API: Settings data
+API --> App: { general, header, footer, contact, social_media }
+
+App -> API: GET /site/menus/:header_menu_id
+API -> DB: SELECT menu + menu_items
+DB --> API: Menu with items
+API --> App: Header menu
+
+App -> API: GET /site/menus/:footer_menu_id
+API -> DB: SELECT menu + menu_items
+DB --> API: Menu with items
+API --> App: Footer menu
+
+== Ładowanie Strony Głównej ==
+
+User -> App: Nawigacja do /
+App -> API: GET /site/contents/home/full
+API -> DB: SELECT content\nWHERE slug='home'
+DB --> API: Content
+API -> DB: SELECT page_components\nWHERE content_id=?
+DB --> API: Components
+API -> DB: SELECT content_sections\nWHERE content_id=?
+DB --> API: Sections
+API --> App: { content, components, sections }
+
+App -> App: extractMediaIds(components)
+loop Dla każdego media_id
+  App -> API: GET /site/media/:id
+  API -> DB: SELECT * FROM media
+  DB --> API: Media info
+  API --> App: { storage_path, alt_text, ... }
+end
+
+App -> App: buildMediaCache()
+App -> Browser: Render components\nz obrazami z cache
+
+User -> Browser: Widzi stronę z obrazami
+Browser -> Storage: GET /uploads/media/xxx.jpg
+Storage --> Browser: Image file
+
+== Ładowanie Podstrony ==
+
+User -> App: Klik w menu\n(np. /o-nas)
+App -> API: GET /site/contents/o-nas/full
+API -> DB: SELECT content + sections + components
+DB --> API: Full content data
+API --> App: Content response
+
+App -> App: fetchMediaForSections()
+App -> Browser: Render page
+
+== Wysyłanie Formularza Kontaktowego ==
+
+User -> App: Wypełnia formularz
+App -> API: POST /site/contact\n{ name, email, message }
+API -> API: Validate data
+API -> API: Send email notification
+API --> App: { success: true }
+App -> Browser: Pokazuje potwierdzenie
+
+@enduml

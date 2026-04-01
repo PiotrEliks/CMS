@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { api } from '../api/axios'
@@ -21,12 +22,10 @@ export default function ContentPage() {
       setLoading(true)
       setError(null)
       try {
-        // Fetch full content with sections and components
         const res = await api.get(`/contents/${slug}/full`)
         const data = res.data.content || res.data
         setContent(data)
 
-        // Fetch media for sections
         if (data.sections && data.sections.length > 0) {
           await fetchMediaForSections(data.sections)
         }
@@ -43,7 +42,7 @@ export default function ContentPage() {
     }
 
     fetchContent()
-  }, [slug])
+  }, [fetchMediaForSections, slug])
 
   if (loading) {
     return (
@@ -79,44 +78,43 @@ export default function ContentPage() {
   }
 
   const coverImage = content.cover_media?.url || '/images/hero_bg_1.jpg'
-  const hasSections = content.sections && content.sections.length > 0
-  const hasComponents = content.components && content.components.length > 0
   const hasHeroComponent = content.components?.some((c) => c.component_type === 'hero')
+
+  // Combine components and sections, sort by display_order (set in admin panel)
+  const allItems = [
+    ...(content.components || []).filter(c => c.status).map(c => ({ ...c, _type: 'component' as const })),
+    ...(content.sections || []).filter(s => s.status).map(s => ({ ...s, _type: 'section' as const })),
+  ].sort((a, b) => (a.display_order ?? a.order_index) - (b.display_order ?? b.order_index))
 
   return (
     <>
       {/* Show default hero only if no hero component exists */}
       {!hasHeroComponent && <Hero title={content.title} backgroundImage={coverImage} />}
 
-      {/* Render page components (hero, services, testimonials, etc.) */}
-      {hasComponents && <PageComponentsList components={content.components!} />}
-
-      {/* Render sections (text, image, gallery, video, etc.) */}
-      {hasSections && (
-        <div className="site-section">
-          <div className="container">
-            <div className="row justify-content-center">
-              <div className="col-lg-8">
-                {content.sections!
-                  .filter((s) => s.status)
-                  .sort((a, b) => a.order_index - b.order_index)
-                  .map((section) => (
-                    <SectionRenderer
-                      key={section.section_id}
-                      section={section}
-                      mediaCache={mediaCache}
-                      getMediaUrl={getMediaUrl}
-                      getThumbnailUrl={getThumbnailUrl}
-                    />
-                  ))}
+      {allItems.length > 0 ? (
+        allItems.map((item) => {
+          if (item._type === 'component') {
+            return <PageComponentsList key={item.component_id} components={[item]} />
+          } else {
+            return (
+              <div key={item.section_id} className="site-section">
+                <div className="container">
+                  <div className="row justify-content-center">
+                    <div className="col-lg-8">
+                      <SectionRenderer
+                        section={item}
+                        mediaCache={mediaCache}
+                        getMediaUrl={getMediaUrl}
+                        getThumbnailUrl={getThumbnailUrl}
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Fallback: render body HTML if no sections or components */}
-      {!hasSections && !hasComponents && content.body && (
+            )
+          }
+        })
+      ) : content.body ? (
         <div className="site-section">
           <div className="container">
             <div className="row justify-content-center">
@@ -129,7 +127,7 @@ export default function ContentPage() {
             </div>
           </div>
         </div>
-      )}
+      ) : null}
     </>
   )
 }

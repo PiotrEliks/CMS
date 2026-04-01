@@ -29,7 +29,7 @@ export default function SectionRenderer({
         return <TextSection body={section.body || ''} />
 
       case 'image':
-        if (!section.media_ids[0]) return null
+        { if (!section.media_ids[0]) return null
         const imageMedia = mediaCache.get(section.media_ids[0])
         return (
           <ImageSection
@@ -38,7 +38,7 @@ export default function SectionRenderer({
             title={imageMedia?.title}
             link={section.settings?.link}
           />
-        )
+        ) }
 
       case 'gallery':
         if (!section.media_ids || section.media_ids.length === 0) return null

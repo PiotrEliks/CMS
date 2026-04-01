@@ -4,6 +4,8 @@ import { api } from './api/axios'
 import Layout from './components/Layout'
 import Home from './pages/Home'
 import ContentPage from './pages/ContentPage'
+import CategoryPage from './pages/CategoryPage'
+import CategoryContentPage from './pages/CategoryContentPage'
 import NotFound from './pages/NotFound'
 import type { Menu, SiteSettings } from './types'
 
@@ -73,6 +75,10 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout headerMenu={headerMenu} footerMenu={footerMenu} settings={siteSettings} />}>
           <Route index element={<Home />} />
+          {/* Category pages - display content list for a category */}
+          <Route path="category/:slug" element={<CategoryPage />} />
+          {/* Content pages with category prefix - e.g., /aktualnosci/my-article */}
+          <Route path=":categorySlug/:pageSlug" element={<CategoryContentPage />} />
           {/* Dynamic content pages - all slugs load ContentPage */}
           <Route path=":slug" element={<ContentPage />} />
           <Route path="*" element={<NotFound />} />

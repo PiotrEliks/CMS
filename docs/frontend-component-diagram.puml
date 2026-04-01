@@ -1,0 +1,319 @@
+@startuml Frontend-Component-Diagram
+!theme plain
+skinparam dpi 150
+skinparam defaultFontSize 10
+skinparam classFontSize 11
+skinparam classAttributeFontSize 9
+skinparam packageFontSize 12
+skinparam linetype ortho
+skinparam nodesep 40
+skinparam ranksep 35
+
+title CMS Frontend - Diagram Komponentów React\n(Hair Salon CMS)
+
+' ==========================================
+' PUBLIC SITE - Komponenty
+' ==========================================
+package "Public Site (public-site/)" as PublicSite #E8F5E9 {
+
+  package "Pages" as PublicPages #C8E6C9 {
+    class App << (R,#4CAF50) React >> {
+      +headerMenu: Menu
+      +footerMenu: Menu
+      +siteSettings: SiteSettings
+      --
+      fetchSettings()
+      fetchMenus()
+    }
+
+    class Home << (R,#4CAF50) React >> {
+      +content: Content
+      --
+      Fetches /contents/home/full
+      Renders PageComponentsList
+    }
+
+    class ContentPage << (R,#4CAF50) React >> {
+      +slug: string (from URL)
+      +content: Content
+      --
+      Fetches /contents/:slug/full
+      Renders sections or components
+    }
+
+    class ContentList << (R,#4CAF50) React >> {
+      +items: Content[]
+      +filters: Object
+      --
+      Lista treści z filtrowaniem
+    }
+
+    class Contact << (R,#4CAF50) React >> {
+      Strona kontaktowa
+    }
+
+    class NotFound << (R,#4CAF50) React >> {
+      404 error page
+    }
+  }
+
+  package "Layout" as PublicLayout #C8E6C9 {
+    class Layout << (R,#4CAF50) React >> {
+      +headerMenu: Menu
+      +footerMenu: Menu
+      +settings: SiteSettings
+      --
+      render(): Navbar + Outlet + Footer
+    }
+
+    class Navbar << (R,#4CAF50) React >> {
+      +menu: Menu
+      +settings: SiteSettings
+      --
+      renderMenuItem(item)
+      renderSocialLinks()
+    }
+
+    class Footer << (R,#4CAF50) React >> {
+      +menu: Menu
+      +settings: SiteSettings
+      --
+      getMenuItemHref(item)
+    }
+  }
+
+  package "Page Components Renderers" as PageCompRenderers #C8E6C9 {
+    class PageComponentsList << (R,#4CAF50) React >> {
+      +components: PageComponent[]
+      --
+      extractMediaIds()
+      fetchMedia() - batch
+      getMediaUrl(id)
+    }
+
+    class HeroRenderer << (R,#4CAF50) React >>
+    class ServicesRenderer << (R,#4CAF50) React >>
+    class TestimonialsRenderer << (R,#4CAF50) React >>
+    class TeamRenderer << (R,#4CAF50) React >>
+    class PricingRenderer << (R,#4CAF50) React >>
+    class HoursRenderer << (R,#4CAF50) React >>
+    class ContactFormRenderer << (R,#4CAF50) React >>
+    class MapRenderer << (R,#4CAF50) React >>
+  }
+
+  package "Section Renderers" as SectionRenderers #C8E6C9 {
+    class SectionRenderer << (R,#4CAF50) React >> {
+      +section: ContentSection
+      +mediaCache: Map
+      +getMediaUrl: Function
+    }
+
+    class SectionWrapper << (R,#4CAF50) React >>
+    class TextSection << (R,#4CAF50) React >>
+    class ImageSection << (R,#4CAF50) React >>
+    class GallerySection << (R,#4CAF50) React >>
+    class VideoSection << (R,#4CAF50) React >>
+    class PdfSection << (R,#4CAF50) React >>
+    class HtmlSection << (R,#4CAF50) React >>
+    class EmbedSection << (R,#4CAF50) React >>
+  }
+
+  package "Hooks" as PublicHooks #C8E6C9 {
+    class useMediaCache << (H,#81C784) Hook >> {
+      +mediaCache: Map<UUID, Media>
+      +fetchMediaForSections(sections)
+      +fetchMediaById(id)
+      +getMediaUrl(id): string
+      +getThumbnailUrl(id): string
+    }
+  }
+}
+
+' ==========================================
+' ADMIN PANEL - Komponenty
+' ==========================================
+package "Admin Panel (admin-panel/)" as AdminPanel #E3F2FD {
+
+  package "Pages" as AdminPages #BBDEFB {
+    class EditContentPage << (R,#2196F3) React >> {
+      Edycja istniejącej treści
+      Sections + Components
+    }
+
+    class NewContentPage << (R,#2196F3) React >> {
+      Tworzenie nowej treści
+      PageBuilder integration
+    }
+
+    class UsersPage << (R,#2196F3) React >> {
+      Zarządzanie użytkownikami
+    }
+
+    class RolesPage << (R,#2196F3) React >> {
+      Zarządzanie rolami
+    }
+
+    class MediaPage << (R,#2196F3) React >> {
+      Biblioteka mediów
+    }
+
+    class EditMenuPage << (R,#2196F3) React >> {
+      Tree-based menu builder
+    }
+
+    class SiteSettingsPage << (R,#2196F3) React >> {
+      Konfiguracja strony
+    }
+  }
+
+  package "Content Builders" as ContentBuilders #BBDEFB {
+    class PageBuilder << (R,#2196F3) React >> {
+      Visual page builder
+      Sections + Components
+    }
+
+    class SectionManager << (R,#2196F3) React >> {
+      Zarządzanie sekcjami
+    }
+
+    class SectionEditModal << (R,#2196F3) React >> {
+      Edycja pojedynczej sekcji
+    }
+
+    class ComponentEditModal << (R,#2196F3) React >> {
+      Edycja komponentu strony
+    }
+
+    class ComponentTypeSelector << (R,#2196F3) React >> {
+      Wybór typu sekcji/komponentu
+    }
+
+    class MediaSelector << (R,#2196F3) React >> {
+      Wybór mediów dla sekcji
+    }
+
+    class MediaLibraryModal << (R,#2196F3) React >> {
+      Przeglądanie biblioteki
+    }
+  }
+
+  package "Component Editors" as CompEditors #BBDEFB {
+    class HeroEditor << (R,#2196F3) React >>
+    class ServicesEditor << (R,#2196F3) React >>
+    class TeamEditor << (R,#2196F3) React >>
+    class PricingEditor << (R,#2196F3) React >>
+    class TestimonialEditor << (R,#2196F3) React >>
+    class HoursEditor << (R,#2196F3) React >>
+    class ContactFormEditor << (R,#2196F3) React >>
+    class MapEditor << (R,#2196F3) React >>
+  }
+
+  package "Settings Components" as SettingsComps #BBDEFB {
+    class GeneralSettings << (R,#2196F3) React >>
+    class HeaderSettings << (R,#2196F3) React >>
+    class FooterSettings << (R,#2196F3) React >>
+    class SocialMediaSettings << (R,#2196F3) React >>
+  }
+
+  package "Menu Builder" as MenuBuilder #BBDEFB {
+    class MenuBuilderComponent << (R,#2196F3) React >> {
+      Tree-based editor
+    }
+
+    class MenuItemComponent << (R,#2196F3) React >>
+    class MenuItemModal << (R,#2196F3) React >>
+  }
+
+  package "Media Management" as MediaMgmt #BBDEFB {
+    class MediaGrid << (R,#2196F3) React >>
+    class MediaUploadModal << (R,#2196F3) React >>
+    class MediaDetailsDrawer << (R,#2196F3) React >>
+    class MediaInUseModal << (R,#2196F3) React >>
+  }
+
+  package "Tables" as Tables #BBDEFB {
+    class UsersTable << (R,#2196F3) React >>
+    class RolesTable << (R,#2196F3) React >>
+  }
+}
+
+' ==========================================
+' RELACJE - Public Site
+' ==========================================
+App ..> Layout
+App ..> Home
+App ..> ContentPage
+App ..> ContentList
+App ..> Contact
+App ..> NotFound
+
+Layout ..> Navbar
+Layout ..> Footer
+
+Home ..> PageComponentsList
+ContentPage ..> PageComponentsList
+ContentPage ..> SectionRenderer
+
+PageComponentsList ..> HeroRenderer
+PageComponentsList ..> ServicesRenderer
+PageComponentsList ..> TestimonialsRenderer
+PageComponentsList ..> TeamRenderer
+PageComponentsList ..> PricingRenderer
+PageComponentsList ..> HoursRenderer
+PageComponentsList ..> ContactFormRenderer
+PageComponentsList ..> MapRenderer
+PageComponentsList ..> useMediaCache
+
+SectionRenderer ..> SectionWrapper
+SectionRenderer ..> TextSection
+SectionRenderer ..> ImageSection
+SectionRenderer ..> GallerySection
+SectionRenderer ..> VideoSection
+SectionRenderer ..> PdfSection
+SectionRenderer ..> HtmlSection
+SectionRenderer ..> EmbedSection
+
+Home ..> useMediaCache
+ContentPage ..> useMediaCache
+
+' ==========================================
+' RELACJE - Admin Panel
+' ==========================================
+EditContentPage ..> PageBuilder
+NewContentPage ..> PageBuilder
+
+PageBuilder ..> SectionManager
+PageBuilder ..> ComponentEditModal
+PageBuilder ..> ComponentTypeSelector
+
+SectionManager ..> SectionEditModal
+SectionManager ..> MediaSelector
+SectionEditModal ..> MediaLibraryModal
+
+ComponentEditModal ..> HeroEditor
+ComponentEditModal ..> ServicesEditor
+ComponentEditModal ..> TeamEditor
+ComponentEditModal ..> PricingEditor
+ComponentEditModal ..> TestimonialEditor
+ComponentEditModal ..> HoursEditor
+ComponentEditModal ..> ContactFormEditor
+ComponentEditModal ..> MapEditor
+
+SiteSettingsPage ..> GeneralSettings
+SiteSettingsPage ..> HeaderSettings
+SiteSettingsPage ..> FooterSettings
+SiteSettingsPage ..> SocialMediaSettings
+
+EditMenuPage ..> MenuBuilderComponent
+MenuBuilderComponent ..> MenuItemComponent
+MenuBuilderComponent ..> MenuItemModal
+
+MediaPage ..> MediaGrid
+MediaPage ..> MediaUploadModal
+MediaPage ..> MediaDetailsDrawer
+MediaPage ..> MediaInUseModal
+
+UsersPage ..> UsersTable
+RolesPage ..> RolesTable
+
+@enduml

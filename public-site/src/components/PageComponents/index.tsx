@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState, useCallback } from 'react'
 import { api, BACKEND_URL } from '../../api/axios'
 import type { PageComponent } from '../../types'

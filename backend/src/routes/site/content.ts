@@ -27,6 +27,23 @@ router.get(
   })
 )
 
+// Get content by category slug and content slug (full)
+router.get(
+  '/:categorySlug/:contentSlug/full',
+  asyncHandler(async (req, res) => {
+    const { categorySlug, contentSlug } = req.params
+    try {
+      const content = await publicApiService.getContentByCategoryAndSlug(categorySlug, contentSlug)
+      return res.json(content)
+    } catch (error: any) {
+      if (error.message === 'Content not found') {
+        return res.status(404).json({ error: 'Content not found' })
+      }
+      throw error
+    }
+  })
+)
+
 // Get content by slug
 router.get('/:slug', ContentController.getContentBySlug)
 
